@@ -1,0 +1,421 @@
+/* resources/css/licencia-detalle.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: #e6ecf2;
+    padding: 30px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, #4a6fa5, #6b8cae);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-badge {
+    background: #ffd700;
+    color: #4a6fa5;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Botones de acción */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-edit {
+    background: #ffd700;
+    color: #0f3057;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-edit:hover {
+    background: #e6c200;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+}
+
+.btn-save {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-save:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+}
+
+/* Card ÚNICA GRANDE */
+.info-card-large {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    border: 1px solid #e6ecf2;
+    margin-bottom: 25px;
+}
+
+.card-title {
+    color: #4a6fa5;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #4a6fa5;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Grid interno de 3 columnas */
+.info-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.info-section {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.section-subtitle {
+    color: #4a6fa5;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 12px;
+    padding: 6px 0;
+    border-bottom: 1px dashed #e6ecf2;
+    align-items: center;
+}
+
+.info-label {
+    width: 120px;
+    font-weight: 600;
+    color: #666;
+    font-size: 14px;
+}
+
+.info-value {
+    flex: 1;
+    color: #0f3057;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Estilos para inputs en modo edición */
+.edit-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccd6dd;
+    background: white;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #4a6fa5;
+    box-shadow: 0 0 0 3px rgba(74,111,165,0.1);
+}
+
+.edit-select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccd6dd;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-activo {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-vencida {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.badge-pronto {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-inactivo {
+    background: #e9ecef;
+    color: #495057;
+}
+
+/* Tabla de artículos asignados */
+.articulos-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    margin-top: 25px;
+    border: 1px solid #e6ecf2;
+}
+
+/* Contenedor con scroll vertical para la tabla */
+.table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: auto;
+    margin-top: 15px;
+    border-radius: 10px;
+}
+
+.articulos-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.articulos-table th {
+    background: #4a6fa5;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.articulos-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e6ecf2;
+    font-size: 13px;
+}
+
+.articulos-table tr:hover td {
+    background: #f8fafc;
+}
+
+/* Botón de regreso */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    color: #4a6fa5;
+    text-decoration: none;
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border: 2px solid #4a6fa5;
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background: #4a6fa5;
+    color: white;
+    transform: translateX(-5px);
+}
+
+/* Info de días restantes */
+.dias-restantes {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Botón de información para artículos */
+.info-btn-small {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #4a6fa5;
+    color: white;
+    border: none;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.info-btn-small:hover {
+    background: #ffd700;
+    color: #4a6fa5;
+    transform: scale(1.1);
+}
+
+/* Badge para capacidad */
+.capacidad-badge {
+    background: #e6ecf2;
+    color: #4a6fa5;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Alertas */
+.alert-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 1100;
+    display: none;
+    animation: slideIn 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.alert-success {
+    background: #28a745;
+    border-left: 5px solid #1e7e34;
+}
+
+.alert-error {
+    background: #dc3545;
+    border-left: 5px solid #bd2130;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Scrollbar personalizada */
+.table-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #4a6fa5;
+    border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #6b8cae;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .info-grid-3 {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .table-container {
+        max-height: 300px;
+    }
+}
+
+/* Estilos para no-data */
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
