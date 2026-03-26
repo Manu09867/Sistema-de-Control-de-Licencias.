@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ArticuloController;
 use App\Http\Controllers\BusquedaController;
-use App\Http\Controllers\LicenciaController;  // ← AGREGADO
+use App\Http\Controllers\LicenciaController;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\UserController;
@@ -39,10 +39,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Rutas de artículos y licencias
-Route::get('/articulo/{rp}', [ArticuloController::class, 'show'])->name('articulo.show');
-Route::get('/buscar-articulos', [BusquedaController::class, 'buscar'])->name('buscar.articulos');
-Route::get('/licencia/{clave}', [LicenciaController::class, 'show'])->name('licencia.show');  // ← AHORA USA EL IMPORT
+// ===== RUTAS DE ARTÍCULOS Y LICENCIAS (CON MIDDLEWARE AUTH) =====
+Route::get('/articulo/{rp}', [ArticuloController::class, 'show'])
+    ->middleware('auth')
+    ->name('articulo.show');
+
+Route::get('/buscar-articulos', [BusquedaController::class, 'buscar'])
+    ->middleware('auth')
+    ->name('buscar.articulos');
+
+Route::get('/licencia/{clave}', [LicenciaController::class, 'show'])
+    ->middleware('auth')
+    ->name('licencia.show');
 
 // Verificar contraseña (para cambio de contraseña)
 Route::post('/verify-password', function (Request $request) {
@@ -59,7 +67,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
-// ===== RUTAS PARA CREACIÓN DE ARTÍCULOS (accesible para todos los usuarios) =====
+// ===== RUTAS PARA CREACIÓN DE ARTÍCULOS =====
 Route::middleware(['auth'])->prefix('articulos')->name('articulos.')->group(function () {
     Route::get('/crear', [ArticuloController::class, 'create'])->name('crear');
     Route::post('/', [ArticuloController::class, 'store'])->name('store');
@@ -71,9 +79,23 @@ Route::middleware(['auth'])->prefix('licencias')->name('licencias.')->group(func
     Route::post('/', [LicenciaController::class, 'store'])->name('store');
 });
 
-// ===== RUTAS API PARA CATÁLOGOS =====
+// ===== RUTAS PARA ACTUALIZAR =====
+Route::post('/articulo/{id}/actualizar', [ArticuloController::class, 'actualizar'])
+    ->middleware('auth')
+    ->name('articulo.actualizar');
 
-// RUTA API PARA AGREGAR TIPOS DE PRODUCTO
+Route::post('/licencia/{id}/actualizar', [LicenciaController::class, 'actualizar'])
+    ->middleware('auth')
+    ->name('licencia.actualizar');
+
+// ===== RUTAS PARA ASIGNACIÓN DE LICENCIAS =====
+Route::get('/articulos/lista', [LicenciaController::class, 'listarArticulos'])
+    ->middleware('auth');
+
+Route::post('/licencia/asignar-articulo', [LicenciaController::class, 'asignarArticulo'])
+    ->middleware('auth');
+
+// ===== RUTAS API PARA CATÁLOGOS =====
 Route::post('/api/tipos-producto', function (Request $request) {
     try {
         if (empty($request->nombre)) {
@@ -111,7 +133,6 @@ Route::post('/api/tipos-producto', function (Request $request) {
     }
 })->middleware(['auth']);
 
-// RUTA API PARA AGREGAR PROVEEDORES
 Route::post('/api/proveedores', function (Request $request) {
     try {
         if (empty($request->nombre)) {
@@ -153,7 +174,6 @@ Route::post('/api/proveedores', function (Request $request) {
     }
 })->middleware(['auth']);
 
-// RUTA API PARA AGREGAR ÁREAS
 Route::post('/api/areas', function (Request $request) {
     try {
         if (empty($request->nombre)) {
@@ -191,7 +211,6 @@ Route::post('/api/areas', function (Request $request) {
     }
 })->middleware(['auth']);
 
-// RUTA API PARA AGREGAR SOFTWARE
 Route::post('/api/softwares', function (Request $request) {
     try {
         if (empty($request->nombre)) {
@@ -230,8 +249,13 @@ Route::post('/api/softwares', function (Request $request) {
     }
 })->middleware(['auth']);
 
-Route::post('/articulo/{id}/actualizar', [ArticuloController::class, 'actualizar'])->name('articulo.actualizar');
+// Ruta para listar artículos (con parámetro de licencia)
+Route::get('/articulos/lista', [LicenciaController::class, 'listarArticulos'])
+    ->middleware('auth');
 
-Route::post('/licencia/{id}/actualizar', [LicenciaController::class, 'actualizar'])->middleware('auth');
+// Ruta para eliminar asignación de licencia
+Route::delete('/licencia/asignacion/{id}', [LicenciaController::class, 'eliminarAsignacion'])
+    ->middleware('auth')
+    ->name('licencia.eliminar-asignacion');
 
 require __DIR__.'/auth.php';

@@ -25,12 +25,12 @@ class LicenciaController extends Controller
                 lic.folio AS folio_licitacion,
                 lic.DescripcionL AS descripcion_licitacion,
                 pr.Nombre AS proveedor,
-                (SELECT COUNT(*) FROM Asignacion_Licencia WHERE idLicencia = l.idLicencia) AS total_articulos
-            FROM Licencia l
-            LEFT JOIN Software s ON l.idSoftware = s.idSoftware
-            LEFT JOIN Detalle_Licitacion dl ON l.idDetalle_Licitacion = dl.idDetalle_Licitacion
-            LEFT JOIN Licitacion lic ON dl.idLicitacion = lic.idLicitacion
-            LEFT JOIN Proveedor pr ON lic.idProveedor = pr.idProveedor
+                (SELECT COUNT(*) FROM asignacion_licencia WHERE idLicencia = l.idLicencia) AS total_articulos
+            FROM licencia l
+            LEFT JOIN software s ON l.idSoftware = s.idSoftware
+            LEFT JOIN detalle_licitacion dl ON l.idDetalle_Licitacion = dl.idDetalle_Licitacion
+            LEFT JOIN licitacion lic ON dl.idLicitacion = lic.idLicitacion
+            LEFT JOIN proveedor pr ON lic.idProveedor = pr.idProveedor
             WHERE l.Clave = ?
         ", [$clave]);
 
@@ -42,21 +42,23 @@ class LicenciaController extends Controller
 
         $articulos = DB::select("
             SELECT 
+                a.idArticulo,
                 a.serie,
                 a.RP,
                 a.estado,
                 p.NombreP AS producto,
                 p.Marca AS marca,
                 p.Modelo AS modelo,
-                ar.NombreArea AS area
-            FROM Articulo a
-            INNER JOIN Asignacion_Licencia al ON a.idArticulo = al.idArticulo
-            LEFT JOIN Producto p ON a.idProducto = p.idProducto
-            LEFT JOIN Area ar ON a.idArea = ar.idArea
+                ar.NombreArea AS area,
+                al.idAsignacion_Licencia AS idAsignacion,
+                al.ObservacionAL AS observacion
+            FROM articulo a
+            INNER JOIN asignacion_licencia al ON a.idArticulo = al.idArticulo
+            LEFT JOIN producto p ON a.idProducto = p.idProducto
+            LEFT JOIN area ar ON a.idArea = ar.idArea
             WHERE al.idLicencia = ?
         ", [$licencia->idLicencia]);
 
-        // Cargar softwares para el select en modo edición
         $softwares = DB::table('software')->orderBy('Nombre')->get();
 
         return view('licencia-detalle', compact('licencia', 'articulos', 'softwares'));
@@ -80,7 +82,6 @@ class LicenciaController extends Controller
         try {
             DB::beginTransaction();
 
-            // Decodificar los datos del formulario
             $datos = json_decode($request->datos_completos, true);
             
             if (!$datos) {
@@ -89,7 +90,6 @@ class LicenciaController extends Controller
 
             Log::info('Datos recibidos en store licencia:', $datos);
 
-            // ===== VALIDACIÓN DE CAMPOS REQUERIDOS =====
             $validator = Validator::make($datos, [
                 'software.id' => 'required',
                 'software.nombre' => 'required|string',
@@ -112,24 +112,19 @@ class LicenciaController extends Controller
                 throw new \Exception('Error de validación: ' . json_encode($validator->errors()));
             }
 
-            // ===== 1. TIPO DE SOFTWARE =====
             $softwareId = $datos['software']['id'];
 
-            // ===== 2. PROVEEDOR (si es licitación nueva) =====
             $proveedorId = null;
             if (isset($datos['proveedor']['id'])) {
                 $proveedorId = $datos['proveedor']['id'];
             }
 
-            // ===== 3. LICITACIÓN =====
             $licitacionId = null;
             $esNuevaLicitacion = false;
 
             if ($datos['tipo_licitacion'] === 'existente') {
-                // Usar licitación existente
                 $licitacionId = $datos['licitacion']['id'];
             } else {
-                // Crear nueva licitación
                 $esNuevaLicitacion = true;
                 $licitacionId = DB::table('licitacion')->insertGetId([
                     'folio' => $datos['licitacion']['folio'],
@@ -143,7 +138,6 @@ class LicenciaController extends Controller
                 ]);
             }
 
-            // ===== 4. DETALLE DE LICITACIÓN =====
             $detalleId = DB::table('detalle_licitacion')->insertGetId([
                 'TipoItem' => 'SOFTWARE',
                 'idLicitacion' => $licitacionId,
@@ -154,14 +148,12 @@ class LicenciaController extends Controller
                 'Subtotal' => $datos['detalle']['subtotal']
             ]);
 
-            // Si NO es nueva licitación (es existente), sumar al total
             if (!$esNuevaLicitacion) {
                 DB::table('licitacion')
                     ->where('idLicitacion', $licitacionId)
                     ->increment('Total', $datos['detalle']['subtotal']);
             }
 
-            // ===== 5. LICENCIA =====
             DB::table('licencia')->insert([
                 'Clave' => $datos['licencia']['clave'],
                 'DescripcionLicencia' => $datos['licencia']['descripcion'] ?? null,
@@ -190,104 +182,253 @@ class LicenciaController extends Controller
     }
 
     /**
-     * Actualiza los datos de una licencia (SOLO ADMIN)
+     * 🔄 ACTUALIZAR LICENCIA (con validación de capacidad)
      */
     public function actualizar(Request $request, $id)
-{
-    // Verificar que sea ADMIN
-    if (auth()->user()->role !== 'admin') {
-        return response()->json([
-            'success' => false,
-            'message' => '⛔ No tienes permisos para realizar esta acción. Solo administradores.'
-        ], 403);
-    }
-
-    try {
-        $validated = $request->validate([
-            'clave' => 'required|string|max:45',
-            'estado' => 'required|string|in:Activa,Inactiva,Vencida,Por vencer',
-            'idSoftware' => 'required|exists:software,idSoftware',
-            'capacidad' => 'nullable|integer|min:1',
-            'descripcion' => 'nullable|string|max:255',
-            'fecha_activacion' => 'required|date',
-            'fecha_vencimiento' => 'required|date',
-        ]);
-
-        DB::beginTransaction();
-
-        // Verificar que la licencia existe
-        $licencia = DB::table('licencia')
-            ->where('idLicencia', $id)
-            ->first();
-
-        if (!$licencia) {
-            throw new \Exception('Licencia no encontrada');
-        }
-
-        // Actualizar la licencia
-        DB::table('licencia')
-            ->where('idLicencia', $id)
-            ->update([
-                'Clave' => $validated['clave'],
-                'estadoLic' => $validated['estado'],
-                'idSoftware' => $validated['idSoftware'],
-                'CapacidadLicencia' => $validated['capacidad'],
-                'DescripcionLicencia' => $validated['descripcion'],
-                'Fechacompra' => $validated['fecha_activacion'],
-                'Fechavencimiento' => $validated['fecha_vencimiento']
-            ]);
-
-        DB::commit();
-
-        return response()->json([
-            'success' => true,
-            'message' => '✅ Licencia actualizada correctamente'
-        ]);
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error de validación: ' . json_encode($e->errors())
-        ], 422);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Error al actualizar licencia ID ' . $id . ': ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al actualizar: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-    /**
-     * Elimina una licencia (SOLO ADMIN)
-     */
-    public function destroy($id)
     {
-        // Verificar que sea ADMIN
         if (auth()->user()->role !== 'admin') {
             return response()->json([
                 'success' => false,
-                'message' => '⛔ No tienes permisos para realizar esta acción. Solo administradores.'
+                'message' => '⛔ Solo administradores'
+            ], 403);
+        }
+
+        try {
+            $validated = $request->validate([
+                'clave' => 'required|string|max:45',
+                'estado' => 'required|string|in:Activa,Inactiva,Vencida,Por vencer',
+                'idSoftware' => 'required|exists:software,idSoftware',
+                'capacidad' => 'nullable|integer|min:1',
+                'descripcion' => 'nullable|string|max:255',
+                'fecha_activacion' => 'required|date',
+                'fecha_vencimiento' => 'required|date',
+            ]);
+
+            DB::beginTransaction();
+
+            // Obtener la licencia actual
+            $licencia = DB::table('licencia')
+                ->where('idLicencia', $id)
+                ->first();
+
+            if (!$licencia) {
+                throw new \Exception('Licencia no encontrada');
+            }
+
+            // 🔥 VALIDACIÓN: Capacidad no puede ser menor a los artículos ya asignados
+            $totalAsignados = DB::table('asignacion_licencia')
+                ->where('idLicencia', $id)
+                ->count();
+
+            // Si se está estableciendo una capacidad o cambiándola
+            if (isset($validated['capacidad']) && $validated['capacidad'] !== null) {
+                if ($validated['capacidad'] < $totalAsignados) {
+                    throw new \Exception("La capacidad no puede ser menor a los artículos ya asignados ({$totalAsignados}). Actualmente hay {$totalAsignados} artículo(s) asignado(s).");
+                }
+            }
+
+            // Actualizar la licencia
+            DB::table('licencia')
+                ->where('idLicencia', $id)
+                ->update([
+                    'Clave' => $validated['clave'],
+                    'estadoLic' => $validated['estado'],
+                    'idSoftware' => $validated['idSoftware'],
+                    'CapacidadLicencia' => $validated['capacidad'],
+                    'DescripcionLicencia' => $validated['descripcion'],
+                    'Fechacompra' => $validated['fecha_activacion'],
+                    'Fechavencimiento' => $validated['fecha_vencimiento']
+                ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Licencia actualizada correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 🔍 LISTAR ARTÍCULOS (CON BÚSQUEDA Y MARCADO DE ASIGNADOS)
+     */
+    public function listarArticulos(Request $request)
+    {
+        $query = $request->q;
+        $licenciaId = $request->licencia_id;
+        
+        // Obtener IDs de artículos que ya tienen esta licencia
+        $articulosAsignados = DB::table('asignacion_licencia')
+            ->where('idLicencia', $licenciaId)
+            ->pluck('idArticulo')
+            ->toArray();
+
+        $articulos = DB::table('articulo as a')
+            ->leftJoin('producto as p', 'a.idProducto', '=', 'p.idProducto')
+            ->select(
+                'a.idArticulo',
+                'a.serie',
+                'a.RP',
+                'p.NombreP as producto',
+                'p.Marca as marca',
+                'a.estado'
+            )
+            ->where('a.estado', '!=', 'Baja')
+            ->when($query, function ($q) use ($query) {
+                $q->where(function($sub) use ($query) {
+                    $sub->where('a.serie', 'like', "%$query%")
+                        ->orWhere('a.RP', 'like', "%$query%")
+                        ->orWhere('p.NombreP', 'like', "%$query%")
+                        ->orWhere('p.Marca', 'like', "%$query%");
+                });
+            })
+            ->limit(50)
+            ->get();
+        
+        // Marcar cuáles ya están asignados
+        foreach ($articulos as $articulo) {
+            $articulo->ya_asignado = in_array($articulo->idArticulo, $articulosAsignados);
+        }
+
+        return response()->json($articulos);
+    }
+
+    /**
+     * ➕ ASIGNAR LICENCIA A ARTÍCULO (CON VALIDACIONES Y OBSERVACIÓN)
+     */
+    public function asignarArticulo(Request $request)
+    {
+        try {
+            $request->validate([
+                'idLicencia' => 'required|exists:licencia,idLicencia',
+                'idArticulo' => 'required|exists:articulo,idArticulo',
+                'observacion' => 'nullable|string|max:80',
+            ]);
+
+            // 🔍 Validar duplicado
+            $existe = DB::table('asignacion_licencia')
+                ->where('idLicencia', $request->idLicencia)
+                ->where('idArticulo', $request->idArticulo)
+                ->exists();
+
+            if ($existe) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⚠️ Este artículo ya tiene esta licencia asignada'
+                ]);
+            }
+
+            // 📊 Validar capacidad
+            $licencia = DB::table('licencia')
+                ->where('idLicencia', $request->idLicencia)
+                ->first();
+
+            $totalAsignados = DB::table('asignacion_licencia')
+                ->where('idLicencia', $request->idLicencia)
+                ->count();
+
+            if ($licencia->CapacidadLicencia && $totalAsignados >= $licencia->CapacidadLicencia) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⚠️ Capacidad máxima alcanzada. Esta licencia solo permite ' . $licencia->CapacidadLicencia . ' equipo(s).'
+                ]);
+            }
+
+            // 💾 Insertar asignación con observación
+            DB::table('asignacion_licencia')->insert([
+                'idLicencia' => $request->idLicencia,
+                'idArticulo' => $request->idArticulo,
+                'ObservacionAL' => $request->observacion
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Licencia asignada correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error asignando licencia: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al asignar licencia: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 🗑️ ELIMINAR ASIGNACIÓN DE LICENCIA
+     */
+    public function eliminarAsignacion(Request $request, $id)
+    {
+        // Verificar permisos (solo admin)
+        if (auth()->user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => '⛔ Solo administradores pueden eliminar asignaciones.'
             ], 403);
         }
 
         try {
             DB::beginTransaction();
 
-            $licencia = DB::table('licencia')
-                ->where('idLicencia', $id)
+            // Buscar la asignación
+            $asignacion = DB::table('asignacion_licencia')
+                ->where('idAsignacion_Licencia', $id)
                 ->first();
 
-            if (!$licencia) {
+            if (!$asignacion) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Licencia no encontrada'
+                    'message' => 'Asignación no encontrada'
                 ], 404);
             }
 
-            // Verificar si tiene asignaciones
+            // Eliminar la asignación
+            DB::table('asignacion_licencia')
+                ->where('idAsignacion_Licencia', $id)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Asignación eliminada correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al eliminar asignación ID ' . $id . ': ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 🗑️ ELIMINAR LICENCIA (solo si no tiene asignaciones)
+     */
+    public function destroy($id)
+    {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => '⛔ Solo administradores'
+            ], 403);
+        }
+
+        try {
+            DB::beginTransaction();
+
             $asignaciones = DB::table('asignacion_licencia')
                 ->where('idLicencia', $id)
                 ->count();
@@ -295,11 +436,10 @@ class LicenciaController extends Controller
             if ($asignaciones > 0) {
                 return response()->json([
                     'success' => false,
-                    'message' => '❌ No se puede eliminar la licencia porque tiene ' . $asignaciones . ' artículo(s) asignado(s).'
-                ], 400);
+                    'message' => 'No se puede eliminar. Tiene ' . $asignaciones . ' artículo(s) asignado(s).'
+                ]);
             }
 
-            // Eliminar la licencia
             DB::table('licencia')
                 ->where('idLicencia', $id)
                 ->delete();
@@ -313,11 +453,9 @@ class LicenciaController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error al eliminar licencia ID ' . $id . ': ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
-                'message' => 'Error al eliminar: ' . $e->getMessage()
+                'message' => 'Error al eliminar'
             ], 500);
         }
     }

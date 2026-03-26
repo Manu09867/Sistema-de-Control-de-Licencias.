@@ -131,6 +131,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 /* Grid interno de 3 columnas */
@@ -345,6 +346,19 @@ body {
     font-weight: 600;
 }
 
+/* Badge de capacidad agotada */
+.capacidad-agotada {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
 /* Alertas */
 .alert-message {
     position: fixed;
@@ -418,4 +432,241 @@ body {
     text-align: center;
     padding: 40px;
     color: #666;
+}
+
+/* Botón agregar */
+.btn-add {
+    margin-left: 15px;
+    background: #28a745;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-add:hover {
+    background: #218838;
+    transform: scale(1.05);
+}
+
+.btn-add.disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-add.disabled:hover {
+    transform: none;
+    background: #6c757d;
+}
+
+/* ===== ESTILOS PARA MODALES ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 900px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #4a6fa5;
+}
+
+.modal-header h2 {
+    color: #0f3057;
+    font-size: 24px;
+    margin: 0;
+}
+
+.close-modal {
+    font-size: 28px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: #4a6fa5;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* ===== ESTILOS PARA TABLA DE BÚSQUEDA DE ARTÍCULOS ===== */
+.fila-disponible {
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.fila-disponible:hover {
+    background: #e8f0fe !important;
+}
+
+.fila-asignada {
+    background: #f8f9fa;
+    opacity: 0.7;
+    cursor: default;
+}
+
+.fila-asignada:hover {
+    background: #f8f9fa !important;
+}
+
+.badge-asignado {
+    display: inline-block;
+    background: #28a745;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-disponible {
+    display: inline-block;
+    background: #e6ecf2;
+    color: #4a6fa5;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Campo de observación */
+.campo-observacion {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccd6dd;
+    font-size: 14px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.campo-observacion:focus {
+    outline: none;
+    border-color: #4a6fa5;
+    box-shadow: 0 0 0 3px rgba(74,111,165,0.1);
+}
+
+.char-counter {
+    font-size: 11px;
+    color: #666;
+    text-align: right;
+    margin-top: 5px;
+}
+
+.char-counter.warning {
+    color: #dc3545;
+}
+
+/* Estilos para botón de eliminar */
+.btn-delete {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #dc3545;
+    color: white;
+    border: none;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    margin-left: 6px;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(220,53,69,0.4);
+}
+
+/* Estilos para columna de observación */
+.observacion-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.observacion-cell:hover {
+    white-space: normal;
+    word-break: break-word;
+    background: #f0f0f0;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Tooltip para observación */
+.observacion-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.observacion-tooltip:hover::after {
+    content: attr(data-observacion);
+    position: absolute;
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 300px;
+    z-index: 1000;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 5px;
+}
+
+.readonly-badge {
+    background: #e6ecf2;
+    color: #0f3057;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
