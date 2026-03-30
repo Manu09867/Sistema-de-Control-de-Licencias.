@@ -6,7 +6,7 @@
             padding: 30px;
             border-radius: 15px;
             margin: 20px 20px 0 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -18,11 +18,11 @@
         }
 
         .step-indicator {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             padding: 8px 20px;
             border-radius: 50px;
             font-size: 14px;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .form-container {
@@ -30,7 +30,7 @@
             max-width: 1000px;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             border: 1px solid #e6ecf2;
             overflow: hidden;
         }
@@ -165,7 +165,7 @@
         .btn-add:hover {
             background: #218838;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
 
         .btn-primary {
@@ -182,7 +182,7 @@
         .btn-primary:hover {
             background: #6b8cae;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74,111,165,0.3);
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
         }
 
         .btn-secondary {
@@ -268,7 +268,7 @@
             z-index: 1100;
             display: none;
             animation: slideIn 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .alert-success {
@@ -288,8 +288,15 @@
         }
 
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -298,16 +305,16 @@
                 text-align: center;
                 gap: 15px;
             }
-            
+
             .radio-group {
                 flex-direction: column;
                 gap: 15px;
             }
-            
+
             .input-group {
                 flex-direction: column;
             }
-            
+
             .btn-add {
                 width: 100%;
                 justify-content: center;
@@ -364,17 +371,19 @@
                 <!-- PASO 1: Tipo de Software -->
                 <div class="step-content" id="content-1">
                     <h2 class="section-title">📦 Paso 1: Software</h2>
-                    
+
                     <div class="tipo-software-section">
                         <h3 style="color: #4a6fa5; margin-bottom: 15px;">¿Cómo deseas agregar el software?</h3>
-                        
+
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="software_opcion" value="existente" checked onchange="toggleSoftwareInput()">
+                                <input type="radio" name="software_opcion" value="existente" checked
+                                    onchange="toggleSoftwareInput()">
                                 <span>Seleccionar de la lista</span>
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="software_opcion" value="nuevo" onchange="toggleSoftwareInput()">
+                                <input type="radio" name="software_opcion" value="nuevo"
+                                    onchange="toggleSoftwareInput()">
                                 <span>Agregar nuevo software</span>
                             </label>
                         </div>
@@ -392,20 +401,19 @@
                         <div id="software-nuevo" style="display: none;">
                             <label for="nuevo_software_nombre">Nuevo software:</label>
                             <div class="input-group">
-                                <input type="text" 
-                                       name="nuevo_software_nombre" 
-                                       id="nuevo_software_nombre" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Ej: Windows 11 Pro, Office 2024, Adobe Photoshop..."
-                                       maxlength="45">
-                                <button type="button" class="btn-add" onclick="agregarNuevoSoftware()" id="btn-agregar-software">
+                                <input type="text" name="nuevo_software_nombre" id="nuevo_software_nombre"
+                                    class="input-nuevo-tipo"
+                                    placeholder="Ej: Windows 11 Pro, Office 2024, Adobe Photoshop..." maxlength="45">
+                                <button type="button" class="btn-add" onclick="agregarNuevoSoftware()"
+                                    id="btn-agregar-software">
                                     <span>➕</span> Agregar
                                 </button>
                             </div>
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 El nuevo software se agregará inmediatamente a la base de datos
                             </p>
-                            <div id="mensaje-exito-software" style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
+                            <div id="mensaje-exito-software"
+                                style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
                                 ✅ Software agregado correctamente
                             </div>
                         </div>
@@ -420,39 +428,46 @@
                 <!-- PASO 2: Tipo de Licitación -->
                 <div class="step-content hidden" id="content-2">
                     <h2 class="section-title">📄 Paso 2: Tipo de Licitación</h2>
-                    
+
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <div style="display: flex; flex-wrap: wrap; gap: 15px;">
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 1</span>
+                                <span
+                                    style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    1</span>
                                 <span style="margin-left: 8px; color: #4a6fa5; font-weight: 500;">Software:</span>
-                                <span id="resumen-software-paso2" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-software-paso2"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="tipo-software-section">
                         <h3 style="color: #4a6fa5; margin-bottom: 20px;">¿Qué tipo de licitación aplica?</h3>
-                        
+
                         <div style="display: flex; flex-direction: column; gap: 20px;">
                             <!-- Opción Licitación Existente -->
-                            <div id="opcion-licitacion-existente" style="border: 2px solid #e6ecf2; border-radius: 15px; padding: 20px;">
+                            <div id="opcion-licitacion-existente"
+                                style="border: 2px solid #e6ecf2; border-radius: 15px; padding: 20px;">
                                 <label class="radio-option" style="margin-bottom: 15px;">
-                                    <input type="radio" name="tipo_licitacion" value="existente" onchange="toggleLicitacionSelector()">
+                                    <input type="radio" name="tipo_licitacion" value="existente"
+                                        onchange="toggleLicitacionSelector()">
                                     <span style="font-weight: 600; color: #4a6fa5;">📋 Usar licitación existente</span>
                                 </label>
                                 <p style="font-size: 13px; color: #666; margin-bottom: 15px; margin-left: 30px;">
                                     La licencia pertenece a una licitación ya registrada en el sistema
                                 </p>
-                                
+
                                 <!-- Selector de licitaciones existentes -->
-                                <div id="selector-licitaciones" style="display: none; margin-top: 15px; margin-left: 30px;">
+                                <div id="selector-licitaciones"
+                                    style="display: none; margin-top: 15px; margin-left: 30px;">
                                     <label for="licitacion_id">Selecciona la licitación:</label>
                                     <select name="licitacion_id" id="licitacion_id" class="select-tipo">
                                         <option value="">-- Selecciona una licitación --</option>
                                         @foreach($licitaciones as $licitacion)
                                             <option value="{{ $licitacion->idLicitacion }}">
-                                                {{ $licitacion->folio }} - {{ $licitacion->proveedor_nombre ?? 'Sin proveedor' }}
+                                                {{ $licitacion->folio }} -
+                                                {{ $licitacion->proveedor_nombre ?? 'Sin proveedor' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -465,7 +480,8 @@
                             <!-- Opción Licitación Nueva -->
                             <div style="border: 2px solid #e6ecf2; border-radius: 15px; padding: 20px;">
                                 <label class="radio-option">
-                                    <input type="radio" name="tipo_licitacion" value="nueva" onchange="toggleLicitacionSelector()">
+                                    <input type="radio" name="tipo_licitacion" value="nueva"
+                                        onchange="toggleLicitacionSelector()">
                                     <span style="font-weight: 600; color: #4a6fa5;">➕ Crear nueva licitación</span>
                                 </label>
                                 <p style="font-size: 13px; color: #666; margin-top: 5px; margin-left: 30px;">
@@ -484,27 +500,32 @@
                 <!-- PASO 3: Proveedor (SOLO para licitación nueva) -->
                 <div class="step-content hidden" id="content-3">
                     <h2 class="section-title">🏢 Paso 3: Proveedor</h2>
-                    
+
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <div style="display: flex; flex-wrap: wrap; gap: 15px;">
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 1</span>
+                                <span
+                                    style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    1</span>
                                 <span style="margin-left: 8px; color: #4a6fa5; font-weight: 500;">Software:</span>
-                                <span id="resumen-software-paso3" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-software-paso3"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="tipo-software-section">
                         <h3 style="color: #4a6fa5; margin-bottom: 15px;">¿Cómo deseas agregar el proveedor?</h3>
-                        
+
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="proveedor_opcion" value="existente" checked onchange="toggleProveedorInput()">
+                                <input type="radio" name="proveedor_opcion" value="existente" checked
+                                    onchange="toggleProveedorInput()">
                                 <span>Seleccionar de la lista</span>
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="proveedor_opcion" value="nuevo" onchange="toggleProveedorInput()">
+                                <input type="radio" name="proveedor_opcion" value="nuevo"
+                                    onchange="toggleProveedorInput()">
                                 <span>Agregar nuevo proveedor</span>
                             </label>
                         </div>
@@ -521,64 +542,48 @@
 
                         <div id="proveedor-nuevo" style="display: none;">
                             <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_nombre">Nombre del proveedor <span style="color: #dc3545;">*</span></label>
-                                <input type="text" 
-                                       name="nuevo_proveedor_nombre" 
-                                       id="nuevo_proveedor_nombre" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Ej: Tecnología SA, Suministros LP..."
-                                       maxlength="45">
+                                <label for="nuevo_proveedor_nombre">Nombre del proveedor <span
+                                        style="color: #dc3545;">*</span></label>
+                                <input type="text" name="nuevo_proveedor_nombre" id="nuevo_proveedor_nombre"
+                                    class="input-nuevo-tipo" placeholder="Ej: Tecnología SA, Suministros LP..."
+                                    maxlength="45">
                             </div>
-                            
+
                             <div style="margin-bottom: 15px;">
                                 <label for="nuevo_proveedor_rfc">RFC</label>
-                                <input type="text" 
-                                       name="nuevo_proveedor_rfc" 
-                                       id="nuevo_proveedor_rfc" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="RFC (opcional)"
-                                       maxlength="20">
+                                <input type="text" name="nuevo_proveedor_rfc" id="nuevo_proveedor_rfc"
+                                    class="input-nuevo-tipo" placeholder="RFC (opcional)" maxlength="20">
                             </div>
-                            
+
                             <div style="margin-bottom: 15px;">
                                 <label for="nuevo_proveedor_telefono">Teléfono</label>
-                                <input type="text" 
-                                       name="nuevo_proveedor_telefono" 
-                                       id="nuevo_proveedor_telefono" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Teléfono (opcional)"
-                                       maxlength="20">
+                                <input type="text" name="nuevo_proveedor_telefono" id="nuevo_proveedor_telefono"
+                                    class="input-nuevo-tipo" placeholder="Teléfono (opcional)" maxlength="20">
                             </div>
-                            
+
                             <div style="margin-bottom: 15px;">
                                 <label for="nuevo_proveedor_direccion">Dirección</label>
-                                <input type="text" 
-                                       name="nuevo_proveedor_direccion" 
-                                       id="nuevo_proveedor_direccion" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Dirección (opcional)"
-                                       maxlength="900">
+                                <input type="text" name="nuevo_proveedor_direccion" id="nuevo_proveedor_direccion"
+                                    class="input-nuevo-tipo" placeholder="Dirección (opcional)" maxlength="900">
                             </div>
-                            
+
                             <div style="margin-bottom: 15px;">
                                 <label for="nuevo_proveedor_correo">Correo electrónico</label>
-                                <input type="email" 
-                                       name="nuevo_proveedor_correo" 
-                                       id="nuevo_proveedor_correo" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="correo@ejemplo.com (opcional)"
-                                       maxlength="50">
+                                <input type="email" name="nuevo_proveedor_correo" id="nuevo_proveedor_correo"
+                                    class="input-nuevo-tipo" placeholder="correo@ejemplo.com (opcional)" maxlength="50">
                             </div>
-                            
+
                             <div class="input-group" style="margin-top: 20px;">
-                                <button type="button" class="btn-add" onclick="agregarNuevoProveedor()" id="btn-agregar-proveedor">
+                                <button type="button" class="btn-add" onclick="agregarNuevoProveedor()"
+                                    id="btn-agregar-proveedor">
                                     <span>➕</span> Agregar Proveedor
                                 </button>
                             </div>
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 El nuevo proveedor se agregará inmediatamente a la base de datos
                             </p>
-                            <div id="mensaje-exito-proveedor" style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
+                            <div id="mensaje-exito-proveedor"
+                                style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
                                 ✅ Proveedor agregado correctamente
                             </div>
                         </div>
@@ -593,61 +598,56 @@
                 <!-- PASO 4: Licitación (SOLO para licitación nueva) -->
                 <div class="step-content hidden" id="content-4">
                     <h2 class="section-title">📄 Paso 4: Nueva Licitación</h2>
-                    
+
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 10px;">
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 1</span>
+                                <span
+                                    style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    1</span>
                                 <span style="margin-left: 8px; color: #4a6fa5; font-weight: 500;">Software:</span>
-                                <span id="resumen-software-paso4" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-software-paso4"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 3</span>
+                                <span
+                                    style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    3</span>
                                 <span style="margin-left: 8px; color: #4a6fa5; font-weight: 500;">Proveedor:</span>
-                                <span id="resumen-proveedor-paso4" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-proveedor-paso4"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="tipo-software-section">
                         <div style="margin-bottom: 20px;">
-                            <label for="folio_licitacion">Folio de la licitación <span style="color: #dc3545;">*</span></label>
-                            <input type="text" 
-                                   id="folio_licitacion" 
-                                   name="folio_licitacion" 
-                                   class="input-nuevo-tipo" 
-                                   maxlength="50"
-                                   required>
+                            <label for="folio_licitacion">Folio de la licitación <span
+                                    style="color: #dc3545;">*</span></label>
+                            <input type="text" id="folio_licitacion" name="folio_licitacion" class="input-nuevo-tipo"
+                                maxlength="50" required>
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Folio único que identifica la licitación
                             </p>
                         </div>
 
                         <div style="margin-bottom: 20px;">
-                            <label for="descripcion_licitacion">Descripción de la licitacion</label>
-                            <textarea id="descripcion_licitacion" 
-                                      name="descripcion_licitacion" 
-                                      class="input-nuevo-tipo" 
-                                      placeholder="Descripción de la licitación (opcional)"
-                                      maxlength="255"
-                                      rows="3"
-                                      style="resize: vertical; min-height: 80px;"></textarea>
+                            <label for="descripcion_licitacion">Descripción de la licitación</label>
+                            <textarea id="descripcion_licitacion" name="descripcion_licitacion" class="input-nuevo-tipo"
+                                placeholder="Descripción de la licitación (opcional)" maxlength="255" rows="3"
+                                style="resize: vertical; min-height: 80px;"></textarea>
                         </div>
 
                         <div class="grid-2" style="margin-bottom: 20px;">
                             <div>
-                                <label for="fecha_inicio_licitacion">Fecha de inicio de la Licitacion</label>
-                                <input type="date" 
-                                       id="fecha_inicio_licitacion" 
-                                       name="fecha_inicio_licitacion" 
-                                       class="input-nuevo-tipo">
+                                <label for="fecha_inicio_licitacion">Fecha de inicio</label>
+                                <input type="date" id="fecha_inicio_licitacion" name="fecha_inicio_licitacion"
+                                    class="input-nuevo-tipo">
                             </div>
                             <div>
-                                <label for="fecha_fin_licitacion">Fecha de fin de la Licitacion</label>
-                                <input type="date" 
-                                       id="fecha_fin_licitacion" 
-                                       name="fecha_fin_licitacion" 
-                                       class="input-nuevo-tipo">
+                                <label for="fecha_fin_licitacion">Fecha de fin</label>
+                                <input type="date" id="fecha_fin_licitacion" name="fecha_fin_licitacion"
+                                    class="input-nuevo-tipo">
                             </div>
                         </div>
 
@@ -665,19 +665,17 @@
                             </div>
                             <div>
                                 <label for="recurso_licitacion">Recurso</label>
-                                <input type="text" 
-                                       id="recurso_licitacion" 
-                                       name="recurso_licitacion" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Ej: Federal, Estatal, Propio..."
-                                       maxlength="45">
+                                <input type="text" id="recurso_licitacion" name="recurso_licitacion"
+                                    class="input-nuevo-tipo" placeholder="Ej: Federal, Estatal, Propio..."
+                                    maxlength="45">
                             </div>
                         </div>
 
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-top: 15px;">
                             <p style="color: #856404; font-size: 13px; margin: 0;">
-                                <span style="font-weight: 600;">ℹ️ Nota:</span> 
-                                Solo el folio es obligatorio. El total se calculará automáticamente con los detalles de compra.
+                                <span style="font-weight: 600;">ℹ️ Nota:</span>
+                                Solo el folio es obligatorio. El total se calculará automáticamente con los detalles de
+                                compra.
                             </p>
                         </div>
                     </div>
@@ -691,61 +689,58 @@
                 <!-- PASO 5: Detalles Licitación (CANTIDAD Y PRECIO) -->
                 <div class="step-content hidden" id="content-5">
                     <h2 class="section-title">📋 Paso 5: Detalles de la Licitación</h2>
-                    
+
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <div style="display: flex; flex-wrap: wrap; gap: 15px;">
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 1</span>
+                                <span
+                                    style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    1</span>
                                 <span style="margin-left: 8px; color: #4a6fa5; font-weight: 500;">Software:</span>
-                                <span id="resumen-software-paso5" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-software-paso5"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Licitación:</span>
-                                <span id="resumen-licitacion-paso5" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span
+                                    style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Licitación:</span>
+                                <span id="resumen-licitacion-paso5"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="tipo-software-section">
                         <h3 style="color: #4a6fa5; margin-bottom: 20px;">Detalles de compra</h3>
-                        
+
                         <div style="background: #f0f4f8; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
                             <div style="margin-bottom: 20px;">
-                                <label for="cantidad">Cantidad de licencias <span style="color: #dc3545;">*</span></label>
-                                <input type="number" 
-                                       id="cantidad" 
-                                       name="cantidad" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Ej: 5, 10, 15..."
-                                       min="1"
-                                       value="1"
-                                       required
-                                       onchange="calcularSubtotal()">
+                                <label for="cantidad">Cantidad de licencias <span
+                                        style="color: #dc3545;">*</span></label>
+                                <input type="number" id="cantidad" name="cantidad" class="input-nuevo-tipo"
+                                    placeholder="Ej: 5, 10, 15..." min="1" value="1" required
+                                    onchange="calcularSubtotal()">
                                 <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                     Número de licencias idénticas
                                 </p>
                             </div>
 
                             <div style="margin-bottom: 20px;">
-                                <label for="precio_unitario">Precio unitario <span style="color: #dc3545;">*</span></label>
-                                <input type="number" 
-                                       id="precio_unitario" 
-                                       name="precio_unitario" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="0.00"
-                                       step="0.01"
-                                       min="0"
-                                       required
-                                       onchange="calcularSubtotal()">
+                                <label for="precio_unitario">Precio unitario <span
+                                        style="color: #dc3545;">*</span></label>
+                                <input type="number" id="precio_unitario" name="precio_unitario"
+                                    class="input-nuevo-tipo" placeholder="0.00" step="0.01" min="0" required
+                                    onchange="calcularSubtotal()">
                                 <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                     Precio por licencia (sin IVA si aplica)
                                 </p>
                             </div>
 
-                            <div style="background: white; padding: 20px; border-radius: 10px; border: 2px solid #6b8cae;">
+                            <div
+                                style="background: white; padding: 20px; border-radius: 10px; border: 2px solid #6b8cae;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span style="font-weight: 600; color: #4a6fa5;">Subtotal:</span>
-                                    <span id="subtotal" style="font-size: 24px; font-weight: bold; color: #6b8cae;">$0.00</span>
+                                    <span id="subtotal"
+                                        style="font-size: 24px; font-weight: bold; color: #6b8cae;">$0.00</span>
                                 </div>
                                 <p style="font-size: 12px; color: #666; margin-top: 5px; text-align: right;">
                                     Cantidad × Precio unitario
@@ -760,15 +755,17 @@
                     </div>
                 </div>
 
-                <!-- PASO 6: Datos de la Licencia (MODIFICADO: se agregaron Descripción y Capacidad) -->
+                <!-- PASO 6: Datos de la Licencia -->
                 <div class="step-content hidden" id="content-6">
                     <h2 class="section-title">🔑 Paso 6: Datos de la Licencia</h2>
-                    
+
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <div style="display: flex; flex-wrap: wrap; gap: 15px;">
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Software:</span>
-                                <span id="resumen-software-paso6" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span
+                                    style="background: #4a6fa5; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Software:</span>
+                                <span id="resumen-software-paso6"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                         </div>
                     </div>
@@ -776,43 +773,28 @@
                     <div class="tipo-software-section">
                         <div style="margin-bottom: 20px;">
                             <label for="clave_licencia">Clave de licencia <span style="color: #dc3545;">*</span></label>
-                            <input type="text" 
-                                   id="clave_licencia" 
-                                   name="clave_licencia" 
-                                   class="input-nuevo-tipo" 
-                                   placeholder="Ej: ABCDE-12345-FGHIJ-67890"
-                                   maxlength="45"
-                                   required>
+                            <input type="text" id="clave_licencia" name="clave_licencia" class="input-nuevo-tipo"
+                                placeholder="Ej: ABCDE-12345-FGHIJ-67890" maxlength="45" required>
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Clave única que identifica la licencia
                             </p>
                         </div>
 
-                        <!-- NUEVO CAMPO: Descripción de la licencia -->
                         <div style="margin-bottom: 20px;">
                             <label for="descripcion_licencia">Descripción de la licencia</label>
-                            <textarea id="descripcion_licencia" 
-                                      name="descripcion_licencia" 
-                                      class="input-nuevo-tipo" 
-                                      placeholder="Ej: Licencia perpetua, Suscripción anual, Incluye soporte técnico, etc."
-                                      maxlength="255"
-                                      rows="3"
-                                      style="resize: vertical; min-height: 80px;"></textarea>
+                            <textarea id="descripcion_licencia" name="descripcion_licencia" class="input-nuevo-tipo"
+                                placeholder="Ej: Licencia perpetua, Suscripción anual, Incluye soporte técnico, etc."
+                                maxlength="255" rows="3" style="resize: vertical; min-height: 80px;"></textarea>
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Información adicional sobre la licencia (opcional)
                             </p>
                         </div>
 
-                        <!-- NUEVO CAMPO: Capacidad de la licencia -->
                         <div style="margin-bottom: 20px;">
                             <label for="capacidad_licencia">Capacidad de la licencia</label>
-                            <input type="number" 
-                                   id="capacidad_licencia" 
-                                   name="capacidad_licencia" 
-                                   class="input-nuevo-tipo" 
-                                   placeholder="Ej: 5, 10, 50, 100 (número de usuarios/instalaciones)"
-                                   min="1"
-                                   step="1">
+                            <input type="number" id="capacidad_licencia" name="capacidad_licencia"
+                                class="input-nuevo-tipo"
+                                placeholder="Ej: 5, 10, 50, 100 (número de usuarios/instalaciones)" min="1" step="1">
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Número de usuarios o instalaciones permitidas (opcional)
                             </p>
@@ -821,19 +803,14 @@
                         <div class="grid-2" style="margin-bottom: 20px;">
                             <div>
                                 <label for="fecha_compra">Fecha de compra <span style="color: #dc3545;">*</span></label>
-                                <input type="date" 
-                                       id="fecha_compra" 
-                                       name="fecha_compra" 
-                                       class="input-nuevo-tipo"
-                                       required>
+                                <input type="date" id="fecha_compra" name="fecha_compra" class="input-nuevo-tipo"
+                                    required>
                             </div>
                             <div>
-                                <label for="fecha_vencimiento">Fecha de vencimiento <span style="color: #dc3545;">*</span></label>
-                                <input type="date" 
-                                       id="fecha_vencimiento" 
-                                       name="fecha_vencimiento" 
-                                       class="input-nuevo-tipo"
-                                       required>
+                                <label for="fecha_vencimiento">Fecha de vencimiento <span
+                                        style="color: #dc3545;">*</span></label>
+                                <input type="date" id="fecha_vencimiento" name="fecha_vencimiento"
+                                    class="input-nuevo-tipo" required>
                             </div>
                         </div>
 
@@ -849,7 +826,7 @@
 
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px;">
                             <p style="color: #856404; font-size: 13px; margin: 0;">
-                                <span style="font-weight: 600;">📝 Nota:</span> 
+                                <span style="font-weight: 600;">📝 Nota:</span>
                                 Asegúrate de que la clave de licencia sea correcta y única.
                             </p>
                         </div>
@@ -864,7 +841,7 @@
                 <!-- PASO 7: RESUMEN -->
                 <div class="step-content hidden" id="content-7">
                     <h2 class="section-title">✅ Paso 7: Resumen</h2>
-                    
+
                     <div class="resumen-card">
                         <div class="resumen-titulo">
                             <span>📋</span> Datos a guardar
@@ -897,7 +874,7 @@
 
     <script>
         let pasoActual = 1;
-        
+
         // Objeto para almacenar datos
         const datosFormulario = {
             software: null,
@@ -917,7 +894,7 @@
             const opcion = document.querySelector('input[name="software_opcion"]:checked').value;
             const divExistente = document.getElementById('software-existente');
             const divNuevo = document.getElementById('software-nuevo');
-            
+
             if (opcion === 'existente') {
                 divExistente.style.display = 'block';
                 divNuevo.style.display = 'none';
@@ -934,7 +911,7 @@
         function toggleLicitacionSelector() {
             const tipo = document.querySelector('input[name="tipo_licitacion"]:checked')?.value;
             const selector = document.getElementById('selector-licitaciones');
-            
+
             if (tipo === 'existente') {
                 selector.style.display = 'block';
             } else {
@@ -946,7 +923,7 @@
             const opcion = document.querySelector('input[name="proveedor_opcion"]:checked').value;
             const divExistente = document.getElementById('proveedor-existente');
             const divNuevo = document.getElementById('proveedor-nuevo');
-            
+
             if (opcion === 'existente') {
                 divExistente.style.display = 'block';
                 divNuevo.style.display = 'none';
@@ -973,7 +950,7 @@
             const input = document.getElementById('nuevo_software_nombre');
             const nombre = input.value.trim();
             const btn = document.getElementById('btn-agregar-software');
-            
+
             if (!nombre) {
                 mostrarAlerta('error', 'Por favor ingresa un nombre para el software');
                 return;
@@ -1034,7 +1011,7 @@
         async function agregarNuevoProveedor() {
             const nombre = document.getElementById('nuevo_proveedor_nombre').value.trim();
             const btn = document.getElementById('btn-agregar-proveedor');
-            
+
             if (!nombre) {
                 mostrarAlerta('error', 'El nombre del proveedor es requerido');
                 return;
@@ -1114,7 +1091,6 @@
             };
         }
 
-        // FUNCIÓN MODIFICADA: Ahora guarda también descripción y capacidad
         function guardarDatosLicencia() {
             datosFormulario.licencia = {
                 clave: document.getElementById('clave_licencia').value.trim(),
@@ -1131,7 +1107,7 @@
                 document.getElementById(`content-${i}`).classList.add('hidden');
                 document.getElementById(`step-${i}`).classList.remove('active');
             }
-            
+
             document.getElementById(`content-${paso}`).classList.remove('hidden');
             document.getElementById(`step-${paso}`).classList.add('active');
             document.getElementById('paso-actual').textContent = paso;
@@ -1164,7 +1140,6 @@
             }
         }
 
-        // FUNCIÓN MODIFICADA: Ahora muestra descripción y capacidad en el resumen
         function actualizarResumen() {
             const resumenDiv = document.getElementById('resumen-datos');
             let html = '';
@@ -1224,7 +1199,7 @@
                 `;
             }
 
-            // Licencia (con descripción y capacidad)
+            // Licencia
             if (datosFormulario.licencia) {
                 html += `
                     <div class="resumen-item">
@@ -1232,7 +1207,7 @@
                         <div class="resumen-value">${datosFormulario.licencia.clave}</div>
                     </div>
                 `;
-                
+
                 if (datosFormulario.licencia.descripcion) {
                     html += `
                         <div class="resumen-item">
@@ -1241,7 +1216,7 @@
                         </div>
                     `;
                 }
-                
+
                 if (datosFormulario.licencia.capacidad) {
                     html += `
                         <div class="resumen-item">
@@ -1250,7 +1225,7 @@
                         </div>
                     `;
                 }
-                
+
                 html += `
                     <div class="resumen-item">
                         <div class="resumen-label">Fecha compra</div>
@@ -1273,7 +1248,7 @@
         function siguientePaso(paso) {
             if (paso === 1) {
                 const opcion = document.querySelector('input[name="software_opcion"]:checked').value;
-                
+
                 if (opcion === 'existente') {
                     const softwareId = document.getElementById('software_id').value;
                     if (!softwareId) {
@@ -1299,41 +1274,41 @@
                     }
                 }
             }
-            
+
             if (paso === 2) {
                 const tipo = document.querySelector('input[name="tipo_licitacion"]:checked');
                 if (!tipo) {
                     mostrarAlerta('error', 'Por favor selecciona el tipo de licitación');
                     return;
                 }
-                
+
                 datosFormulario.tipo_licitacion = tipo.value;
-                
+
                 if (tipo.value === 'existente') {
                     const licitacionId = document.getElementById('licitacion_id').value;
                     if (!licitacionId) {
                         mostrarAlerta('error', 'Por favor selecciona una licitación');
                         return;
                     }
-                    
+
                     const select = document.getElementById('licitacion_id');
                     const selectedOption = select.options[select.selectedIndex];
                     const [folio] = selectedOption.text.split(' - ');
-                    
+
                     datosFormulario.licitacion = {
                         id: select.value,
                         folio: folio,
                         existente: true
                     };
-                    
+
                     mostrarPaso(5);
                     return;
                 }
             }
-            
+
             if (paso === 3) {
                 const opcion = document.querySelector('input[name="proveedor_opcion"]:checked').value;
-                
+
                 if (opcion === 'existente') {
                     const proveedorId = document.getElementById('proveedor_id').value;
                     if (!proveedorId) {
@@ -1359,7 +1334,7 @@
                     }
                 }
             }
-            
+
             if (paso === 4) {
                 const folio = document.getElementById('folio_licitacion').value.trim();
                 if (!folio) {
@@ -1368,16 +1343,16 @@
                 }
                 guardarDatosLicitacion();
             }
-            
+
             if (paso === 5) {
                 const cantidad = parseInt(document.getElementById('cantidad').value);
                 const precio = parseFloat(document.getElementById('precio_unitario').value);
-                
+
                 if (!cantidad || cantidad < 1) {
                     mostrarAlerta('error', 'La cantidad debe ser al menos 1');
                     return;
                 }
-                
+
                 if (!precio || precio < 0) {
                     mostrarAlerta('error', 'El precio unitario es requerido');
                     return;
@@ -1389,12 +1364,12 @@
                     subtotal: cantidad * precio
                 };
             }
-            
+
             if (paso === 6) {
                 const clave = document.getElementById('clave_licencia').value.trim();
                 const fechaCompra = document.getElementById('fecha_compra').value;
                 const fechaVencimiento = document.getElementById('fecha_vencimiento').value;
-                
+
                 if (!clave) {
                     mostrarAlerta('error', 'La clave de licencia es requerida');
                     return;
@@ -1407,25 +1382,22 @@
                     mostrarAlerta('error', 'La fecha de vencimiento es requerida');
                     return;
                 }
-                
+
                 guardarDatosLicencia();
             }
-            
+
             mostrarPaso(paso + 1);
         }
 
         function pasoAnterior(paso) {
-            // Si estamos en paso 3 y la licitación es existente, volver al paso 2
             if (paso === 3 && datosFormulario.tipo_licitacion === 'existente') {
                 mostrarPaso(2);
                 return;
             }
-            // Si estamos en paso 4 y la licitación es existente, volver al paso 2
             if (paso === 4 && datosFormulario.tipo_licitacion === 'existente') {
                 mostrarPaso(2);
                 return;
             }
-            // Comportamiento normal
             mostrarPaso(paso - 1);
         }
 
@@ -1434,13 +1406,13 @@
             alerta.className = `alert-message alert-${tipo}`;
             alerta.textContent = mensaje;
             alerta.style.display = 'block';
-            
+
             setTimeout(() => {
                 alerta.style.display = 'none';
             }, 3000);
         }
 
-        document.getElementById('form-licencia').addEventListener('submit', function(e) {
+        document.getElementById('form-licencia').addEventListener('submit', function (e) {
             if (pasoActual < 7) {
                 e.preventDefault();
                 mostrarAlerta('error', 'Por favor revisa el resumen antes de guardar');

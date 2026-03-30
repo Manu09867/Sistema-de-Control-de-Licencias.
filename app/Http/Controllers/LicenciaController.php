@@ -57,6 +57,8 @@ class LicenciaController extends Controller
             LEFT JOIN producto p ON a.idProducto = p.idProducto
             LEFT JOIN area ar ON a.idArea = ar.idArea
             WHERE al.idLicencia = ?
+            ORDER BY a.idArticulo DESC
+            LIMIT 200
         ", [$licencia->idLicencia]);
 
         $softwares = DB::table('software')->orderBy('Nombre')->get();
@@ -181,9 +183,6 @@ class LicenciaController extends Controller
         }
     }
 
-    /**
-     * 🔄 ACTUALIZAR LICENCIA (con validación de capacidad)
-     */
     public function actualizar(Request $request, $id)
     {
         if (auth()->user()->role !== 'admin') {
@@ -206,7 +205,6 @@ class LicenciaController extends Controller
 
             DB::beginTransaction();
 
-            // Obtener la licencia actual
             $licencia = DB::table('licencia')
                 ->where('idLicencia', $id)
                 ->first();
@@ -215,19 +213,16 @@ class LicenciaController extends Controller
                 throw new \Exception('Licencia no encontrada');
             }
 
-            // 🔥 VALIDACIÓN: Capacidad no puede ser menor a los artículos ya asignados
             $totalAsignados = DB::table('asignacion_licencia')
                 ->where('idLicencia', $id)
                 ->count();
 
-            // Si se está estableciendo una capacidad o cambiándola
             if (isset($validated['capacidad']) && $validated['capacidad'] !== null) {
                 if ($validated['capacidad'] < $totalAsignados) {
                     throw new \Exception("La capacidad no puede ser menor a los artículos ya asignados ({$totalAsignados}). Actualmente hay {$totalAsignados} artículo(s) asignado(s).");
                 }
             }
 
-            // Actualizar la licencia
             DB::table('licencia')
                 ->where('idLicencia', $id)
                 ->update([
@@ -256,15 +251,11 @@ class LicenciaController extends Controller
         }
     }
 
-    /**
-     * 🔍 LISTAR ARTÍCULOS (CON BÚSQUEDA Y MARCADO DE ASIGNADOS)
-     */
     public function listarArticulos(Request $request)
     {
         $query = $request->q;
         $licenciaId = $request->licencia_id;
         
-        // Obtener IDs de artículos que ya tienen esta licencia
         $articulosAsignados = DB::table('asignacion_licencia')
             ->where('idLicencia', $licenciaId)
             ->pluck('idArticulo')
@@ -289,10 +280,9 @@ class LicenciaController extends Controller
                         ->orWhere('p.Marca', 'like', "%$query%");
                 });
             })
-            ->limit(50)
+            ->limit(100)
             ->get();
         
-        // Marcar cuáles ya están asignados
         foreach ($articulos as $articulo) {
             $articulo->ya_asignado = in_array($articulo->idArticulo, $articulosAsignados);
         }
@@ -300,9 +290,6 @@ class LicenciaController extends Controller
         return response()->json($articulos);
     }
 
-    /**
-     * ➕ ASIGNAR LICENCIA A ARTÍCULO (CON VALIDACIONES Y OBSERVACIÓN)
-     */
     public function asignarArticulo(Request $request)
     {
         try {
@@ -312,7 +299,6 @@ class LicenciaController extends Controller
                 'observacion' => 'nullable|string|max:80',
             ]);
 
-            // 🔍 Validar duplicado
             $existe = DB::table('asignacion_licencia')
                 ->where('idLicencia', $request->idLicencia)
                 ->where('idArticulo', $request->idArticulo)
@@ -325,7 +311,6 @@ class LicenciaController extends Controller
                 ]);
             }
 
-            // 📊 Validar capacidad
             $licencia = DB::table('licencia')
                 ->where('idLicencia', $request->idLicencia)
                 ->first();
@@ -341,7 +326,6 @@ class LicenciaController extends Controller
                 ]);
             }
 
-            // 💾 Insertar asignación con observación
             DB::table('asignacion_licencia')->insert([
                 'idLicencia' => $request->idLicencia,
                 'idArticulo' => $request->idArticulo,
@@ -363,12 +347,8 @@ class LicenciaController extends Controller
         }
     }
 
-    /**
-     * 🗑️ ELIMINAR ASIGNACIÓN DE LICENCIA
-     */
     public function eliminarAsignacion(Request $request, $id)
     {
-        // Verificar permisos (solo admin)
         if (auth()->user()->role !== 'admin') {
             return response()->json([
                 'success' => false,
@@ -379,7 +359,6 @@ class LicenciaController extends Controller
         try {
             DB::beginTransaction();
 
-            // Buscar la asignación
             $asignacion = DB::table('asignacion_licencia')
                 ->where('idAsignacion_Licencia', $id)
                 ->first();
@@ -391,7 +370,6 @@ class LicenciaController extends Controller
                 ], 404);
             }
 
-            // Eliminar la asignación
             DB::table('asignacion_licencia')
                 ->where('idAsignacion_Licencia', $id)
                 ->delete();
@@ -414,9 +392,6 @@ class LicenciaController extends Controller
         }
     }
 
-    /**
-     * 🗑️ ELIMINAR LICENCIA (solo si no tiene asignaciones)
-     */
     public function destroy($id)
     {
         if (auth()->user()->role !== 'admin') {

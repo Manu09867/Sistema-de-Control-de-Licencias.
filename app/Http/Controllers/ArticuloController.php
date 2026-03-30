@@ -28,7 +28,7 @@ class ArticuloController extends Controller
                 tp.NombreTP AS tipo_producto,
                 ar.NombreArea,
                 l.folio AS folio_licitacion,
-                l.DescripcionL AS descripcion_licitacion,  -- 🔥 AGREGADO: Descripción de la licitación
+                l.DescripcionL AS descripcion_licitacion,
                 pr.Nombre AS proveedor,
                 g.NombreGrupo,
                 g.TipoGrupo,
@@ -69,7 +69,7 @@ class ArticuloController extends Controller
             WHERE al.idArticulo = ?
         ", [$articulo->idArticulo]);
 
-        // 🔥 DETECTAR TIPO DE EQUIPO POR EL NOMBRE DEL PRODUCTO
+        // DETECTAR TIPO DE EQUIPO POR EL NOMBRE DEL PRODUCTO
         $productoLower = strtolower($articulo->producto ?? '');
         $tipoDetectado = null;
         
@@ -262,7 +262,7 @@ class ArticuloController extends Controller
                 'Subtotal' => $datos['detalle']['subtotal']
             ]);
 
-            // 🔥 Si NO es nueva licitación (es existente), sumar al total
+            // Si NO es nueva licitación (es existente), sumar al total
             if (!$esNuevaLicitacion) {
                 DB::table('licitacion')
                     ->where('idLicitacion', $licitacionId)
@@ -302,7 +302,7 @@ class ArticuloController extends Controller
      */
     public function actualizar(Request $request, $id)
     {
-        // 🔒 VERIFICAR QUE SEA ADMIN
+        // VERIFICAR QUE SEA ADMIN
         if (auth()->user()->role !== 'admin') {
             return response()->json([
                 'success' => false,
@@ -327,7 +327,7 @@ class ArticuloController extends Controller
 
             DB::beginTransaction();
 
-            // 🔥 OBTENER DATOS ACTUALES DEL ARTÍCULO Y SU DETALLE
+            // OBTENER DATOS ACTUALES DEL ARTÍCULO Y SU DETALLE
             $articuloActual = DB::table('articulo')
                 ->where('idArticulo', $id)
                 ->first();
@@ -375,37 +375,42 @@ class ArticuloController extends Controller
                     ->increment('Total', $nuevoSubtotal);
             }
 
-            // 3. Manejar GRUPO
-            $idGrupo = null;
-            if (!empty($validated['nombreGrupo'])) {
-                $grupoExistente = DB::table('grupo')
-                    ->where('NombreGrupo', $validated['nombreGrupo'])
-                    ->first();
+            // 3. Manejar GRUPO (VERSIÓN DEFINITIVA - NO ELIMINA NUNCA A MENOS QUE SE BORRE EXPLÍCITAMENTE)
+            // Verificar si el campo nombreGrupo fue enviado en la petición
+            if (array_key_exists('nombreGrupo', $validated)) {
+                // Si el usuario envió un nombre de grupo NO VACÍO
+                if (!empty($validated['nombreGrupo'])) {
+                    $grupoExistente = DB::table('grupo')
+                        ->where('NombreGrupo', $validated['nombreGrupo'])
+                        ->first();
 
-                if ($grupoExistente) {
-                    $idGrupo = $grupoExistente->idGrupo;
-                    if (!empty($validated['tipoGrupo'])) {
-                        DB::table('grupo')
-                            ->where('idGrupo', $idGrupo)
-                            ->update(['TipoGrupo' => $validated['tipoGrupo']]);
+                    if ($grupoExistente) {
+                        $idGrupo = $grupoExistente->idGrupo;
+                        if (!empty($validated['tipoGrupo'])) {
+                            DB::table('grupo')
+                                ->where('idGrupo', $idGrupo)
+                                ->update(['TipoGrupo' => $validated['tipoGrupo']]);
+                        }
+                    } else {
+                        $idGrupo = DB::table('grupo')->insertGetId([
+                            'NombreGrupo' => $validated['nombreGrupo'],
+                            'TipoGrupo' => $validated['tipoGrupo'] ?? 'EQUIPO_COMPUTO'
+                        ]);
                     }
-                } else {
-                    $idGrupo = DB::table('grupo')->insertGetId([
-                        'NombreGrupo' => $validated['nombreGrupo'],
-                        'TipoGrupo' => $validated['tipoGrupo'] ?? 'EQUIPO_COMPUTO'
-                    ]);
-                }
 
-                DB::table('grupo_articulo')
-                    ->updateOrInsert(
-                        ['idArticulo' => $id],
-                        ['idGrupo' => $idGrupo]
-                    );
-            } else {
-                DB::table('grupo_articulo')
-                    ->where('idArticulo', $id)
-                    ->delete();
+                    DB::table('grupo_articulo')
+                        ->updateOrInsert(
+                            ['idArticulo' => $id],
+                            ['idGrupo' => $idGrupo]
+                        );
+                } else {
+                    // El usuario envió el campo vacío EXPLÍCITAMENTE - eliminar grupo
+                    DB::table('grupo_articulo')
+                        ->where('idArticulo', $id)
+                        ->delete();
+                }
             }
+            // Si el campo NO fue enviado en la petición, NO hacemos nada (preservamos el grupo actual)
 
             // 4. Manejar INFORMACIÓN DE RED
             if (!empty($validated['tipoRed'])) {
@@ -460,7 +465,7 @@ class ArticuloController extends Controller
      */
     public function destroy($id)
     {
-        // 🔒 VERIFICAR QUE SEA ADMIN
+        // VERIFICAR QUE SEA ADMIN
         if (auth()->user()->role !== 'admin') {
             return response()->json([
                 'success' => false,

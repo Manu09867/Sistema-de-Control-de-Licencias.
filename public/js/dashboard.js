@@ -127,8 +127,8 @@ function mostrarDatosIniciales() {
             <tr style="background: #e6ecf2;">
                 <td colspan="7" style="padding: 8px 12px; font-weight: bold; color: #0f3057;">
                     📦 ARTÍCULOS RECIENTES (${articulosIniciales.length})
-                 </td>
-             </tr>
+                </td>
+            </tr>
         `;
         
         articulosIniciales.forEach(item => {
@@ -161,8 +161,8 @@ function mostrarDatosIniciales() {
             <tr style="background: #e6ecf2;">
                 <td colspan="7" style="padding: 8px 12px; font-weight: bold; color: #0f3057;">
                     🔑 LICENCIAS RECIENTES (${licenciasIniciales.length})
-                 </td>
-             </tr>
+                </td>
+            </tr>
         `;
         
         licenciasIniciales.forEach(item => {
@@ -295,8 +295,8 @@ function updateTable(resultados) {
             <tr style="background: #e6ecf2;">
                 <td colspan="7" style="padding: 8px 12px; font-weight: bold; color: #0f3057;">
                     📦 ARTÍCULOS (${articulos.length})
-                 </td>
-             </tr>
+                </td>
+            </tr>
         `;
         
         articulos.forEach(item => {
@@ -328,8 +328,8 @@ function updateTable(resultados) {
             <tr style="background: #e6ecf2;">
                 <td colspan="7" style="padding: 8px 12px; font-weight: bold; color: #0f3057;">
                     🔑 LICENCIAS (${licencias.length})
-                 </td>
-             </tr>
+                </td>
+            </tr>
         `;
         
         licencias.forEach(item => {
@@ -370,7 +370,7 @@ function updateTable(resultados) {
     if (tablaTitulo) tablaTitulo.innerHTML = `📋 Resultados de búsqueda <span>${totalItems}</span>`;
 }
 
-// Cerrar alerta con Escape
+// Cerrar alerta con Escape ✅ paréntesis corregido
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         const alerta = document.getElementById('alerta');
@@ -378,4 +378,93 @@ document.addEventListener('keydown', function(e) {
             alerta.style.display = 'none';
         }
     }
+});
+
+// ===== ELIMINAR ÁREA / TIPO DE PRODUCTO =====
+
+let eliminarTipo = null;
+let eliminarId = null;
+let eliminarNombre = null;
+
+function filtroTipoSeleccionado() {
+    const sel = document.getElementById('filtro-tipo');
+    return {
+        id: sel.value,
+        nombre: sel.options[sel.selectedIndex]?.text
+    };
+}
+
+function filtroAreaSeleccionada() {
+    const sel = document.getElementById('filtro-area');
+    return {
+        id: sel.value,
+        nombre: sel.options[sel.selectedIndex]?.text
+    };
+}
+
+function abrirModalEliminar(tipo, seleccion) {
+    if (!seleccion.id) {
+        mostrarAlerta('error', '❌ Selecciona un elemento primero');
+        return;
+    }
+    eliminarTipo = tipo;
+    eliminarId = seleccion.id;
+    eliminarNombre = seleccion.nombre;
+
+    const label = tipo === 'area' ? 'el área' : 'el tipo de producto';
+    document.getElementById('modal-eliminar-texto').textContent =
+        `¿Deseas eliminar ${label} "${eliminarNombre}"? Esta acción no se puede deshacer.`;
+
+    document.getElementById('modal-eliminar').style.display = 'flex';
+}
+
+function cerrarModalEliminar() {
+    document.getElementById('modal-eliminar').style.display = 'none';
+    eliminarTipo = null;
+    eliminarId = null;
+    eliminarNombre = null;
+}
+
+async function confirmarEliminar() {
+    const url = eliminarTipo === 'area'
+        ? `/api/areas/${eliminarId}`
+        : `/api/tipos-producto/${eliminarId}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            mostrarAlerta('success', data.message);
+            cerrarModalEliminar();
+
+            
+            setTimeout(() => {
+                location.reload();
+            }, 500);
+        } else {
+            mostrarAlerta('error', data.message);
+            cerrarModalEliminar();
+        }
+    } catch (error) {
+        mostrarAlerta('error', '❌ Error de conexión');
+        cerrarModalEliminar();
+    }
+}
+
+// Mostrar/ocultar botón de bote según selección
+document.getElementById('filtro-tipo')?.addEventListener('change', function () {
+    const btn = document.getElementById('btn-eliminar-tipo');
+    btn.style.display = this.value ? 'inline-block' : 'none';
+});
+
+document.getElementById('filtro-area')?.addEventListener('change', function () {
+    const btn = document.getElementById('btn-eliminar-area');
+    btn.style.display = this.value ? 'inline-block' : 'none';
 });

@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
+
+        // ✅ Middleware de logs - registra todas las queries
+        $middleware->append(\App\Http\Middleware\LogQueries::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -7,22 +7,26 @@
                 <p style="opacity: 0.9; margin: 5px 0;">Panel de Administración</p>
                 <span class="badge-admin">🔑 ADMINISTRADOR</span>
             </div>
-            
+
             <!-- Botón Agregar -->
             <div class="add-button-container">
                 <button class="add-button" onclick="toggleAddMenu()">
                     <span style="margin-right: 8px;">➕</span>
                     Agregar
-                    <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 16px; height: 16px; margin-left: 8px;">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                        style="width: 16px; height: 16px; margin-left: 8px;">
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
                     </svg>
                 </button>
-                
+
                 <!-- Menú desplegable -->
                 <div id="addMenu" class="add-menu">
                     <a href="{{ route('articulos.crear') }}">📦 Nuevo Artículo</a>
                     <a href="{{ route('licencias.crear') }}">🔑 Nueva Licencia</a>
                     <a href="#" onclick="abrirModalArea(); return false;">📍 Nueva Área</a>
+                    <a href="#" onclick="abrirModalProveedor(); return false;">🏢 Nuevo Proveedor</a>
                 </div>
             </div>
         </div>
@@ -42,23 +46,33 @@
                     </div>
 
                     <!-- Filtro Tipo de Producto -->
-                    <div style="flex: 0 0 140px;">
+                    <div style="flex: 0 0 140px; display: flex; align-items: center; gap: 4px;">
                         <select id="filtro-tipo" class="filter-select">
                             <option value="">📦 Tipo</option>
                             @foreach($tiposProducto ?? [] as $tipo)
                                 <option value="{{ $tipo->idTipo_Producto }}">{{ $tipo->NombreTP }}</option>
                             @endforeach
                         </select>
+                        <button onclick="abrirModalEliminar('tipo', filtroTipoSeleccionado())"
+                            title="Eliminar tipo seleccionado" id="btn-eliminar-tipo"
+                            style="background:none; border:none; cursor:pointer; font-size:16px; opacity:0.6; display:none;">
+                            🗑️
+                        </button>
                     </div>
 
                     <!-- Filtro Área -->
-                    <div style="flex: 0 0 140px;">
+                    <div style="flex: 0 0 140px; display: flex; align-items: center; gap: 4px;">
                         <select id="filtro-area" class="filter-select">
                             <option value="">📍 Área</option>
                             @foreach($areas ?? [] as $area)
                                 <option value="{{ $area->idArea }}">{{ $area->NombreArea }}</option>
                             @endforeach
                         </select>
+                        <button onclick="abrirModalEliminar('area', filtroAreaSeleccionada())"
+                            title="Eliminar área seleccionada" id="btn-eliminar-area"
+                            style="background:none; border:none; cursor:pointer; font-size:16px; opacity:0.6; display:none;">
+                            🗑️
+                        </button>
                     </div>
 
                     <!-- Checkbox "Solo licencias" -->
@@ -67,12 +81,12 @@
                         <label for="solo-licencias">🔑 Licencias</label>
                     </div>
                 </div>
-                
+
                 <div class="date-badge">
                     {{ now()->format('d/m/Y H:i') }}
                 </div>
             </div>
-            
+
             <!-- Contenido con scroll -->
             <div class="container-content">
                 <!-- Título -->
@@ -93,7 +107,8 @@
                                 <th>Marca</th>
                                 <th>Tipo</th>
                                 <th>Área / Asignación</th>
-                            </thead>
+                            </tr>
+                        </thead>
                         <tbody id="tabla-body">
                             <!-- Se llena con JavaScript -->
                         </tbody>
@@ -110,13 +125,14 @@
                 <h2>📍 Agregar Nueva Área</h2>
                 <span class="close-modal" onclick="cerrarModalArea()">&times;</span>
             </div>
-            
+
             <form id="form-area" onsubmit="guardarArea(event)">
                 @csrf
-                
+
                 <div class="form-group">
                     <label for="nombre_area">Nombre del área <span style="color: #dc3545;">*</span></label>
-                    <input type="text" id="nombre_area" name="nombre_area" placeholder="Ej: Sistemas, Administración..." maxlength="100" required autofocus>
+                    <input type="text" id="nombre_area" name="nombre_area" placeholder="Ej: Sistemas, Administración..."
+                        maxlength="100" required autofocus>
                     <p style="font-size: 12px; color: #666; margin-top: 5px;">
                         Nombre del departamento o área
                     </p>
@@ -132,16 +148,155 @@
         </div>
     </div>
 
+    <!-- MODAL AGREGAR PROVEEDOR -->
+    <div id="modal-proveedor" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏢 Agregar Nuevo Proveedor</h2>
+                <span class="close-modal" onclick="cerrarModalProveedor()">&times;</span>
+            </div>
+
+            <form id="form-proveedor" onsubmit="guardarProveedor(event)">
+                @csrf
+
+                <div class="form-group">
+                    <label for="nombre_proveedor">Nombre del proveedor <span style="color: #dc3545;">*</span></label>
+                    <input type="text" id="nombre_proveedor" name="nombre_proveedor"
+                        placeholder="Ej: Tecnología SA, Suministros LP..." maxlength="45" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="rfc_proveedor">RFC</label>
+                    <input type="text" id="rfc_proveedor" name="rfc_proveedor" placeholder="RFC (opcional)"
+                        maxlength="20">
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono_proveedor">Teléfono</label>
+                    <input type="text" id="telefono_proveedor" name="telefono_proveedor"
+                        placeholder="Teléfono (opcional)" maxlength="20">
+                </div>
+
+                <div class="form-group">
+                    <label for="direccion_proveedor">Dirección</label>
+                    <input type="text" id="direccion_proveedor" name="direccion_proveedor"
+                        placeholder="Dirección (opcional)" maxlength="900">
+                </div>
+
+                <div class="form-group">
+                    <label for="correo_proveedor">Correo electrónico</label>
+                    <input type="email" id="correo_proveedor" name="correo_proveedor"
+                        placeholder="correo@ejemplo.com (opcional)" maxlength="50">
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" onclick="cerrarModalProveedor()" class="btn-cancel">Cancelar</button>
+                    <button type="submit" class="btn-save">
+                        <span>💾</span> Guardar Proveedor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <div id="alerta" class="alert-message"></div>
+
+    <!-- MODAL CONFIRMAR ELIMINACIÓN -->
+<div id="modal-eliminar" class="modal">
+    <div class="modal-content" style="max-width: 380px;">
+        <div class="modal-header">
+            <h2>🗑️ Confirmar eliminación</h2>
+            <span class="close-modal" onclick="cerrarModalEliminar()">&times;</span>
+        </div>
+        <p id="modal-eliminar-texto" style="color: #555; margin-bottom: 25px;">
+            ¿Deseas eliminar este elemento?
+        </p>
+        <div class="modal-buttons">
+            <button onclick="cerrarModalEliminar()" class="btn-cancel">Cancelar</button>
+            <button onclick="confirmarEliminar()" class="btn-save" style="background:#dc3545;">
+                🗑️ Eliminar
+            </button>
+        </div>
+    </div>
+</div>
 
     <!-- Pasar datos a JavaScript -->
     <script>
         window.articulosIniciales = @json($articulosParaJs);
         window.licenciasIniciales = @json($licenciasIniciales);
     </script>
-    
+
 
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <script src="{{ asset('js/dashboard.js') }}"></script>
+
+    <script>
+        // Funciones para el modal de proveedor
+        function abrirModalProveedor() {
+            document.getElementById('modal-proveedor').style.display = 'flex';
+            document.getElementById('nombre_proveedor').focus();
+        }
+
+        function cerrarModalProveedor() {
+            document.getElementById('modal-proveedor').style.display = 'none';
+            document.getElementById('nombre_proveedor').value = '';
+            document.getElementById('rfc_proveedor').value = '';
+            document.getElementById('telefono_proveedor').value = '';
+            document.getElementById('direccion_proveedor').value = '';
+            document.getElementById('correo_proveedor').value = '';
+        }
+
+        // Guardar nuevo proveedor
+        async function guardarProveedor(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('nombre_proveedor').value.trim();
+            const rfc = document.getElementById('rfc_proveedor').value.trim();
+            const telefono = document.getElementById('telefono_proveedor').value.trim();
+            const direccion = document.getElementById('direccion_proveedor').value.trim();
+            const correo = document.getElementById('correo_proveedor').value.trim();
+
+            if (!nombre) {
+                mostrarAlerta('error', '❌ El nombre del proveedor es requerido');
+                return;
+            }
+
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> Guardando...';
+
+            try {
+                const response = await fetch('/api/proveedores', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        nombre: nombre,
+                        rfc: rfc || null,
+                        telefono: telefono || null,
+                        direccion: direccion || null,
+                        correo: correo || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarAlerta('success', '✅ Proveedor agregado correctamente');
+                    cerrarModalProveedor();
+                } else {
+                    mostrarAlerta('error', data.message || '❌ Error al agregar el proveedor');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarAlerta('error', '❌ Error de conexión al servidor');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+    </script>
 </x-app-layout>

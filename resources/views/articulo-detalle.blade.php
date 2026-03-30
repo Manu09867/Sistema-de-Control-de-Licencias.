@@ -11,13 +11,13 @@
 </head>
 <body>
     <!-- Overlay y modal para agregar tipo de grupo (solo visible para admin) -->
-    @if(auth()->user()->role === 'admin')
+    @if(auth()->check() && auth()->user()->role === 'admin')
     <div class="overlay" id="overlay" onclick="cerrarModalTipo()"></div>
     <div class="modal-small" id="modal-tipo">
         <h3>➕ Agregar Tipo de Grupo</h3>
         <div class="form-group">
             <label for="nuevo_tipo_nombre">Nombre del tipo:</label>
-            <input type="text" id="nuevo_tipo_nombre" class="edit-input" placeholder="Ej: EQUIPO_COMPUTO, SERVIDOR, PERIFERICO...">
+            <input type="text" id="nuevo_tipo_nombre" class="edit-input" placeholder="Ej: EQUIPO_COMPUTO, SERVIDOR, PERIFERICO..." maxlength="45">
         </div>
         <div class="btn-group">
             <button class="btn-cancel" onclick="cerrarModalTipo()" style="flex:1;">Cancelar</button>
@@ -34,7 +34,7 @@
             </a>
             
             <div class="action-buttons">
-                @if(auth()->user()->role === 'admin')
+                @if(auth()->check() && auth()->user()->role === 'admin')
                     <!-- Solo admin ve los botones de edición -->
                     <button id="btnEditar" class="btn-edit" onclick="activarEdicion()">
                         <span>✏️</span> Editar
@@ -81,8 +81,8 @@
                     <div class="info-row">
                         <span class="info-label">Serie:</span>
                         <span class="info-value" id="serie-text"><strong>{{ $articulo->serie ?? 'N/A' }}</strong></span>
-                        @if(auth()->user()->role === 'admin')
-                        <input type="text" id="serie-input" class="edit-input" value="{{ $articulo->serie }}" style="display: none;">
+                        @if(auth()->check() && auth()->user()->role === 'admin')
+                        <input type="text" id="serie-input" class="edit-input" value="{{ $articulo->serie }}" style="display: none;" maxlength="45">
                         @endif
                     </div>
                     
@@ -100,7 +100,7 @@
                                 {{ $articulo->estado ?? 'N/A' }}
                             </span>
                         </span>
-                        @if(auth()->user()->role === 'admin')
+                        @if(auth()->check() && auth()->user()->role === 'admin')
                         <select id="estado-input" class="edit-select" style="display: none;">
                             <option value="Activo" {{ $articulo->estado == 'Activo' ? 'selected' : '' }}>✅ Activo</option>
                             <option value="Mantenimiento" {{ $articulo->estado == 'Mantenimiento' ? 'selected' : '' }}>🔧 Mantenimiento</option>
@@ -114,7 +114,7 @@
                     <div class="info-row">
                         <span class="info-label">Área:</span>
                         <span class="info-value" id="area-text">{{ $articulo->NombreArea ?? 'Sin asignar' }}</span>
-                        @if(auth()->user()->role === 'admin')
+                        @if(auth()->check() && auth()->user()->role === 'admin')
                         <select id="area-input" class="edit-select" style="display: none;">
                             <option value="">-- Sin asignar --</option>
                             @foreach($areas as $area)
@@ -130,8 +130,8 @@
                     <div class="info-row">
                         <span class="info-label">Grupo:</span>
                         <span class="info-value" id="grupo-text">{{ $articulo->NombreGrupo ?? 'Sin grupo' }}</span>
-                        @if(auth()->user()->role === 'admin')
-                        <input type="text" id="grupo-input" class="edit-input" value="{{ $articulo->NombreGrupo }}" style="display: none;" placeholder="Nombre del grupo">
+                        @if(auth()->check() && auth()->user()->role === 'admin')
+                        <input type="text" id="grupo-input" class="edit-input" value="{{ $articulo->NombreGrupo }}" style="display: none;" placeholder="Nombre del grupo" maxlength="100">
                         @endif
                     </div>
                     
@@ -145,7 +145,7 @@
                                 No aplica
                             @endif
                         </span>
-                        @if(auth()->user()->role === 'admin')
+                        @if(auth()->check() && auth()->user()->role === 'admin')
                         <div class="input-group" style="display: none;" id="tipo-grupo-container">
                             <select id="tipo-grupo-input" class="edit-select">
                                 <option value="">-- Seleccionar tipo --</option>
@@ -233,10 +233,10 @@
                         <span class="info-value" id="mac-text">
                             {{ $tipoRed == 'router' ? $infoRed->MACR : $infoRed->MACSw ?? 'N/A' }}
                         </span>
-                        @if(auth()->user()->role === 'admin')
+                        @if(auth()->check() && auth()->user()->role === 'admin')
                         <input type="text" id="mac-input" class="edit-input" 
                                value="{{ $tipoRed == 'router' ? $infoRed->MACR : $infoRed->MACSw }}" 
-                               style="display: none;" placeholder="00:11:22:33:44:55">
+                               style="display: none;" placeholder="00:11:22:33:44:55" maxlength="90">
                         @endif
                     </div>
 
@@ -246,10 +246,10 @@
                         <span class="info-value" id="ip-text">
                             {{ $tipoRed == 'router' ? $infoRed->IpaddressR : $infoRed->IpaddressSw ?? 'N/A' }}
                         </span>
-                        @if(auth()->user()->role === 'admin')
+                        @if(auth()->check() && auth()->user()->role === 'admin')
                         <input type="text" id="ip-input" class="edit-input" 
                                value="{{ $tipoRed == 'router' ? $infoRed->IpaddressR : $infoRed->IpaddressSw }}" 
-                               style="display: none;" placeholder="192.168.1.1">
+                               style="display: none;" placeholder="192.168.1.1" maxlength="45">
                         @endif
                     </div>
 
@@ -259,10 +259,10 @@
                         <span class="info-value" id="obs-text">
                             {{ $tipoRed == 'router' ? $infoRed->ObservacionR : $infoRed->ObservacionSw ?? 'N/A' }}
                         </span>
-                        @if(auth()->user()->role === 'admin')
+                        @if(auth()->check() && auth()->user()->role === 'admin')
                         <input type="text" id="obs-input" class="edit-input" 
                                value="{{ $tipoRed == 'router' ? $infoRed->ObservacionR : $infoRed->ObservacionSw }}" 
-                               style="display: none;" placeholder="Observaciones">
+                               style="display: none;" placeholder="Observaciones" maxlength="90">
                         @endif
                     </div>
                 </div>
@@ -273,53 +273,73 @@
             @endif
         </div>
 
-        <!-- Sección de Licencias -->
+        <!-- Sección de Licencias CON BOTÓN 🔑 -->
         @if(count($licencias) > 0)
         <div class="licencias-section">
-            <div class="card-title" style="font-size: 20px; margin-bottom: 15px;">
-                <span>🔑</span> Licencias Asignadas ({{ count($licencias) }})
-            </div>
+    <div class="card-title" style="font-size: 20px; margin-bottom: 15px;">
+        <span>🔑</span> Licencias Asignadas ({{ count($licencias) }})
+    </div>
 
-            <table class="licencias-table">
-    <thead>
-        <tr>
-            <th>Software</th>
-            <th>Clave</th>
-            <th>Fecha Compra</th>
-            <th>Vencimiento</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($licencias as $lic)
-        <tr>
-            <td><strong>{{ $lic->software }}</strong></td>
-            <td><code>{{ $lic->Clave }}</code></td>
-            <td>{{ date('d/m/Y', strtotime($lic->Fechacompra)) }}</td>
-            <td>
-                @php
-                    $dias = (strtotime($lic->Fechavencimiento) - time()) / 86400;
-                    $color = $dias < 30 ? '#dc3545' : ($dias < 90 ? '#ffc107' : '#28a745');
-                @endphp
-                <span style="color: {{ $color }}; font-weight: 600;">
-                    {{ date('d/m/Y', strtotime($lic->Fechavencimiento)) }}
-                    @if($dias < 0)
-                        (Vencida)
-                    @elseif($dias < 30)
-                        (Pronto)
-                    @endif
-                </span>
-            </td>
-            <td>
-                <span class="badge {{ $lic->estadoLic == 'Activa' ? 'badge-activo' : 'badge-inactivo' }}">
-                    {{ $lic->estadoLic }}
-                </span>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-        </div>
+    <table class="licencias-table">
+        <thead>
+            <tr>
+                <th>Software</th>
+                <th>Clave</th>
+                <th>Fecha Compra</th>
+                <th>Vencimiento</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($licencias as $lic)
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <strong>{{ $lic->software }}</strong>
+                        <button 
+                            onclick="window.open('/licencia/{{ $lic->Clave }}', '_blank')"
+                            class="info-btn-small"
+                            title="Ver licencia"
+                            style="background: #4a6fa5;"
+                        >
+                            🔑
+                        </button>
+                    </div>
+                </td>
+
+                <td>
+                    <code>{{ $lic->Clave }}</code>
+                </td>
+
+                <td>
+                    {{ date('d/m/Y', strtotime($lic->Fechacompra)) }}
+                </td>
+
+                <td>
+                    @php
+                        $dias = (strtotime($lic->Fechavencimiento) - time()) / 86400;
+                        $color = $dias < 30 ? '#dc3545' : ($dias < 90 ? '#ffc107' : '#28a745');
+                    @endphp
+                    <span style="color: {{ $color }}; font-weight: 600;">
+                        {{ date('d/m/Y', strtotime($lic->Fechavencimiento)) }}
+                        @if($dias < 0)
+                            (Vencida)
+                        @elseif($dias < 30)
+                            (Pronto)
+                        @endif
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge {{ $lic->estadoLic == 'Activa' ? 'badge-activo' : 'badge-inactivo' }}">
+                        {{ $lic->estadoLic }}
+                    </span>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
         @endif
 
         <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">

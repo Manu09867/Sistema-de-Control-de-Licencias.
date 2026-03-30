@@ -705,7 +705,7 @@
                     </div>
                 </div>
 
-                <!-- PASO 5: Licitación (SOLO para licitación nueva) - ELIMINADO EL CAMPO TOTAL -->
+                <!-- PASO 5: Licitación (SOLO para licitación nueva) -->
                 <div class="step-content hidden" id="content-5">
                     <h2 class="section-title">📄 Paso 5: Nueva Licitación</h2>
                     
@@ -784,7 +784,6 @@
                                     <option value="Cancelada">❌ Cancelada</option>
                                 </select>
                             </div>
-                            <!-- 🔥 CAMPO TOTAL ELIMINADO - El sistema lo calcula automáticamente -->
                         </div>
 
                         <div style="margin-bottom: 20px;">
@@ -1065,7 +1064,7 @@
                                     <option value="Activo">✅ Activo</option>
                                     <option value="Mantenimiento">🔧 Mantenimiento</option>
                                     <option value="Almacén">📦 Almacén</option>
-                                    <option value="Almacén">❌ Inactivo</option>
+                                    <option value="Inactivo">❌ Inactivo</option>
                                 </select>
                             </div>
                         </div>
@@ -1207,7 +1206,6 @@
                     fecha_inicio: document.getElementById('fecha_inicio_licitacion').value || null,
                     fecha_fin: document.getElementById('fecha_fin_licitacion').value || null,
                     estado: document.getElementById('estado_licitacion').value || null,
-                    // total eliminado - se calculará automáticamente
                     recurso: document.getElementById('recurso_licitacion').value.trim() || null,
                     nuevo: true
                 };
