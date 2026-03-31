@@ -16,6 +16,7 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\TipoProductoController;
 
 
+
 Route::get('/', function () {
     return redirect('/login');
 });
@@ -308,4 +309,26 @@ Route::delete('/api/areas/{id}', [AreaController::class, 'destroy'])
 Route::delete('/api/tipos-producto/{id}', [TipoProductoController::class, 'destroy'])
     ->middleware(['auth', 'role:admin']);
 
+// Rutas para Licitaciones
+Route::get('/licitaciones', [LicitacionController::class, 'index'])
+    ->middleware('auth')
+    ->name('licitaciones.index');
+
+Route::get('/licitaciones/{id}', [LicitacionController::class, 'show'])
+    ->middleware('auth')
+    ->name('licitaciones.show');
+
+
+// Eliminar licitación (solo admin)
+Route::delete('/licitaciones/{id}/eliminar', [LicitacionController::class, 'destroy'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('licitaciones.eliminar');
+
+
+
+// Actualizar licitación (solo admin)
+Route::post('/licitaciones/{id}/actualizar', [LicitacionController::class, 'update'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('licitaciones.actualizar');
+    
 require __DIR__.'/auth.php';
