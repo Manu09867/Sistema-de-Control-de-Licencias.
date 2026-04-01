@@ -14,6 +14,8 @@ use App\Http\Controllers\LogController;
 use App\Http\Controllers\LicitacionController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\TipoProductoController;
+use App\Http\Controllers\ProveedorController;
+
 
 
 
@@ -330,5 +332,22 @@ Route::delete('/licitaciones/{id}/eliminar', [LicitacionController::class, 'dest
 Route::post('/licitaciones/{id}/actualizar', [LicitacionController::class, 'update'])
     ->middleware(['auth', 'role:admin'])
     ->name('licitaciones.actualizar');
-    
+
+// Rutas para Proveedores
+Route::get('/proveedores', [ProveedorController::class, 'index'])
+    ->middleware('auth')
+    ->name('proveedores.index');
+
+Route::get('/proveedores/{id}', [ProveedorController::class, 'show'])
+    ->middleware('auth')
+    ->name('proveedores.show');
+
+Route::post('/proveedores/{id}/actualizar', [ProveedorController::class, 'update'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('proveedores.actualizar');
+
+Route::delete('/proveedores/{id}/eliminar', [ProveedorController::class, 'destroy'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('proveedores.eliminar');
+
 require __DIR__.'/auth.php';

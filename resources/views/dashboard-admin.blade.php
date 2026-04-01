@@ -41,7 +41,7 @@
                         <div class="search-container">
                             <span class="search-icon">🔍</span>
                             <input type="text" class="search-input" placeholder="Buscar..." value="">
-                            <button class="search-button">Buscar</button>
+                            <!--<button class="search-button">Buscar</button>-->
                         </div>
                     </div>
 

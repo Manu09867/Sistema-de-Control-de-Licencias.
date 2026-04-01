@@ -738,7 +738,7 @@
                                    name="folio_licitacion" 
                                    class="input-nuevo-tipo" 
                                    maxlength="50"
-                                   required>
+                                   >
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Folio único que identifica la licitación
                             </p>
