@@ -196,12 +196,112 @@
             transition: 0.3s;
         }
 
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
         .navigation-buttons {
             display: flex;
             justify-content: space-between;
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #e6ecf2;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s;
+        }
+
+        .modal-content h3 {
+            color: #4a6fa5;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .modal-buttons .btn-confirm {
+            background: #dc3545;
+            color: white;
+        }
+
+        .modal-buttons .btn-confirm:hover {
+            background: #c82333;
+        }
+
+        .modal-buttons .btn-cancel-modal {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-buttons .btn-cancel-modal:hover {
+            background: #5a6268;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         /* Estilos para el resumen */
@@ -255,6 +355,32 @@
         .resumen-value.nuevo::before {
             content: "✨ ";
             font-size: 12px;
+        }
+
+        /* Estilo para el checkbox de IVA */
+        .checkbox-iva {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #eef2f6;
+            border-radius: 8px;
+        }
+
+        .checkbox-iva input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #4a6fa5;
+        }
+
+        .checkbox-iva label {
+            font-weight: 600;
+            color: #4a6fa5;
+            cursor: pointer;
+            margin: 0;
         }
 
         .alert-message {
@@ -324,6 +450,17 @@
             .grid-2 {
                 grid-template-columns: 1fr;
             }
+
+            .navigation-buttons {
+                flex-direction: column;
+            }
+
+            .navigation-buttons .btn-secondary,
+            .navigation-buttons .btn-cancel,
+            .navigation-buttons .btn-primary {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 
@@ -381,11 +518,15 @@
                                     onchange="toggleSoftwareInput()">
                                 <span>Seleccionar de la lista</span>
                             </label>
-                            <label class="radio-option">
-                                <input type="radio" name="software_opcion" value="nuevo"
-                                    onchange="toggleSoftwareInput()">
-                                <span>Agregar nuevo software</span>
-                            </label>
+                            @auth
+                                @if(auth()->user()->role === 'admin')
+                                    <label class="radio-option">
+                                        <input type="radio" name="software_opcion" value="nuevo"
+                                            onchange="toggleSoftwareInput()">
+                                        <span>Agregar nuevo software</span>
+                                    </label>
+                                @endif
+                            @endauth
                         </div>
 
                         <div id="software-existente">
@@ -398,29 +539,33 @@
                             </select>
                         </div>
 
-                        <div id="software-nuevo" style="display: none;">
-                            <label for="nuevo_software_nombre">Nuevo software:</label>
-                            <div class="input-group">
-                                <input type="text" name="nuevo_software_nombre" id="nuevo_software_nombre"
-                                    class="input-nuevo-tipo"
-                                    placeholder="Ej: Windows 11 Pro, Office 2024, Adobe Photoshop..." maxlength="45">
-                                <button type="button" class="btn-add" onclick="agregarNuevoSoftware()"
-                                    id="btn-agregar-software">
-                                    <span>➕</span> Agregar
-                                </button>
-                            </div>
-                            <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                El nuevo software se agregará inmediatamente a la base de datos
-                            </p>
-                            <div id="mensaje-exito-software"
-                                style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
-                                ✅ Software agregado correctamente
-                            </div>
-                        </div>
+                        @auth
+                            @if(auth()->user()->role === 'admin')
+                                <div id="software-nuevo" style="display: none;">
+                                    <label for="nuevo_software_nombre">Nuevo software:</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nuevo_software_nombre" id="nuevo_software_nombre"
+                                            class="input-nuevo-tipo"
+                                            placeholder="Ej: Windows 11 Pro, Office 2024, Adobe Photoshop..." maxlength="45">
+                                        <button type="button" class="btn-add" onclick="agregarNuevoSoftware()"
+                                            id="btn-agregar-software">
+                                            <span>➕</span> Agregar
+                                        </button>
+                                    </div>
+                                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                                        El nuevo software se agregará inmediatamente a la base de datos
+                                    </p>
+                                    <div id="mensaje-exito-software"
+                                        style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
+                                        ✅ Software agregado correctamente
+                                    </div>
+                                </div>
+                            @endif
+                        @endauth
                     </div>
 
                     <div class="navigation-buttons">
-                        <div></div>
+                        <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()">Cancelar</button>
                         <button type="button" class="btn-primary" onclick="siguientePaso(1)">Siguiente →</button>
                     </div>
                 </div>
@@ -492,7 +637,11 @@
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(2)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(2)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(2)">Siguiente →</button>
                     </div>
                 </div>
@@ -523,11 +672,15 @@
                                     onchange="toggleProveedorInput()">
                                 <span>Seleccionar de la lista</span>
                             </label>
-                            <label class="radio-option">
-                                <input type="radio" name="proveedor_opcion" value="nuevo"
-                                    onchange="toggleProveedorInput()">
-                                <span>Agregar nuevo proveedor</span>
-                            </label>
+                            @auth
+                                @if(auth()->user()->role === 'admin')
+                                    <label class="radio-option">
+                                        <input type="radio" name="proveedor_opcion" value="nuevo"
+                                            onchange="toggleProveedorInput()">
+                                        <span>Agregar nuevo proveedor</span>
+                                    </label>
+                                @endif
+                            @endauth
                         </div>
 
                         <div id="proveedor-existente">
@@ -540,57 +693,65 @@
                             </select>
                         </div>
 
-                        <div id="proveedor-nuevo" style="display: none;">
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_nombre">Nombre del proveedor <span
-                                        style="color: #dc3545;">*</span></label>
-                                <input type="text" name="nuevo_proveedor_nombre" id="nuevo_proveedor_nombre"
-                                    class="input-nuevo-tipo" placeholder="Ej: Tecnología SA, Suministros LP..."
-                                    maxlength="45">
-                            </div>
+                        @auth
+                            @if(auth()->user()->role === 'admin')
+                                <div id="proveedor-nuevo" style="display: none;">
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_nombre">Nombre del proveedor <span
+                                                style="color: #dc3545;">*</span></label>
+                                        <input type="text" name="nuevo_proveedor_nombre" id="nuevo_proveedor_nombre"
+                                            class="input-nuevo-tipo" placeholder="Ej: Tecnología SA, Suministros LP..."
+                                            maxlength="45">
+                                    </div>
 
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_rfc">RFC</label>
-                                <input type="text" name="nuevo_proveedor_rfc" id="nuevo_proveedor_rfc"
-                                    class="input-nuevo-tipo" placeholder="RFC (opcional)" maxlength="20">
-                            </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_rfc">RFC</label>
+                                        <input type="text" name="nuevo_proveedor_rfc" id="nuevo_proveedor_rfc"
+                                            class="input-nuevo-tipo" placeholder="RFC (opcional)" maxlength="20">
+                                    </div>
 
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_telefono">Teléfono</label>
-                                <input type="text" name="nuevo_proveedor_telefono" id="nuevo_proveedor_telefono"
-                                    class="input-nuevo-tipo" placeholder="Teléfono (opcional)" maxlength="20">
-                            </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_telefono">Teléfono</label>
+                                        <input type="text" name="nuevo_proveedor_telefono" id="nuevo_proveedor_telefono"
+                                            class="input-nuevo-tipo" placeholder="Teléfono (opcional)" maxlength="20">
+                                    </div>
 
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_direccion">Dirección</label>
-                                <input type="text" name="nuevo_proveedor_direccion" id="nuevo_proveedor_direccion"
-                                    class="input-nuevo-tipo" placeholder="Dirección (opcional)" maxlength="900">
-                            </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_direccion">Dirección</label>
+                                        <input type="text" name="nuevo_proveedor_direccion" id="nuevo_proveedor_direccion"
+                                            class="input-nuevo-tipo" placeholder="Dirección (opcional)" maxlength="900">
+                                    </div>
 
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_correo">Correo electrónico</label>
-                                <input type="email" name="nuevo_proveedor_correo" id="nuevo_proveedor_correo"
-                                    class="input-nuevo-tipo" placeholder="correo@ejemplo.com (opcional)" maxlength="50">
-                            </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_correo">Correo electrónico</label>
+                                        <input type="email" name="nuevo_proveedor_correo" id="nuevo_proveedor_correo"
+                                            class="input-nuevo-tipo" placeholder="correo@ejemplo.com (opcional)" maxlength="50">
+                                    </div>
 
-                            <div class="input-group" style="margin-top: 20px;">
-                                <button type="button" class="btn-add" onclick="agregarNuevoProveedor()"
-                                    id="btn-agregar-proveedor">
-                                    <span>➕</span> Agregar Proveedor
-                                </button>
-                            </div>
-                            <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                El nuevo proveedor se agregará inmediatamente a la base de datos
-                            </p>
-                            <div id="mensaje-exito-proveedor"
-                                style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
-                                ✅ Proveedor agregado correctamente
-                            </div>
-                        </div>
+                                    <div class="input-group" style="margin-top: 20px;">
+                                        <button type="button" class="btn-add" onclick="agregarNuevoProveedor()"
+                                            id="btn-agregar-proveedor">
+                                            <span>➕</span> Agregar Proveedor
+                                        </button>
+                                    </div>
+                                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                                        El nuevo proveedor se agregará inmediatamente a la base de datos
+                                    </p>
+                                    <div id="mensaje-exito-proveedor"
+                                        style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
+                                        ✅ Proveedor agregado correctamente
+                                    </div>
+                                </div>
+                            @endif
+                        @endauth
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(3)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(3)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(3)">Siguiente →</button>
                     </div>
                 </div>
@@ -681,7 +842,11 @@
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(4)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(4)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(4)">Siguiente →</button>
                     </div>
                 </div>
@@ -735,22 +900,44 @@
                                 </p>
                             </div>
 
+                            <!-- Checkbox de IVA -->
+                            <div class="checkbox-iva">
+                                <input type="checkbox" id="aplicar_iva" onchange="calcularSubtotal()">
+                                <label for="aplicar_iva">Aplicar IVA (16%)</label>
+                            </div>
+
                             <div
-                                style="background: white; padding: 20px; border-radius: 10px; border: 2px solid #6b8cae;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                style="background: white; padding: 20px; border-radius: 10px; border: 2px solid #6b8cae; margin-top: 15px;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                     <span style="font-weight: 600; color: #4a6fa5;">Subtotal:</span>
                                     <span id="subtotal"
-                                        style="font-size: 24px; font-weight: bold; color: #6b8cae;">$0.00</span>
+                                        style="font-size: 20px; font-weight: bold; color: #6b8cae;">$0.00</span>
                                 </div>
-                                <p style="font-size: 12px; color: #666; margin-top: 5px; text-align: right;">
-                                    Cantidad × Precio unitario
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-top: 1px dashed #ccc; padding-top: 10px;">
+                                    <span style="font-weight: 600; color: #4a6fa5;">IVA (16%):</span>
+                                    <span id="iva_monto" style="font-size: 16px; color: #6c757d;">$0.00</span>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #6b8cae; padding-top: 10px;">
+                                    <span style="font-weight: 600; color: #4a6fa5; font-size: 18px;">Total:</span>
+                                    <span id="total"
+                                        style="font-size: 24px; font-weight: bold; color: #28a745;">$0.00</span>
+                                </div>
+                                <p style="font-size: 12px; color: #666; margin-top: 10px; text-align: right;">
+                                    Cantidad × Precio unitario = Subtotal
                                 </p>
                             </div>
                         </div>
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(5)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(5)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(5)">Siguiente →</button>
                     </div>
                 </div>
@@ -833,7 +1020,11 @@
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(6)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(6)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(6)">Siguiente →</button>
                     </div>
                 </div>
@@ -861,11 +1052,27 @@
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(7)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(7)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="submit" class="btn-primary" id="btn-guardar">💾 Guardar Licencia</button>
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div id="modal-cancelar" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ ¿Cancelar registro?</h3>
+            <p>¿Estás seguro de que deseas abandonar esta sección?<br>Los datos ingresados se perderán.</p>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="cancelarRegistro()">Sí, abandonar</button>
+                <button class="btn-cancel-modal" onclick="cerrarModal()">No, continuar</button>
+            </div>
         </div>
     </div>
 
@@ -885,10 +1092,26 @@
             detalle: {
                 cantidad: 0,
                 precio_unitario: 0,
-                subtotal: 0
+                subtotal: 0,
+                iva: 0,
+                total: 0,
+                aplicar_iva: false
             },
             licencia: null
         };
+
+        function mostrarModalCancelar() {
+            document.getElementById('modal-cancelar').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-cancelar').style.display = 'none';
+        }
+
+        function cancelarRegistro() {
+            // Redirigir al dashboard principal
+            window.location.href = "{{ route('dashboard') }}";
+        }
 
         function toggleSoftwareInput() {
             const opcion = document.querySelector('input[name="software_opcion"]:checked').value;
@@ -942,8 +1165,20 @@
         function calcularSubtotal() {
             const cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
             const precio = parseFloat(document.getElementById('precio_unitario').value) || 0;
+            const aplicarIVA = document.getElementById('aplicar_iva').checked;
             const subtotal = cantidad * precio;
+            const ivaMonto = aplicarIVA ? subtotal * 0.16 : 0;
+            const total = subtotal + ivaMonto;
+
             document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('iva_monto').textContent = `$${ivaMonto.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+
+            // Guardar en datosFormulario
+            datosFormulario.detalle.subtotal = subtotal;
+            datosFormulario.detalle.iva = ivaMonto;
+            datosFormulario.detalle.total = total;
+            datosFormulario.detalle.aplicar_iva = aplicarIVA;
         }
 
         async function agregarNuevoSoftware() {
@@ -1194,9 +1429,29 @@
                     </div>
                     <div class="resumen-item">
                         <div class="resumen-label">Subtotal</div>
-                        <div class="resumen-value" style="color: #28a745;">$${datosFormulario.detalle.subtotal.toFixed(2)}</div>
+                        <div class="resumen-value">$${datosFormulario.detalle.subtotal.toFixed(2)}</div>
                     </div>
                 `;
+
+                if (datosFormulario.detalle.aplicar_iva) {
+                    html += `
+                        <div class="resumen-item">
+                            <div class="resumen-label">IVA (16%)</div>
+                            <div class="resumen-value">$${datosFormulario.detalle.iva.toFixed(2)}</div>
+                        </div>
+                        <div class="resumen-item">
+                            <div class="resumen-label">Total</div>
+                            <div class="resumen-value" style="color: #28a745;">$${datosFormulario.detalle.total.toFixed(2)}</div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="resumen-item">
+                            <div class="resumen-label">Total</div>
+                            <div class="resumen-value" style="color: #28a745;">$${datosFormulario.detalle.subtotal.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
             }
 
             // Licencia
@@ -1358,11 +1613,9 @@
                     return;
                 }
 
-                datosFormulario.detalle = {
-                    cantidad: cantidad,
-                    precio_unitario: precio,
-                    subtotal: cantidad * precio
-                };
+                datosFormulario.detalle.cantidad = cantidad;
+                datosFormulario.detalle.precio_unitario = precio;
+                // Los valores de subtotal, iva y total ya se calcularon en calcularSubtotal()
             }
 
             if (paso === 6) {

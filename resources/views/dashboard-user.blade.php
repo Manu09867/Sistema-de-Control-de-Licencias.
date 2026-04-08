@@ -21,7 +21,7 @@
                 <!-- Menú desplegable -->
                 <div id="addMenu" class="add-menu">
                     <a href="{{ route('articulos.crear') }}">📦 Nuevo Artículo</a>
-                    <a href="#">🔑 Nueva Licencia</a>
+                    <a href="{{ route('licencias.crear') }}">🔑 Nueva Licencia</a>
                     <a href="#" onclick="abrirModalArea(); return false;">📍 Nueva Área</a>
                     <a href="#" onclick="abrirModalProveedor(); return false;">🏢 Nuevo Proveedor</a>
                 </div>
@@ -151,7 +151,7 @@
 
                 <div class="form-group">
                     <label for="rfc_proveedor">RFC</label>
-                    <input type="text" id="rfc_proveedor" name="rfc_proveedor" placeholder="RFC (opcional)" maxlength="20">
+                    <input type="text" id="rfc_proveedor" name="rfc_proveedor" placeholder="RFC (opcional)" maxlength="13">
                 </div>
 
                 <div class="form-group">

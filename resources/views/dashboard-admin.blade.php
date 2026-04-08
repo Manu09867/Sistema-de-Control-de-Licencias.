@@ -168,7 +168,7 @@
                 <div class="form-group">
                     <label for="rfc_proveedor">RFC</label>
                     <input type="text" id="rfc_proveedor" name="rfc_proveedor" placeholder="RFC (opcional)"
-                        maxlength="20">
+                        maxlength="13">
                 </div>
 
                 <div class="form-group">

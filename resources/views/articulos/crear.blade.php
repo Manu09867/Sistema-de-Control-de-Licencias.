@@ -6,7 +6,7 @@
             padding: 30px;
             border-radius: 15px;
             margin: 20px 20px 0 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -18,11 +18,11 @@
         }
 
         .step-indicator {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             padding: 8px 20px;
             border-radius: 50px;
             font-size: 14px;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         /* Contenedor principal */
@@ -31,7 +31,7 @@
             max-width: 1000px;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             border: 1px solid #e6ecf2;
             overflow: hidden;
         }
@@ -170,7 +170,7 @@
         .btn-add:hover {
             background: #218838;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
         }
 
         .btn-add:disabled {
@@ -194,7 +194,7 @@
         .btn-primary:hover {
             background: #00587a;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,88,122,0.3);
+            box-shadow: 0 5px 15px rgba(0, 88, 122, 0.3);
         }
 
         .btn-primary:disabled {
@@ -219,12 +219,110 @@
             background: #5a6268;
         }
 
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
         .navigation-buttons {
             display: flex;
             justify-content: space-between;
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #e6ecf2;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s;
+        }
+
+        .modal-content h3 {
+            color: #0f3057;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .modal-buttons .btn-confirm {
+            background: #dc3545;
+            color: white;
+        }
+
+        .modal-buttons .btn-confirm:hover {
+            background: #c82333;
+        }
+
+        .modal-buttons .btn-cancel-modal {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-buttons .btn-cancel-modal:hover {
+            background: #5a6268;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         /* Grid para 2 columnas */
@@ -334,9 +432,41 @@
             background: #dc3545;
         }
 
+        /* Estilo para el checkbox de IVA */
+        .checkbox-iva {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: #eef2f6;
+            border-radius: 8px;
+        }
+
+        .checkbox-iva input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #0f3057;
+        }
+
+        .checkbox-iva label {
+            font-weight: 600;
+            color: #0f3057;
+            cursor: pointer;
+            margin: 0;
+        }
+
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -345,24 +475,29 @@
                 text-align: center;
                 gap: 15px;
             }
-            
+
             .radio-group {
                 flex-direction: column;
                 gap: 15px;
             }
-            
+
             .input-group {
                 flex-direction: column;
             }
-            
+
             .btn-add {
                 width: 100%;
                 justify-content: center;
             }
-            
+
             .resumen-grid,
             .grid-2 {
                 grid-template-columns: 1fr;
+            }
+
+            .navigation-buttons {
+                flex-wrap: wrap;
+                gap: 10px;
             }
         }
     </style>
@@ -415,19 +550,25 @@
                 <!-- PASO 1: Tipo de Producto -->
                 <div class="step-content" id="content-1">
                     <h2 class="section-title">📋 Paso 1: Tipo de Producto</h2>
-                    
+
                     <div class="tipo-producto-section">
                         <h3 style="color: #0f3057; margin-bottom: 15px;">¿Cómo deseas agregar el tipo de producto?</h3>
-                        
+
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="tipo_producto_opcion" value="existente" checked onchange="toggleTipoProductoInput()">
+                                <input type="radio" name="tipo_producto_opcion" value="existente" checked
+                                    onchange="toggleTipoProductoInput()">
                                 <span>Seleccionar de la lista</span>
                             </label>
-                            <label class="radio-option">
-                                <input type="radio" name="tipo_producto_opcion" value="nuevo" onchange="toggleTipoProductoInput()">
-                                <span>Agregar nuevo tipo</span>
-                            </label>
+                            @auth
+                                @if(auth()->user()->role === 'admin')
+                                    <label class="radio-option">
+                                        <input type="radio" name="tipo_producto_opcion" value="nuevo"
+                                            onchange="toggleTipoProductoInput()">
+                                        <span>Agregar nuevo tipo</span>
+                                    </label>
+                                @endif
+                            @endauth
                         </div>
 
                         <div id="tipo-existente">
@@ -440,30 +581,33 @@
                             </select>
                         </div>
 
-                        <div id="tipo-nuevo" style="display: none;">
-                            <label for="nuevo_tipo_producto">Nuevo tipo de producto:</label>
-                            <div class="input-group">
-                                <input type="text" 
-                                       name="nuevo_tipo_producto" 
-                                       id="nuevo_tipo_producto" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Ej: Periférico, Accesorio, Consumible..."
-                                       maxlength="45">
-                                <button type="button" class="btn-add" onclick="agregarNuevoTipo()" id="btn-agregar-tipo">
-                                    <span>➕</span> Agregar
-                                </button>
-                            </div>
-                            <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                El nuevo tipo se agregará inmediatamente a la base de datos
-                            </p>
-                            <div id="mensaje-exito" style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
-                                ✅ Tipo de producto agregado correctamente
-                            </div>
-                        </div>
+                        @auth
+                            @if(auth()->user()->role === 'admin')
+                                <div id="tipo-nuevo" style="display: none;">
+                                    <label for="nuevo_tipo_producto">Nuevo tipo de producto:</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nuevo_tipo_producto" id="nuevo_tipo_producto"
+                                            class="input-nuevo-tipo" placeholder="Ej: Periférico, Accesorio, Consumible..."
+                                            maxlength="45">
+                                        <button type="button" class="btn-add" onclick="agregarNuevoTipo()"
+                                            id="btn-agregar-tipo">
+                                            <span>➕</span> Agregar
+                                        </button>
+                                    </div>
+                                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                                        El nuevo tipo se agregará inmediatamente a la base de datos
+                                    </p>
+                                    <div id="mensaje-exito"
+                                        style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
+                                        ✅ Tipo de producto agregado correctamente
+                                    </div>
+                                </div>
+                            @endif
+                        @endauth
                     </div>
 
                     <div class="navigation-buttons">
-                        <div></div>
+                        <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()">Cancelar</button>
                         <button type="button" class="btn-primary" onclick="siguientePaso(1)">Siguiente →</button>
                     </div>
                 </div>
@@ -471,25 +615,23 @@
                 <!-- PASO 2: Producto -->
                 <div class="step-content hidden" id="content-2">
                     <h2 class="section-title">🏷️ Paso 2: Producto</h2>
-                    
+
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <p style="color: #0f3057; font-weight: 500;">
-                            <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; margin-right: 10px;">Paso 1</span>
-                            Tipo de producto seleccionado: 
+                            <span
+                                style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; margin-right: 10px;">Paso
+                                1</span>
+                            Tipo de producto seleccionado:
                             <strong id="resumen-tipo-producto" style="color: #00587a;">(pendiente)</strong>
                         </p>
                     </div>
 
                     <div class="tipo-producto-section">
                         <div style="margin-bottom: 20px;">
-                            <label for="nombre_producto">Nombre del producto <span style="color: #dc3545;">*</span></label>
-                            <input type="text" 
-                                   id="nombre_producto" 
-                                   name="nombre_producto" 
-                                   class="input-nuevo-tipo" 
-                                   placeholder="Ej: Laptop, Monitor, Teclado..."
-                                   maxlength="45"
-                                   required>
+                            <label for="nombre_producto">Nombre del producto <span
+                                    style="color: #dc3545;">*</span></label>
+                            <input type="text" id="nombre_producto" name="nombre_producto" class="input-nuevo-tipo"
+                                placeholder="Ej: Laptop, Monitor, Teclado..." maxlength="45" required>
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Nombre comercial o descriptivo del producto
                             </p>
@@ -497,12 +639,8 @@
 
                         <div style="margin-bottom: 20px;">
                             <label for="marca_producto">Marca</label>
-                            <input type="text" 
-                                   id="marca_producto" 
-                                   name="marca_producto" 
-                                   class="input-nuevo-tipo" 
-                                   placeholder="Ej: HP, Dell, Cisco, Microsoft..."
-                                   maxlength="45">
+                            <input type="text" id="marca_producto" name="marca_producto" class="input-nuevo-tipo"
+                                placeholder="Ej: HP, Dell, Cisco, Microsoft..." maxlength="45">
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Marca del producto (opcional)
                             </p>
@@ -510,12 +648,8 @@
 
                         <div style="margin-bottom: 20px;">
                             <label for="modelo_producto">Modelo</label>
-                            <input type="text" 
-                                   id="modelo_producto" 
-                                   name="modelo_producto" 
-                                   class="input-nuevo-tipo" 
-                                   placeholder="Ej: EliteBook 840, ProLiant DL360, Latitude 5420..."
-                                   maxlength="45">
+                            <input type="text" id="modelo_producto" name="modelo_producto" class="input-nuevo-tipo"
+                                placeholder="Ej: EliteBook 840, ProLiant DL360, Latitude 5420..." maxlength="45">
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Modelo específico del producto (opcional)
                             </p>
@@ -523,7 +657,11 @@
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(2)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(2)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(2)">Siguiente →</button>
                     </div>
                 </div>
@@ -531,40 +669,51 @@
                 <!-- PASO 3: Tipo de Licitación -->
                 <div class="step-content hidden" id="content-3">
                     <h2 class="section-title">📄 Paso 3: Tipo de Licitación</h2>
-                    
+
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <p style="color: #0f3057; font-weight: 500;">
-                            <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; margin-right: 10px;">Paso 1</span>
-                            Tipo: <span id="resumen-tipo-paso3" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                            <span
+                                style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; margin-right: 10px;">Paso
+                                1</span>
+                            Tipo: <span id="resumen-tipo-paso3"
+                                style="color: #00587a; font-weight: 600;">(pendiente)</span>
                         </p>
                         <p style="color: #0f3057; font-weight: 500; margin-top: 5px;">
-                            <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; margin-right: 10px;">Paso 2</span>
-                            Producto: <span id="resumen-producto-paso3" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                            <span
+                                style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; margin-right: 10px;">Paso
+                                2</span>
+                            Producto: <span id="resumen-producto-paso3"
+                                style="color: #00587a; font-weight: 600;">(pendiente)</span>
                         </p>
                     </div>
 
                     <div class="tipo-producto-section">
                         <h3 style="color: #0f3057; margin-bottom: 20px;">¿Qué tipo de licitación aplica?</h3>
-                        
+
                         <div style="display: flex; flex-direction: column; gap: 20px;">
                             <!-- Opción Licitación Existente -->
-                            <div id="opcion-licitacion-existente" style="border: 2px solid #e6ecf2; border-radius: 15px; padding: 20px;">
+                            <div id="opcion-licitacion-existente"
+                                style="border: 2px solid #e6ecf2; border-radius: 15px; padding: 20px;">
                                 <label class="radio-option" style="margin-bottom: 15px;">
-                                    <input type="radio" name="tipo_licitacion" value="existente" onchange="toggleLicitacionSelector()">
+                                    <input type="radio" name="tipo_licitacion" value="existente"
+                                        onchange="toggleLicitacionSelector()">
                                     <span style="font-weight: 600; color: #0f3057;">📋 Usar licitación existente</span>
                                 </label>
                                 <p style="font-size: 13px; color: #666; margin-bottom: 15px; margin-left: 30px;">
-                                    El artículo pertenece a una licitación ya registrada en el sistema y requiere un administrador para modificarlo
+                                    El artículo pertenece a una licitación ya registrada en el sistema y requiere un
+                                    administrador para modificarlo
                                 </p>
-                                
+
                                 <!-- Selector de licitaciones existentes -->
-                                <div id="selector-licitaciones" style="display: none; margin-top: 15px; margin-left: 30px;">
+                                <div id="selector-licitaciones"
+                                    style="display: none; margin-top: 15px; margin-left: 30px;">
                                     <label for="licitacion_id">Selecciona la licitación:</label>
                                     <select name="licitacion_id" id="licitacion_id" class="select-tipo">
                                         <option value="">-- Selecciona una licitación --</option>
                                         @foreach($licitaciones as $licitacion)
                                             <option value="{{ $licitacion->idLicitacion }}">
-                                                {{ $licitacion->folio }} - {{ $licitacion->proveedor_nombre ?? 'Sin proveedor' }}
+                                                {{ $licitacion->folio }} -
+                                                {{ $licitacion->proveedor_nombre ?? 'Sin proveedor' }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -577,7 +726,8 @@
                             <!-- Opción Licitación Nueva -->
                             <div style="border: 2px solid #e6ecf2; border-radius: 15px; padding: 20px;">
                                 <label class="radio-option">
-                                    <input type="radio" name="tipo_licitacion" value="nueva" onchange="toggleLicitacionSelector()">
+                                    <input type="radio" name="tipo_licitacion" value="nueva"
+                                        onchange="toggleLicitacionSelector()">
                                     <span style="font-weight: 600; color: #0f3057;">➕ Crear nueva licitación</span>
                                 </label>
                                 <p style="font-size: 13px; color: #666; margin-top: 5px; margin-left: 30px;">
@@ -588,7 +738,11 @@
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(3)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(3)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(3)">Siguiente →</button>
                     </div>
                 </div>
@@ -596,32 +750,44 @@
                 <!-- PASO 4: Proveedor -->
                 <div class="step-content hidden" id="content-4">
                     <h2 class="section-title">🏢 Paso 4: Proveedor</h2>
-                    
-                    <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 15px;">
+
+                    <div
+                        style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 15px;">
                         <div style="flex: 1; min-width: 200px;">
-                            <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 1</span>
+                            <span
+                                style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                1</span>
                             <span style="margin-left: 8px; color: #0f3057; font-weight: 500;">Tipo:</span>
                             <span id="resumen-tipo-paso4" style="color: #00587a; font-weight: 600;">(pendiente)</span>
                         </div>
                         <div style="flex: 1; min-width: 200px;">
-                            <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 2</span>
+                            <span
+                                style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                2</span>
                             <span style="margin-left: 8px; color: #0f3057; font-weight: 500;">Producto:</span>
-                            <span id="resumen-producto-paso4" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                            <span id="resumen-producto-paso4"
+                                style="color: #00587a; font-weight: 600;">(pendiente)</span>
                         </div>
                     </div>
 
                     <div class="tipo-producto-section">
                         <h3 style="color: #0f3057; margin-bottom: 15px;">¿Cómo deseas agregar el proveedor?</h3>
-                        
+
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="proveedor_opcion" value="existente" checked onchange="toggleProveedorInput()">
+                                <input type="radio" name="proveedor_opcion" value="existente" checked
+                                    onchange="toggleProveedorInput()">
                                 <span>Seleccionar de la lista</span>
                             </label>
-                            <label class="radio-option">
-                                <input type="radio" name="proveedor_opcion" value="nuevo" onchange="toggleProveedorInput()">
-                                <span>Agregar nuevo proveedor</span>
-                            </label>
+                            @auth
+                                @if(auth()->user()->role === 'admin')
+                                    <label class="radio-option">
+                                        <input type="radio" name="proveedor_opcion" value="nuevo"
+                                            onchange="toggleProveedorInput()">
+                                        <span>Agregar nuevo proveedor</span>
+                                    </label>
+                                @endif
+                            @endauth
                         </div>
 
                         <div id="proveedor-existente">
@@ -634,73 +800,65 @@
                             </select>
                         </div>
 
-                        <div id="proveedor-nuevo" style="display: none;">
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_nombre">Nombre del proveedor <span style="color: #dc3545;">*</span></label>
-                                <input type="text" 
-                                       name="nuevo_proveedor_nombre" 
-                                       id="nuevo_proveedor_nombre" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Ej: Tecnología SA, Suministros LP..."
-                                       maxlength="45">
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_rfc">RFC</label>
-                                <input type="text" 
-                                       name="nuevo_proveedor_rfc" 
-                                       id="nuevo_proveedor_rfc" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="RFC (opcional)"
-                                       maxlength="20">
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_telefono">Teléfono</label>
-                                <input type="text" 
-                                       name="nuevo_proveedor_telefono" 
-                                       id="nuevo_proveedor_telefono" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Teléfono (opcional)"
-                                       maxlength="20">
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_direccion">Dirección</label>
-                                <input type="text" 
-                                       name="nuevo_proveedor_direccion" 
-                                       id="nuevo_proveedor_direccion" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Dirección (opcional)"
-                                       maxlength="900">
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label for="nuevo_proveedor_correo">Correo electrónico</label>
-                                <input type="email" 
-                                       name="nuevo_proveedor_correo" 
-                                       id="nuevo_proveedor_correo" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="correo@ejemplo.com (opcional)"
-                                       maxlength="50">
-                            </div>
-                            
-                            <div class="input-group" style="margin-top: 20px;">
-                                <button type="button" class="btn-add" onclick="agregarNuevoProveedor()" id="btn-agregar-proveedor">
-                                    <span>➕</span> Agregar Proveedor
-                                </button>
-                            </div>
-                            <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                El nuevo proveedor se agregará inmediatamente a la base de datos
-                            </p>
-                            <div id="mensaje-exito-proveedor" style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
-                                ✅ Proveedor agregado correctamente
-                            </div>
-                        </div>
+                        @auth
+                            @if(auth()->user()->role === 'admin')
+                                <div id="proveedor-nuevo" style="display: none;">
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_nombre">Nombre del proveedor <span
+                                                style="color: #dc3545;">*</span></label>
+                                        <input type="text" name="nuevo_proveedor_nombre" id="nuevo_proveedor_nombre"
+                                            class="input-nuevo-tipo" placeholder="Ej: Tecnología SA, Suministros LP..."
+                                            maxlength="45">
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_rfc">RFC</label>
+                                        <input type="text" name="nuevo_proveedor_rfc" id="nuevo_proveedor_rfc"
+                                            class="input-nuevo-tipo" placeholder="RFC (opcional)" maxlength="20">
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_telefono">Teléfono</label>
+                                        <input type="text" name="nuevo_proveedor_telefono" id="nuevo_proveedor_telefono"
+                                            class="input-nuevo-tipo" placeholder="Teléfono (opcional)" maxlength="20">
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_direccion">Dirección</label>
+                                        <input type="text" name="nuevo_proveedor_direccion" id="nuevo_proveedor_direccion"
+                                            class="input-nuevo-tipo" placeholder="Dirección (opcional)" maxlength="900">
+                                    </div>
+
+                                    <div style="margin-bottom: 15px;">
+                                        <label for="nuevo_proveedor_correo">Correo electrónico</label>
+                                        <input type="email" name="nuevo_proveedor_correo" id="nuevo_proveedor_correo"
+                                            class="input-nuevo-tipo" placeholder="correo@ejemplo.com (opcional)" maxlength="50">
+                                    </div>
+
+                                    <div class="input-group" style="margin-top: 20px;">
+                                        <button type="button" class="btn-add" onclick="agregarNuevoProveedor()"
+                                            id="btn-agregar-proveedor">
+                                            <span>➕</span> Agregar Proveedor
+                                        </button>
+                                    </div>
+                                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                                        El nuevo proveedor se agregará inmediatamente a la base de datos
+                                    </p>
+                                    <div id="mensaje-exito-proveedor"
+                                        style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; color: #155724; border-radius: 8px;">
+                                        ✅ Proveedor agregado correctamente
+                                    </div>
+                                </div>
+                            @endif
+                        @endauth
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(4)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(4)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(4)">Siguiente →</button>
                     </div>
                 </div>
@@ -708,37 +866,43 @@
                 <!-- PASO 5: Licitación (SOLO para licitación nueva) -->
                 <div class="step-content hidden" id="content-5">
                     <h2 class="section-title">📄 Paso 5: Nueva Licitación</h2>
-                    
+
                     <!-- Resumen de pasos anteriores -->
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 10px;">
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 1</span>
+                                <span
+                                    style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    1</span>
                                 <span style="margin-left: 8px; color: #0f3057; font-weight: 500;">Tipo:</span>
-                                <span id="resumen-tipo-paso5" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-tipo-paso5"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 2</span>
+                                <span
+                                    style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    2</span>
                                 <span style="margin-left: 8px; color: #0f3057; font-weight: 500;">Producto:</span>
-                                <span id="resumen-producto-paso5" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-producto-paso5"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                         </div>
                         <div>
-                            <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 4</span>
+                            <span
+                                style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                4</span>
                             <span style="margin-left: 8px; color: #0f3057; font-weight: 500;">Proveedor:</span>
-                            <span id="resumen-proveedor-paso5" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                            <span id="resumen-proveedor-paso5"
+                                style="color: #00587a; font-weight: 600;">(pendiente)</span>
                         </div>
                     </div>
 
                     <div class="tipo-producto-section">
                         <div style="margin-bottom: 20px;">
-                            <label for="folio_licitacion">Folio de la licitación <span style="color: #dc3545;">*</span></label>
-                            <input type="text" 
-                                   id="folio_licitacion" 
-                                   name="folio_licitacion" 
-                                   class="input-nuevo-tipo" 
-                                   maxlength="50"
-                                   >
+                            <label for="folio_licitacion">Folio de la licitación <span
+                                    style="color: #dc3545;">*</span></label>
+                            <input type="text" id="folio_licitacion" name="folio_licitacion" class="input-nuevo-tipo"
+                                maxlength="50">
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Folio único que identifica la licitación
                             </p>
@@ -746,29 +910,21 @@
 
                         <div style="margin-bottom: 20px;">
                             <label for="descripcion_licitacion">Descripción</label>
-                            <textarea id="descripcion_licitacion" 
-                                      name="descripcion_licitacion" 
-                                      class="input-nuevo-tipo" 
-                                      placeholder="Descripción de la licitación (opcional)"
-                                      maxlength="255"
-                                      rows="3"
-                                      style="resize: vertical; min-height: 80px;"></textarea>
+                            <textarea id="descripcion_licitacion" name="descripcion_licitacion" class="input-nuevo-tipo"
+                                placeholder="Descripción de la licitación (opcional)" maxlength="255" rows="3"
+                                style="resize: vertical; min-height: 80px;"></textarea>
                         </div>
 
                         <div class="grid-2" style="margin-bottom: 20px;">
                             <div>
                                 <label for="fecha_inicio_licitacion">Fecha de inicio</label>
-                                <input type="date" 
-                                       id="fecha_inicio_licitacion" 
-                                       name="fecha_inicio_licitacion" 
-                                       class="input-nuevo-tipo">
+                                <input type="date" id="fecha_inicio_licitacion" name="fecha_inicio_licitacion"
+                                    class="input-nuevo-tipo">
                             </div>
                             <div>
                                 <label for="fecha_fin_licitacion">Fecha de fin</label>
-                                <input type="date" 
-                                       id="fecha_fin_licitacion" 
-                                       name="fecha_fin_licitacion" 
-                                       class="input-nuevo-tipo">
+                                <input type="date" id="fecha_fin_licitacion" name="fecha_fin_licitacion"
+                                    class="input-nuevo-tipo">
                             </div>
                         </div>
 
@@ -788,24 +944,25 @@
 
                         <div style="margin-bottom: 20px;">
                             <label for="recurso_licitacion">Recurso</label>
-                            <input type="text" 
-                                   id="recurso_licitacion" 
-                                   name="recurso_licitacion" 
-                                   class="input-nuevo-tipo" 
-                                   placeholder="Ej: Federal, Estatal, Propio..."
-                                   maxlength="45">
+                            <input type="text" id="recurso_licitacion" name="recurso_licitacion"
+                                class="input-nuevo-tipo" placeholder="Ej: Federal, Estatal, Propio..." maxlength="45">
                         </div>
 
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-top: 15px;">
                             <p style="color: #856404; font-size: 13px; margin: 0;">
-                                <span style="font-weight: 600;">ℹ️ Nota:</span> 
-                                Solo el folio es obligatorio. El total se calculará automáticamente con los detalles de compra.
+                                <span style="font-weight: 600;">ℹ️ Nota:</span>
+                                Solo el folio es obligatorio. El total se calculará automáticamente con los detalles de
+                                compra.
                             </p>
                         </div>
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(5)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(5)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(5)">Siguiente →</button>
                     </div>
                 </div>
@@ -813,87 +970,112 @@
                 <!-- PASO 6: Detalles de la Licitación (CANTIDAD Y PRECIO) -->
                 <div class="step-content hidden" id="content-6">
                     <h2 class="section-title">📋 Paso 6: Detalles de la Licitación</h2>
-                    
+
                     <!-- Resumen de pasos anteriores -->
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 10px;">
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 1</span>
+                                <span
+                                    style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    1</span>
                                 <span style="margin-left: 8px; color: #0f3057; font-weight: 500;">Tipo:</span>
-                                <span id="resumen-tipo-paso6" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-tipo-paso6"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 2</span>
+                                <span
+                                    style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    2</span>
                                 <span style="margin-left: 8px; color: #0f3057; font-weight: 500;">Producto:</span>
-                                <span id="resumen-producto-paso6" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-producto-paso6"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                         </div>
                         <div style="display: flex; flex-wrap: wrap; gap: 15px;">
                             <div style="flex: 1; min-width: 200px;">
-                                <span style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso 3</span>
+                                <span
+                                    style="background: #0f3057; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px;">Paso
+                                    3</span>
                                 <span style="margin-left: 8px; color: #0f3057; font-weight: 500;">Licitación:</span>
-                                <span id="resumen-licitacion-paso6" style="color: #00587a; font-weight: 600;">(pendiente)</span>
+                                <span id="resumen-licitacion-paso6"
+                                    style="color: #00587a; font-weight: 600;">(pendiente)</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="tipo-producto-section">
                         <h3 style="color: #0f3057; margin-bottom: 20px;">Detalles de compra</h3>
-                        
+
                         <div style="background: #f0f4f8; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
                             <div style="margin-bottom: 20px;">
-                                <label for="cantidad">Cantidad de unidades <span style="color: #dc3545;">*</span></label>
-                                <input type="number" 
-                                       id="cantidad" 
-                                       name="cantidad" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="Ej: 5, 10, 15..."
-                                       min="1"
-                                       value="1"
-                                       required
-                                       onchange="calcularSubtotal()">
+                                <label for="cantidad">Cantidad de unidades <span
+                                        style="color: #dc3545;">*</span></label>
+                                <input type="number" id="cantidad" name="cantidad" class="input-nuevo-tipo"
+                                    placeholder="Ej: 5, 10, 15..." min="1" value="1" required
+                                    onchange="calcularSubtotal()">
                                 <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                     Número de artículos idénticos que se compraron
                                 </p>
                             </div>
 
                             <div style="margin-bottom: 20px;">
-                                <label for="precio_unitario">Precio unitario <span style="color: #dc3545;">*</span></label>
-                                <input type="number" 
-                                       id="precio_unitario" 
-                                       name="precio_unitario" 
-                                       class="input-nuevo-tipo" 
-                                       placeholder="0.00"
-                                       step="0.01"
-                                       min="0"
-                                       required
-                                       onchange="calcularSubtotal()">
+                                <label for="precio_unitario">Precio unitario <span
+                                        style="color: #dc3545;">*</span></label>
+                                <input type="number" id="precio_unitario" name="precio_unitario"
+                                    class="input-nuevo-tipo" placeholder="0.00" step="0.01" min="0" required
+                                    onchange="calcularSubtotal()">
                                 <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                     Precio por unidad (sin IVA si aplica)
                                 </p>
                             </div>
 
-                            <div style="background: white; padding: 20px; border-radius: 10px; border: 2px solid #00587a;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <!-- Checkbox de IVA -->
+                            <div class="checkbox-iva">
+                                <input type="checkbox" id="aplicar_iva" onchange="calcularSubtotal()">
+                                <label for="aplicar_iva">Aplicar IVA (16%)</label>
+                            </div>
+
+                            <div
+                                style="background: white; padding: 20px; border-radius: 10px; border: 2px solid #00587a; margin-top: 15px;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                     <span style="font-weight: 600; color: #0f3057;">Subtotal:</span>
-                                    <span id="subtotal" style="font-size: 24px; font-weight: bold; color: #00587a;">$0.00</span>
+                                    <span id="subtotal"
+                                        style="font-size: 20px; font-weight: bold; color: #00587a;">$0.00</span>
                                 </div>
-                                <p style="font-size: 12px; color: #666; margin-top: 5px; text-align: right;">
-                                    Cantidad × Precio unitario
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-top: 1px dashed #ccc; padding-top: 10px;">
+                                    <span style="font-weight: 600; color: #0f3057;">IVA (16%):</span>
+                                    <span id="iva_monto" style="font-size: 16px; color: #6c757d;">$0.00</span>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #00587a; padding-top: 10px;">
+                                    <span style="font-weight: 600; color: #0f3057; font-size: 18px;">Total:</span>
+                                    <span id="total"
+                                        style="font-size: 24px; font-weight: bold; color: #28a745;">$0.00</span>
+                                </div>
+                                <p style="font-size: 12px; color: #666; margin-top: 10px; text-align: right;">
+                                    Cantidad × Precio unitario ${datosFormulario.detalle.precio_unitario.toFixed(2)} =
+                                    Subtotal
                                 </p>
                             </div>
                         </div>
 
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px;">
                             <p style="color: #856404; font-size: 13px; margin: 0;">
-                                <span style="font-weight: 600;">📝 Nota:</span> 
-                                En el siguiente paso podrás ingresar los datos individuales de cada artículo (serie, RP, etc.)
+                                <span style="font-weight: 600;">📝 Nota:</span>
+                                En el siguiente paso podrás ingresar los datos individuales de cada artículo (serie, RP,
+                                etc.)
                             </p>
                         </div>
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(6)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(6)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(6)">Siguiente →</button>
                     </div>
                 </div>
@@ -901,13 +1083,15 @@
                 <!-- PASO 7: Datos individuales de los Artículos -->
                 <div class="step-content hidden" id="content-7">
                     <h2 class="section-title">📦 Paso 7: Datos de los Artículos</h2>
-                    
+
                     <!-- Resumen de lo anterior -->
                     <div style="background: #eef2f6; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                         <p style="color: #0f3057; font-weight: 500;">
-                            <span style="background: #28a745; color: white; padding: 3px 10px; border-radius: 20px; margin-right: 10px;">Paso 6</span>
-                            <strong id="resumen-cantidad-paso7">0</strong> unidades de 
-                            <strong id="resumen-producto-paso7">(producto)</strong> a 
+                            <span
+                                style="background: #28a745; color: white; padding: 3px 10px; border-radius: 20px; margin-right: 10px;">Paso
+                                6</span>
+                            <strong id="resumen-cantidad-paso7">0</strong> unidades de
+                            <strong id="resumen-producto-paso7">(producto)</strong> a
                             <strong id="resumen-precio-paso7">$0.00</strong> c/u
                         </p>
                     </div>
@@ -917,7 +1101,11 @@
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(7)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(7)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="button" class="btn-primary" onclick="siguientePaso(7)">Siguiente →</button>
                     </div>
                 </div>
@@ -925,7 +1113,7 @@
                 <!-- PASO 8: RESUMEN -->
                 <div class="step-content hidden" id="content-8">
                     <h2 class="section-title">✅ Paso 8: Resumen</h2>
-                    
+
                     <div class="resumen-card">
                         <div class="resumen-titulo">
                             <span>📋</span> Datos a guardar
@@ -949,17 +1137,33 @@
                             ⚠️ Importante
                         </p>
                         <p style="color: #666; font-size: 14px;">
-                            Revisa que todos los datos sean correctos antes de guardar. 
+                            Revisa que todos los datos sean correctos antes de guardar.
                             Una vez guardado, se crearán todos los artículos en el sistema.
                         </p>
                     </div>
 
                     <div class="navigation-buttons">
-                        <button type="button" class="btn-secondary" onclick="pasoAnterior(8)">← Anterior</button>
+                        <div>
+                            <button type="button" class="btn-secondary" onclick="pasoAnterior(8)">← Anterior</button>
+                            <button type="button" class="btn-cancel" onclick="mostrarModalCancelar()"
+                                style="margin-left: 10px;">Cancelar</button>
+                        </div>
                         <button type="submit" class="btn-primary" id="btn-guardar">💾 Guardar Artículos</button>
                     </div>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div id="modal-cancelar" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ ¿Cancelar registro?</h3>
+            <p>¿Estás seguro de que deseas abandonar esta sección?<br>Los datos ingresados se perderán.</p>
+            <div class="modal-buttons">
+                <button class="btn-confirm" onclick="cancelarRegistro()">Sí, abandonar</button>
+                <button class="btn-cancel-modal" onclick="cerrarModal()">No, continuar</button>
+            </div>
         </div>
     </div>
 
@@ -979,16 +1183,32 @@
             detalle: {
                 cantidad: 0,
                 precio_unitario: 0,
-                subtotal: 0
+                subtotal: 0,
+                iva: 0,
+                total: 0,
+                aplicar_iva: false
             },
             articulos: [] // Array para almacenar los datos de cada artículo
         };
+
+        function mostrarModalCancelar() {
+            document.getElementById('modal-cancelar').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-cancelar').style.display = 'none';
+        }
+
+        function cancelarRegistro() {
+            // Redirigir al dashboard principal
+            window.location.href = "{{ route('dashboard') }}";
+        }
 
         function toggleTipoProductoInput() {
             const opcion = document.querySelector('input[name="tipo_producto_opcion"]:checked').value;
             const divExistente = document.getElementById('tipo-existente');
             const divNuevo = document.getElementById('tipo-nuevo');
-            
+
             if (opcion === 'existente') {
                 divExistente.style.display = 'block';
                 divNuevo.style.display = 'none';
@@ -1005,7 +1225,7 @@
         function toggleLicitacionSelector() {
             const tipo = document.querySelector('input[name="tipo_licitacion"]:checked')?.value;
             const selector = document.getElementById('selector-licitaciones');
-            
+
             if (tipo === 'existente') {
                 selector.style.display = 'block';
             } else {
@@ -1016,8 +1236,20 @@
         function calcularSubtotal() {
             const cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
             const precio = parseFloat(document.getElementById('precio_unitario').value) || 0;
+            const aplicarIVA = document.getElementById('aplicar_iva').checked;
             const subtotal = cantidad * precio;
+            const ivaMonto = aplicarIVA ? subtotal * 0.16 : 0;
+            const total = subtotal + ivaMonto;
+
             document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('iva_monto').textContent = `$${ivaMonto.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+
+            // Guardar en datosFormulario
+            datosFormulario.detalle.subtotal = subtotal;
+            datosFormulario.detalle.iva = ivaMonto;
+            datosFormulario.detalle.total = total;
+            datosFormulario.detalle.aplicar_iva = aplicarIVA;
         }
 
         function generarArticulos() {
@@ -1102,7 +1334,7 @@
             const input = document.getElementById('nuevo_tipo_producto');
             const nombre = input.value.trim();
             const btn = document.getElementById('btn-agregar-tipo');
-            
+
             if (!nombre) {
                 mostrarAlerta('error', 'Por favor ingresa un nombre para el tipo de producto');
                 return;
@@ -1146,7 +1378,7 @@
                         nombre: nombre,
                         nuevo: true
                     };
-                    
+
                     actualizarTipoProductoEnPaso2();
                     actualizarResumenesPaso3();
                     actualizarResumenesPaso4();
@@ -1180,7 +1412,7 @@
             const nombre = document.getElementById('nombre_producto').value.trim();
             const marca = document.getElementById('marca_producto').value.trim();
             const modelo = document.getElementById('modelo_producto').value.trim();
-            
+
             datosFormulario.producto = {
                 nombre: nombre,
                 marca: marca || null,
@@ -1193,7 +1425,7 @@
                 const select = document.getElementById('licitacion_id');
                 const selectedOption = select.options[select.selectedIndex];
                 const [folio] = selectedOption.text.split(' - ');
-                
+
                 datosFormulario.licitacion = {
                     id: select.value,
                     folio: folio,
@@ -1217,7 +1449,7 @@
                 document.getElementById(`content-${i}`).classList.add('hidden');
                 document.getElementById(`step-${i}`).classList.remove('active');
             }
-            
+
             document.getElementById(`content-${paso}`).classList.remove('hidden');
             document.getElementById(`step-${paso}`).classList.add('active');
             document.getElementById('paso-actual').textContent = paso;
@@ -1308,7 +1540,14 @@
 
             html += `<div class="resumen-item"><div class="resumen-label">Cantidad</div><div class="resumen-value">${datosFormulario.detalle.cantidad} unidades</div></div>`;
             html += `<div class="resumen-item"><div class="resumen-label">Precio unitario</div><div class="resumen-value">$${datosFormulario.detalle.precio_unitario.toFixed(2)}</div></div>`;
-            html += `<div class="resumen-item"><div class="resumen-label">Subtotal</div><div class="resumen-value" style="color: #28a745;">$${datosFormulario.detalle.subtotal.toFixed(2)}</div></div>`;
+            html += `<div class="resumen-item"><div class="resumen-label">Subtotal</div><div class="resumen-value">$${datosFormulario.detalle.subtotal.toFixed(2)}</div></div>`;
+
+            if (datosFormulario.detalle.aplicar_iva) {
+                html += `<div class="resumen-item"><div class="resumen-label">IVA (16%)</div><div class="resumen-value">$${datosFormulario.detalle.iva.toFixed(2)}</div></div>`;
+                html += `<div class="resumen-item"><div class="resumen-label">Total</div><div class="resumen-value" style="color: #28a745;">$${datosFormulario.detalle.total.toFixed(2)}</div></div>`;
+            } else {
+                html += `<div class="resumen-item"><div class="resumen-label">Total</div><div class="resumen-value" style="color: #28a745;">$${datosFormulario.detalle.subtotal.toFixed(2)}</div></div>`;
+            }
 
             datosFormulario.articulos.forEach((art, index) => {
                 artsHtml += `
@@ -1325,7 +1564,7 @@
         function siguientePaso(paso) {
             if (paso === 1) {
                 const opcion = document.querySelector('input[name="tipo_producto_opcion"]:checked').value;
-                
+
                 if (opcion === 'existente') {
                     const tipoId = document.getElementById('tipo_producto_id').value;
                     if (!tipoId) {
@@ -1351,7 +1590,7 @@
                     }
                 }
             }
-            
+
             if (paso === 2) {
                 const nombre = document.getElementById('nombre_producto').value.trim();
                 if (!nombre) {
@@ -1360,41 +1599,41 @@
                 }
                 guardarDatosProducto();
             }
-            
+
             if (paso === 3) {
                 const tipo = document.querySelector('input[name="tipo_licitacion"]:checked');
                 if (!tipo) {
                     mostrarAlerta('error', 'Por favor selecciona el tipo de licitación');
                     return;
                 }
-                
+
                 datosFormulario.tipo_licitacion = tipo.value;
-                
+
                 if (tipo.value === 'existente') {
                     const licitacionId = document.getElementById('licitacion_id').value;
                     if (!licitacionId) {
                         mostrarAlerta('error', 'Por favor selecciona una licitación');
                         return;
                     }
-                    
+
                     const select = document.getElementById('licitacion_id');
                     const selectedOption = select.options[select.selectedIndex];
                     const [folio] = selectedOption.text.split(' - ');
-                    
+
                     datosFormulario.licitacion = {
                         id: select.value,
                         folio: folio,
                         existente: true
                     };
-                    
+
                     mostrarPaso(6);
                     return;
                 }
             }
-            
+
             if (paso === 4) {
                 const opcion = document.querySelector('input[name="proveedor_opcion"]:checked').value;
-                
+
                 if (opcion === 'existente') {
                     const proveedorId = document.getElementById('proveedor_id').value;
                     if (!proveedorId) {
@@ -1420,7 +1659,7 @@
                     }
                 }
             }
-            
+
             if (paso === 5) {
                 const folio = document.getElementById('folio_licitacion').value.trim();
                 if (!folio) {
@@ -1433,22 +1672,20 @@
             if (paso === 6) {
                 const cantidad = parseInt(document.getElementById('cantidad').value);
                 const precio = parseFloat(document.getElementById('precio_unitario').value);
-                
+
                 if (!cantidad || cantidad < 1) {
                     mostrarAlerta('error', 'La cantidad debe ser al menos 1');
                     return;
                 }
-                
+
                 if (!precio || precio < 0) {
                     mostrarAlerta('error', 'El precio unitario es requerido');
                     return;
                 }
 
-                datosFormulario.detalle = {
-                    cantidad: cantidad,
-                    precio_unitario: precio,
-                    subtotal: cantidad * precio
-                };
+                datosFormulario.detalle.cantidad = cantidad;
+                datosFormulario.detalle.precio_unitario = precio;
+                // Los valores de subtotal, iva y total ya se calcularon en calcularSubtotal()
             }
 
             if (paso === 7) {
@@ -1456,7 +1693,7 @@
                     return;
                 }
             }
-            
+
             mostrarPaso(paso + 1);
         }
 
@@ -1475,13 +1712,13 @@
             alerta.className = `alert-message alert-${tipo}`;
             alerta.textContent = mensaje;
             alerta.style.display = 'block';
-            
+
             setTimeout(() => {
                 alerta.style.display = 'none';
             }, 3000);
         }
 
-        document.getElementById('form-articulo').addEventListener('submit', function(e) {
+        document.getElementById('form-articulo').addEventListener('submit', function (e) {
             if (pasoActual < 8) {
                 e.preventDefault();
                 mostrarAlerta('error', 'Por favor revisa el resumen antes de guardar');
@@ -1496,7 +1733,7 @@
             const opcion = document.querySelector('input[name="proveedor_opcion"]:checked').value;
             const divExistente = document.getElementById('proveedor-existente');
             const divNuevo = document.getElementById('proveedor-nuevo');
-            
+
             if (opcion === 'existente') {
                 divExistente.style.display = 'block';
                 divNuevo.style.display = 'none';
@@ -1515,7 +1752,7 @@
         async function agregarNuevoProveedor() {
             const nombre = document.getElementById('nuevo_proveedor_nombre').value.trim();
             const btn = document.getElementById('btn-agregar-proveedor');
-            
+
             if (!nombre) {
                 mostrarAlerta('error', 'El nombre del proveedor es requerido');
                 return;

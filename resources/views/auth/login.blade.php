@@ -223,11 +223,6 @@
                 @enderror
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; gap: 5px; font-size: 14px; color: #666;">
-                    <input type="checkbox" name="remember"> Recordarme
-                </label>
-            </div>
 
             <button type="submit" class="btn-login">
                 Entrar al Sistema

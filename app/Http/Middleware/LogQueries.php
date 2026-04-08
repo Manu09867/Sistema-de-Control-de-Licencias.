@@ -7,11 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\QueryLog;
+use Carbon\Carbon;
 
 class LogQueries
 {
     public function handle(Request $request, Closure $next)
     {
+        // ✅ Limpiar sesiones viejas (más de 2 horas sin actividad)
+        $this->limpiarSesionesViejas();
+        
         DB::enableQueryLog();
         $response = $next($request);
         $queries = DB::getQueryLog();
@@ -23,11 +27,40 @@ class LogQueries
         return $response;
     }
 
+    /**
+     * Limpiar sesiones que llevan más de X tiempo sin actividad
+     */
+    private function limpiarSesionesViejas()
+    {
+        try {
+            // Eliminar sesiones con más de 2 horas (120 minutos) de inactividad
+            $tiempoLimite = Carbon::now()->subMinutes(120)->timestamp;
+            
+            DB::table('sessions')
+                ->where('last_activity', '<', $tiempoLimite)
+                ->delete();
+        } catch (\Exception $e) {
+            // Silencioso - no queremos que esto afecte la aplicación
+        }
+    }
+
     private function guardarLog($query, $request)
     {
-        // Evitar recursión
-        if (str_contains(strtolower($query['query']), '`logs`')) {
-            return;
+        // ✅ Tablas a ignorar (sistema Laravel)
+        $tablasIgnoradas = [
+            '`logs`',
+            '`sessions`',
+            '`cache`',
+            '`jobs`',
+            '`migrations`',
+            '`password_resets`',
+            '`failed_jobs`',
+            '`personal_access_tokens`',
+        ];
+        foreach ($tablasIgnoradas as $tabla) {
+            if (str_contains(strtolower($query['query']), $tabla)) {
+                return;
+            }
         }
 
         // Solo registrar cambios importantes
@@ -36,7 +69,7 @@ class LogQueries
             return;
         }
 
-        // ✅ Reconstruir query con valores reales
+        // Reconstruir query con valores reales
         $sqlCompleto = $this->reconstruirQuery($query['query'], $query['bindings']);
 
         try {
@@ -45,7 +78,7 @@ class LogQueries
                 'user_name'       => Auth::user()?->name,
                 'accion'          => $accion,
                 'tabla'           => $this->determinarTabla($query['query']),
-                'query'           => $sqlCompleto, // ✅ antes era $query['query']
+                'query'           => $sqlCompleto,
                 'resultado'       => 'OK',
                 'filas_afectadas' => 0,
                 'duracion'        => $query['time'] / 1000,
