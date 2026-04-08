@@ -104,7 +104,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
                 'nombre' => 'required|string|max:100'
             ]);
 
-            $existe = DB::table('Tipo_Producto')
+            $existe = DB::table('tipo_producto')
                 ->whereRaw('LOWER(NombreTP) = ?', [strtolower($validated['nombre'])])
                 ->exists();
                 
@@ -115,7 +115,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
                 ], 400);
             }
 
-            $id = DB::table('Tipo_Producto')->insertGetId([
+            $id = DB::table('tipo_producto')->insertGetId([
                 'NombreTP' => $validated['nombre']
             ]);
             

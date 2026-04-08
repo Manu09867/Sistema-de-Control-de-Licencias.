@@ -134,8 +134,8 @@ class LicitacionController extends Controller
                     foreach ($articulos as $articulo) {
                         DB::table('asignacion_licencia')->where('idArticulo', $articulo->idArticulo)->delete();
                         DB::table('grupo_articulo')->where('idArticulo', $articulo->idArticulo)->delete();
-                        DB::table('Articulo_Router')->where('idArticulo', $articulo->idArticulo)->delete();
-                        DB::table('Articulo_Switch')->where('idArticulo', $articulo->idArticulo)->delete();
+                        DB::table('articulo_router')->where('idArticulo', $articulo->idArticulo)->delete();
+                        DB::table('articulo_switch')->where('idArticulo', $articulo->idArticulo)->delete();
                         DB::table('articulo')->where('idArticulo', $articulo->idArticulo)->delete();
                     }
                 }
@@ -168,63 +168,65 @@ class LicitacionController extends Controller
      * 🔄 ACTUALIZAR LICITACIÓN (SOLO ADMIN)
      */
     public function update(Request $request, $id)
-    {
-        if (auth()->user()->role !== 'admin') {
-            return response()->json([
-                'success' => false,
-                'message' => 'No tienes permisos para realizar esta acción'
-            ], 403);
-        }
-
-        try {
-            $validated = $request->validate([
-                'folio' => 'required|string|max:50',
-                'idProveedor' => 'nullable|exists:proveedor,idProveedor',
-                'estado' => 'required|string|in:Abierta,En proceso,Adjudicada,Cerrada,Cancelada',
-                'recurso' => 'nullable|string|max:45',
-                'fecha_inicio' => 'nullable|date',
-                'fecha_fin' => 'nullable|date',
-                'total' => 'nullable|numeric|min:0',
-                'descripcion' => 'nullable|string|max:255',
-            ]);
-
-            DB::beginTransaction();
-
-            DB::table('licitacion')
-                ->where('idLicitacion', $id)
-                ->update([
-                    'folio' => $validated['folio'],
-                    'idProveedor' => $validated['idProveedor'],
-                    'estadoL' => $validated['estado'],
-                    'Recurso' => $validated['recurso'],
-                    'FechaI' => $validated['fecha_inicio'],
-                    'FechaF' => $validated['fecha_fin'],
-                    'Total' => $validated['total'],
-                    'DescripcionL' => $validated['descripcion']
-                ]);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => '✅ Licitación actualizada correctamente'
-            ]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación: ' . implode(', ', $e->errors())
-            ], 422);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Error al actualizar licitación: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar: ' . $e->getMessage()
-            ], 500);
-        }
+{
+    if (auth()->user()->role !== 'admin') {
+        return response()->json([
+            'success' => false,
+            'message' => 'No tienes permisos para realizar esta acción'
+        ], 403);
     }
+
+    try {
+        $validated = $request->validate([
+            'folio' => 'required|string|max:50',
+            'idProveedor' => 'nullable|exists:proveedor,idProveedor',
+            'estado' => 'required|string|in:Abierta,En proceso,Adjudicada,Cerrada,Cancelada',
+            'recurso' => 'nullable|string|max:45',
+            'fecha_inicio' => 'nullable|date',
+            'fecha_fin' => 'nullable|date',
+            'descripcion' => 'nullable|string|max:255',
+            // ❌ ELIMINA 'total' de aquí - no se debe editar manualmente
+        ]);
+
+        DB::beginTransaction();
+
+        DB::table('licitacion')
+            ->where('idLicitacion', $id)
+            ->update([
+                'folio' => $validated['folio'],
+                'idProveedor' => $validated['idProveedor'],
+                'estadoL' => $validated['estado'],
+                'Recurso' => $validated['recurso'],
+                'FechaI' => $validated['fecha_inicio'],
+                'FechaF' => $validated['fecha_fin'],
+                'DescripcionL' => $validated['descripcion']
+                // ❌ NO incluyas 'Total' aquí - se calcula automáticamente desde los detalles
+            ]);
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => '✅ Licitación actualizada correctamente'
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error de validación: ' . implode(', ', array_map(function($errors) {
+                return implode(', ', $errors);
+            }, $e->errors()))
+        ], 422);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Error al actualizar licitación: ' . $e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al actualizar: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 
 }

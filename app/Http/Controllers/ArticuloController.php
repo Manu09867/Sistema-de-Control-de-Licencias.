@@ -37,15 +37,15 @@ class ArticuloController extends Controller
                 dl.Cantidad,
                 dl.PrecioU,
                 dl.Subtotal
-            FROM Articulo a
-            INNER JOIN Producto p ON a.idProducto = p.idProducto
-            INNER JOIN Tipo_Producto tp ON p.idTipo_Producto = tp.idTipo_Producto
-            INNER JOIN Detalle_Licitacion dl ON a.idDetalle_Licitacion = dl.idDetalle_Licitacion
-            INNER JOIN Licitacion l ON dl.idLicitacion = l.idLicitacion
-            INNER JOIN Proveedor pr ON l.idProveedor = pr.idProveedor
-            LEFT JOIN Area ar ON a.idArea = ar.idArea
-            LEFT JOIN Grupo_Articulo ga ON a.idArticulo = ga.idArticulo
-            LEFT JOIN Grupo g ON ga.idGrupo = g.idGrupo
+            FROM articulo a
+            INNER JOIN producto p ON a.idProducto = p.idProducto
+            INNER JOIN tipo_producto tp ON p.idTipo_Producto = tp.idTipo_Producto
+            INNER JOIN detalle_licitacion dl ON a.idDetalle_Licitacion = dl.idDetalle_Licitacion
+            INNER JOIN licitacion l ON dl.idLicitacion = l.idLicitacion
+            INNER JOIN proveedor pr ON l.idProveedor = pr.idProveedor
+            LEFT JOIN area ar ON a.idArea = ar.idArea
+            LEFT JOIN grupo_articulo ga ON a.idArticulo = ga.idArticulo
+            LEFT JOIN grupo g ON ga.idGrupo = g.idGrupo
             WHERE a.RP = ?
         ", [$rp]);
 
@@ -63,9 +63,9 @@ class ArticuloController extends Controller
                 lic.Fechavencimiento,
                 lic.estadoLic,
                 s.Nombre AS software
-            FROM Licencia lic
-            INNER JOIN Asignacion_Licencia al ON lic.idLicencia = al.idLicencia
-            INNER JOIN Software s ON lic.idSoftware = s.idSoftware
+            FROM licencia lic
+            INNER JOIN asignacion_licencia al ON lic.idLicencia = al.idLicencia
+            INNER JOIN software s ON lic.idSoftware = s.idSoftware
             WHERE al.idArticulo = ?
         ", [$articulo->idArticulo]);
 
@@ -80,8 +80,8 @@ class ArticuloController extends Controller
         }
 
         // Obtener información de red (router o switch)
-        $router = DB::select("SELECT * FROM Articulo_Router WHERE idArticulo = ?", [$articulo->idArticulo]);
-        $switch = DB::select("SELECT * FROM Articulo_Switch WHERE idArticulo = ?", [$articulo->idArticulo]);
+        $router = DB::select("SELECT * FROM articulo_router WHERE idArticulo = ?", [$articulo->idArticulo]);
+        $switch = DB::select("SELECT * FROM articulo_switch WHERE idArticulo = ?", [$articulo->idArticulo]);
         
         $infoRed = null;
         $tipoRed = null;
@@ -153,7 +153,7 @@ class ArticuloController extends Controller
      */
     public function create()
     {
-        $tiposProducto = DB::table('Tipo_Producto')
+        $tiposProducto = DB::table('tipo_producto')
             ->orderBy('NombreTP')
             ->get();
             
@@ -212,6 +212,9 @@ class ArticuloController extends Controller
             }
             // ===== FIN VALIDACIÓN =====
 
+            // Determinar el total a guardar (con o sin IVA)
+            $totalAGuardar = $datos['detalle']['aplicar_iva'] ? $datos['detalle']['total'] : $datos['detalle']['subtotal'];
+
             // ===== 1. TIPO DE PRODUCTO =====
             $tipoProductoId = $datos['tipo_producto']['id'];
 
@@ -246,7 +249,7 @@ class ArticuloController extends Controller
                     'FechaF' => $datos['licitacion']['fecha_fin'] ?? null,
                     'estadoL' => $datos['licitacion']['estado'] ?? 'Abierta',
                     'idProveedor' => $proveedorId,
-                    'Total' => $datos['detalle']['subtotal'],
+                    'Total' => $totalAGuardar,
                     'Recurso' => $datos['licitacion']['recurso'] ?? null
                 ]);
             }
@@ -259,14 +262,14 @@ class ArticuloController extends Controller
                 'idProducto' => $productoId,
                 'Cantidad' => $datos['detalle']['cantidad'],
                 'PrecioU' => $datos['detalle']['precio_unitario'],
-                'Subtotal' => $datos['detalle']['subtotal']
+                'Subtotal' => $totalAGuardar
             ]);
 
             // Si NO es nueva licitación (es existente), sumar al total
             if (!$esNuevaLicitacion) {
                 DB::table('licitacion')
                     ->where('idLicitacion', $licitacionId)
-                    ->increment('Total', $datos['detalle']['subtotal']);
+                    ->increment('Total', $totalAGuardar);
             }
 
             // ===== 6. ARTÍCULOS (varios por cantidad) =====
@@ -414,7 +417,7 @@ class ArticuloController extends Controller
 
             // 4. Manejar INFORMACIÓN DE RED
             if (!empty($validated['tipoRed'])) {
-                $tablaRed = $validated['tipoRed'] === 'router' ? 'Articulo_Router' : 'Articulo_Switch';
+                $tablaRed = $validated['tipoRed'] === 'router' ? 'articulo_router' : 'articulo_switch';
                 $campoMac = $validated['tipoRed'] === 'router' ? 'MACR' : 'MACSw';
                 $campoIp = $validated['tipoRed'] === 'router' ? 'IpaddressR' : 'IpaddressSw';
                 $campoObs = $validated['tipoRed'] === 'router' ? 'ObservacionR' : 'ObservacionSw';
@@ -498,8 +501,8 @@ class ArticuloController extends Controller
 
             // Eliminar relaciones
             DB::table('grupo_articulo')->where('idArticulo', $id)->delete();
-            DB::table('Articulo_Router')->where('idArticulo', $id)->delete();
-            DB::table('Articulo_Switch')->where('idArticulo', $id)->delete();
+            DB::table('articulo_router')->where('idArticulo', $id)->delete();
+            DB::table('articulo_switch')->where('idArticulo', $id)->delete();
             
             // Eliminar artículo
             DB::table('articulo')->where('idArticulo', $id)->delete();

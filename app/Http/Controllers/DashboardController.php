@@ -56,11 +56,11 @@ class DashboardController extends Controller
                 l.Fechavencimiento AS licencia_vencimiento,
                 COALESCE((
                     SELECT COUNT(*) 
-                    FROM Asignacion_Licencia al2 
+                    FROM asignacion_licencia al2 
                     WHERE al2.idLicencia = l.idLicencia
                 ), 0) AS total_articulos_asignados
-            FROM Licencia l
-            LEFT JOIN Software s ON l.idSoftware = s.idSoftware
+            FROM licencia l
+            LEFT JOIN software s ON l.idSoftware = s.idSoftware
             ORDER BY l.idLicencia DESC
             LIMIT 10
         ");
@@ -73,7 +73,7 @@ class DashboardController extends Controller
         ];
         
         // Obtener datos para los filtros
-        $tiposProducto = DB::table('Tipo_Producto')
+        $tiposProducto = DB::table('tipo_producto')
             ->orderBy('NombreTP')
             ->get();
             
@@ -128,17 +128,17 @@ class DashboardController extends Controller
                 l.Fechavencimiento AS licencia_vencimiento,
                 COALESCE((
                     SELECT COUNT(*) 
-                    FROM Asignacion_Licencia al2 
+                    FROM asignacion_licencia al2 
                     WHERE al2.idLicencia = l.idLicencia
                 ), 0) AS total_articulos_asignados
-            FROM Licencia l
-            LEFT JOIN Software s ON l.idSoftware = s.idSoftware
+            FROM licencia l
+            LEFT JOIN software s ON l.idSoftware = s.idSoftware
             ORDER BY l.idLicencia DESC
             LIMIT 10
         ");
         
         // Obtener datos para los filtros
-        $tiposProducto = DB::table('Tipo_Producto')
+        $tiposProducto = DB::table('tipo_producto')
             ->orderBy('NombreTP')
             ->get();
             

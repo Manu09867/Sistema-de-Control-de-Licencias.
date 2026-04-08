@@ -26,7 +26,7 @@ class TipoProductoController extends Controller
                 ], 400);
             }
             
-            DB::table('Tipo_Producto')->where('idTipo_Producto', $id)->delete();
+            DB::table('tipo_producto')->where('idTipo_Producto', $id)->delete();
             return response()->json([
                 'success' => true,
                 'message' => '✅ Tipo eliminado correctamente'

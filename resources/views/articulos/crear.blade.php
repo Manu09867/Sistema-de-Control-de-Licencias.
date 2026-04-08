@@ -1751,6 +1751,7 @@
 
         async function agregarNuevoProveedor() {
             const nombre = document.getElementById('nuevo_proveedor_nombre').value.trim();
+            const correo = document.getElementById('nuevo_proveedor_correo').value.trim();
             const btn = document.getElementById('btn-agregar-proveedor');
 
             if (!nombre) {
@@ -1758,26 +1759,49 @@
                 return;
             }
 
+            // ✅ VALIDAR CORREO ANTES DE ENVIAR
+            if (correo && !correo.includes('@')) {
+                mostrarAlerta('error', '⚠️ El correo electrónico debe contener un "@" (Ej: proveedor@empresa.com)');
+                return;
+            }
+
             btn.disabled = true;
             btn.innerHTML = '<span>⏳</span> Agregando...';
 
             try {
+                const token = document.querySelector('meta[name="csrf-token"]')?.content;
+                if (!token) {
+                    throw new Error('No se encontró el token CSRF');
+                }
+
                 const response = await fetch('/api/proveedores', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token
                     },
                     body: JSON.stringify({
                         nombre: nombre,
                         rfc: document.getElementById('nuevo_proveedor_rfc').value.trim() || null,
                         telefono: document.getElementById('nuevo_proveedor_telefono').value.trim() || null,
                         direccion: document.getElementById('nuevo_proveedor_direccion').value.trim() || null,
-                        correo: document.getElementById('nuevo_proveedor_correo').value.trim() || null
+                        correo: correo || null
                     })
                 });
 
-                const data = await response.json();
+                const text = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('Respuesta no válida:', text);
+                    throw new Error('El servidor devolvió una respuesta inválida');
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.message || `Error HTTP: ${response.status}`);
+                }
 
                 if (data.success) {
                     document.getElementById('mensaje-exito-proveedor').style.display = 'block';
@@ -1801,23 +1825,18 @@
                     document.querySelector('input[name="proveedor_opcion"][value="existente"]').checked = true;
                     toggleProveedorInput();
 
-                    datosFormulario.proveedor = {
-                        id: data.id,
-                        nombre: nombre,
-                        nuevo: true
-                    };
-
-                    mostrarAlerta('success', 'Proveedor agregado correctamente');
+                    mostrarAlerta('success', '✅ Proveedor agregado correctamente');
                 } else {
                     mostrarAlerta('error', data.message || 'Error al agregar el proveedor');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                mostrarAlerta('error', 'Error de conexión al servidor');
+                mostrarAlerta('error', error.message || 'Error de conexión al servidor');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<span>➕</span> Agregar Proveedor';
             }
         }
+
     </script>
 </x-app-layout>

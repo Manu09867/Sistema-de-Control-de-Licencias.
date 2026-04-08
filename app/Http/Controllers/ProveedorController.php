@@ -93,6 +93,17 @@ class ProveedorController extends Controller
                 'message' => '✅ Proveedor agregado correctamente'
             ]);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejo correcto de errores de validación
+            $errors = $e->errors();
+            $errorMessages = [];
+            foreach ($errors as $field => $messages) {
+                $errorMessages[] = implode(', ', $messages);
+            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación: ' . implode(', ', $errorMessages)
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -134,6 +145,17 @@ class ProveedorController extends Controller
                 'message' => '✅ Proveedor actualizado correctamente'
             ]);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Manejo correcto de errores de validación
+            $errors = $e->errors();
+            $errorMessages = [];
+            foreach ($errors as $field => $messages) {
+                $errorMessages[] = implode(', ', $messages);
+            }
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación: ' . implode(', ', $errorMessages)
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -143,74 +165,74 @@ class ProveedorController extends Controller
     }
 
     public function destroy(Request $request, $id)
-{
-    if (auth()->user()->role !== 'admin') {
-        return response()->json([
-            'success' => false,
-            'message' => 'No tienes permisos'
-        ], 403);
+    {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permisos'
+            ], 403);
+        }
+
+        try {
+            if (!Hash::check($request->password, auth()->user()->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Contraseña incorrecta'
+                ], 401);
+            }
+
+            // Verificar si tiene licitaciones asociadas
+            $licitacionesAsociadas = DB::table('licitacion')
+                ->where('idProveedor', $id)
+                ->count();
+
+            if ($licitacionesAsociadas > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "❌ No se puede eliminar el proveedor porque tiene {$licitacionesAsociadas} licitación(es) asociada(s)."
+                ], 400);
+            }
+
+            // Verificar si tiene productos asociados (a través de licitaciones con hardware)
+            $productosAsociados = DB::table('detalle_licitacion as dl')
+                ->join('licitacion as l', 'dl.idLicitacion', '=', 'l.idLicitacion')
+                ->where('l.idProveedor', $id)
+                ->where('dl.TipoItem', 'HARDWARE')
+                ->count();
+
+            if ($productosAsociados > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "❌ No se puede eliminar el proveedor porque tiene {$productosAsociados} producto(s) asociado(s) a través de licitaciones."
+                ], 400);
+            }
+
+            // Verificar si tiene software asociado
+            $softwareAsociado = DB::table('detalle_licitacion as dl')
+                ->join('licitacion as l', 'dl.idLicitacion', '=', 'l.idLicitacion')
+                ->where('l.idProveedor', $id)
+                ->where('dl.TipoItem', 'SOFTWARE')
+                ->count();
+
+            if ($softwareAsociado > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "❌ No se puede eliminar el proveedor porque tiene {$softwareAsociado} software(s) asociado(s) a través de licitaciones."
+                ], 400);
+            }
+
+            DB::table('proveedor')->where('idProveedor', $id)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Proveedor eliminado correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar: ' . $e->getMessage()
+            ], 500);
+        }
     }
-
-    try {
-        if (!Hash::check($request->password, auth()->user()->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Contraseña incorrecta'
-            ], 401);
-        }
-
-        // Verificar si tiene licitaciones asociadas
-        $licitacionesAsociadas = DB::table('licitacion')
-            ->where('idProveedor', $id)
-            ->count();
-
-        if ($licitacionesAsociadas > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => "❌ No se puede eliminar el proveedor porque tiene {$licitacionesAsociadas} licitación(es) asociada(s)."
-            ], 400);
-        }
-
-        // Verificar si tiene productos asociados (a través de licitaciones con hardware)
-        $productosAsociados = DB::table('detalle_licitacion as dl')
-            ->join('licitacion as l', 'dl.idLicitacion', '=', 'l.idLicitacion')
-            ->where('l.idProveedor', $id)
-            ->where('dl.TipoItem', 'HARDWARE')
-            ->count();
-
-        if ($productosAsociados > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => "❌ No se puede eliminar el proveedor porque tiene {$productosAsociados} producto(s) asociado(s) a través de licitaciones."
-            ], 400);
-        }
-
-        // Verificar si tiene software asociado
-        $softwareAsociado = DB::table('detalle_licitacion as dl')
-            ->join('licitacion as l', 'dl.idLicitacion', '=', 'l.idLicitacion')
-            ->where('l.idProveedor', $id)
-            ->where('dl.TipoItem', 'SOFTWARE')
-            ->count();
-
-        if ($softwareAsociado > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => "❌ No se puede eliminar el proveedor porque tiene {$softwareAsociado} software(s) asociado(s) a través de licitaciones."
-            ], 400);
-        }
-
-        DB::table('proveedor')->where('idProveedor', $id)->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => '✅ Proveedor eliminado correctamente'
-        ]);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al eliminar: ' . $e->getMessage()
-        ], 500);
-    }
-}
 }

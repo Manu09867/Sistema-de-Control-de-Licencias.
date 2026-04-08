@@ -35,11 +35,11 @@ class BusquedaController extends Controller
                     l.Fechavencimiento AS licencia_vencimiento,
                     COALESCE((
                         SELECT COUNT(*) 
-                        FROM Asignacion_Licencia al2 
+                        FROM asignacion_licencia al2 
                         WHERE al2.idLicencia = l.idLicencia
                     ), 0) AS total_articulos_asignados
-                FROM Licencia l
-                LEFT JOIN Software s ON l.idSoftware = s.idSoftware
+                FROM licencia l
+                LEFT JOIN software s ON l.idSoftware = s.idSoftware
                 WHERE 1=1
                     AND (l.Clave LIKE ? OR s.Nombre LIKE ? OR ? = '')
                 ORDER BY l.idLicencia DESC
@@ -66,12 +66,12 @@ class BusquedaController extends Controller
                 NULL AS licencia_estado,
                 NULL AS licencia_vencimiento,
                 NULL AS total_articulos_asignados
-            FROM Articulo a
-            LEFT JOIN Producto p ON a.idProducto = p.idProducto
-            LEFT JOIN Tipo_Producto tp ON p.idTipo_Producto = tp.idTipo_Producto
-            LEFT JOIN Area ar ON a.idArea = ar.idArea
-            LEFT JOIN Grupo_Articulo ga ON a.idArticulo = ga.idArticulo
-            LEFT JOIN Grupo g ON ga.idGrupo = g.idGrupo
+            FROM articulo a
+            LEFT JOIN producto p ON a.idProducto = p.idProducto
+            LEFT JOIN tipo_producto tp ON p.idTipo_Producto = tp.idTipo_Producto
+            LEFT JOIN area ar ON a.idArea = ar.idArea
+            LEFT JOIN grupo_articulo ga ON a.idArticulo = ga.idArticulo
+            LEFT JOIN grupo g ON ga.idGrupo = g.idGrupo
             WHERE a.estado != 'Baja'
                 AND (a.serie LIKE ? 
                     OR a.RP LIKE ? 
@@ -109,11 +109,11 @@ class BusquedaController extends Controller
                     l.Fechavencimiento AS licencia_vencimiento,
                     COALESCE((
                         SELECT COUNT(*) 
-                        FROM Asignacion_Licencia al2 
+                        FROM asignacion_licencia al2 
                         WHERE al2.idLicencia = l.idLicencia
                     ), 0) AS total_articulos_asignados
-                FROM Licencia l
-                LEFT JOIN Software s ON l.idSoftware = s.idSoftware
+                FROM licencia l
+                LEFT JOIN software s ON l.idSoftware = s.idSoftware
                 WHERE 1=1
                     AND (l.Clave LIKE ? OR s.Nombre LIKE ? OR ? = '')
                 ORDER BY l.idLicencia DESC
