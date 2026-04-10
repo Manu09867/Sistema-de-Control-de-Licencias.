@@ -74,14 +74,28 @@ class LicitacionController extends Controller
             CASE 
                 WHEN dl.TipoItem = 'SOFTWARE' THEN (SELECT lc.Clave FROM licencia lc WHERE lc.idDetalle_Licitacion = dl.idDetalle_Licitacion LIMIT 1)
                 WHEN dl.TipoItem = 'HARDWARE' THEN (SELECT a.RP FROM articulo a WHERE a.idDetalle_Licitacion = dl.idDetalle_Licitacion LIMIT 1)
-            END AS item_referencia
+            END AS item_referencia,
+            -- NUEVOS CAMPOS PARA SERIE Y CLAVE
+            CASE 
+                WHEN dl.TipoItem = 'HARDWARE' THEN (
+                    SELECT a.serie FROM articulo a 
+                    WHERE a.idDetalle_Licitacion = dl.idDetalle_Licitacion LIMIT 1
+                )
+                ELSE NULL
+            END AS item_serie,
+            CASE 
+                WHEN dl.TipoItem = 'SOFTWARE' THEN (
+                    SELECT lc.Clave FROM licencia lc 
+                    WHERE lc.idDetalle_Licitacion = dl.idDetalle_Licitacion LIMIT 1
+                )
+                ELSE NULL
+            END AS item_clave
         FROM detalle_licitacion dl
         LEFT JOIN software s ON dl.idSoftware = s.idSoftware
         LEFT JOIN producto p ON dl.idProducto = p.idProducto
         WHERE dl.idLicitacion = ?
     ", [$id]);
 
-        // Cargar proveedores para el select en modo edición
         $proveedores = DB::table('proveedor')->orderBy('Nombre')->get();
 
         return view('licitaciones.show', compact('licitacion', 'detalles', 'proveedores'));
@@ -168,65 +182,65 @@ class LicitacionController extends Controller
      * 🔄 ACTUALIZAR LICITACIÓN (SOLO ADMIN)
      */
     public function update(Request $request, $id)
-{
-    if (auth()->user()->role !== 'admin') {
-        return response()->json([
-            'success' => false,
-            'message' => 'No tienes permisos para realizar esta acción'
-        ], 403);
-    }
+    {
+        if (auth()->user()->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permisos para realizar esta acción'
+            ], 403);
+        }
 
-    try {
-        $validated = $request->validate([
-            'folio' => 'required|string|max:50',
-            'idProveedor' => 'nullable|exists:proveedor,idProveedor',
-            'estado' => 'required|string|in:Abierta,En proceso,Adjudicada,Cerrada,Cancelada',
-            'recurso' => 'nullable|string|max:45',
-            'fecha_inicio' => 'nullable|date',
-            'fecha_fin' => 'nullable|date',
-            'descripcion' => 'nullable|string|max:255',
-            // ❌ ELIMINA 'total' de aquí - no se debe editar manualmente
-        ]);
-
-        DB::beginTransaction();
-
-        DB::table('licitacion')
-            ->where('idLicitacion', $id)
-            ->update([
-                'folio' => $validated['folio'],
-                'idProveedor' => $validated['idProveedor'],
-                'estadoL' => $validated['estado'],
-                'Recurso' => $validated['recurso'],
-                'FechaI' => $validated['fecha_inicio'],
-                'FechaF' => $validated['fecha_fin'],
-                'DescripcionL' => $validated['descripcion']
-                // ❌ NO incluyas 'Total' aquí - se calcula automáticamente desde los detalles
+        try {
+            $validated = $request->validate([
+                'folio' => 'required|string|max:50',
+                'idProveedor' => 'nullable|exists:proveedor,idProveedor',
+                'estado' => 'required|string|in:Abierta,En proceso,Adjudicada,Cerrada,Cancelada',
+                'recurso' => 'nullable|string|max:45',
+                'fecha_inicio' => 'nullable|date',
+                'fecha_fin' => 'nullable|date',
+                'descripcion' => 'nullable|string|max:255',
+                // ❌ ELIMINA 'total' de aquí - no se debe editar manualmente
             ]);
 
-        DB::commit();
+            DB::beginTransaction();
 
-        return response()->json([
-            'success' => true,
-            'message' => '✅ Licitación actualizada correctamente'
-        ]);
+            DB::table('licitacion')
+                ->where('idLicitacion', $id)
+                ->update([
+                    'folio' => $validated['folio'],
+                    'idProveedor' => $validated['idProveedor'],
+                    'estadoL' => $validated['estado'],
+                    'Recurso' => $validated['recurso'],
+                    'FechaI' => $validated['fecha_inicio'],
+                    'FechaF' => $validated['fecha_fin'],
+                    'DescripcionL' => $validated['descripcion']
+                    // ❌ NO incluyas 'Total' aquí - se calcula automáticamente desde los detalles
+                ]);
 
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error de validación: ' . implode(', ', array_map(function($errors) {
-                return implode(', ', $errors);
-            }, $e->errors()))
-        ], 422);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('Error al actualizar licitación: ' . $e->getMessage());
+            DB::commit();
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al actualizar: ' . $e->getMessage()
-        ], 500);
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Licitación actualizada correctamente'
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación: ' . implode(', ', array_map(function ($errors) {
+                    return implode(', ', $errors);
+                }, $e->errors()))
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error al actualizar licitación: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
 }

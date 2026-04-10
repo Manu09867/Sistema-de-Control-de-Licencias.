@@ -301,7 +301,6 @@
                         <option value="Abierta">📂 Abierta</option>
                         <option value="En proceso">⚙️ En proceso</option>
                         <option value="Adjudicada">✅ Adjudicada</option>
-                        <option value="Cerrada">🔒 Cerrada</option>
                         <option value="Cancelada">❌ Cancelada</option>
                     </select>
 

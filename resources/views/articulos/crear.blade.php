@@ -146,6 +146,26 @@
             font-size: 14px;
         }
 
+        /* Estilos para textarea grande */
+        .textarea-grande {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #ccd6dd;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .textarea-grande:focus {
+            outline: none;
+            border-color: #00587a;
+            box-shadow: 0 0 0 3px rgba(0, 88, 122, 0.1);
+        }
+
         .input-group {
             display: flex;
             gap: 10px;
@@ -633,7 +653,8 @@
                             <input type="text" id="nombre_producto" name="nombre_producto" class="input-nuevo-tipo"
                                 placeholder="Ej: Laptop, Monitor, Teclado..." maxlength="45" required>
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                Nombre comercial o descriptivo del producto
+                                Nombre comercial o descriptivo del producto. <br>
+                                Si es equipo de red, incluye "Router" o "Switch" en el nombre para identificarlo automáticamente.
                             </p>
                         </div>
 
@@ -705,20 +726,32 @@
                                 </p>
 
                                 <!-- Selector de licitaciones existentes -->
+                                <!-- Buscador de licitaciones existentes -->
                                 <div id="selector-licitaciones"
                                     style="display: none; margin-top: 15px; margin-left: 30px;">
-                                    <label for="licitacion_id">Selecciona la licitación:</label>
-                                    <select name="licitacion_id" id="licitacion_id" class="select-tipo">
-                                        <option value="">-- Selecciona una licitación --</option>
-                                        @foreach($licitaciones as $licitacion)
-                                            <option value="{{ $licitacion->idLicitacion }}">
-                                                {{ $licitacion->folio }} -
-                                                {{ $licitacion->proveedor_nombre ?? 'Sin proveedor' }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <label for="buscar_licitacion">Buscar licitación por folio:</label>
+                                    <input type="text" id="buscar_licitacion" class="input-nuevo-tipo"
+                                        placeholder="Escribe el folio de la licitación..."
+                                        oninput="buscarLicitacion(this.value)" autocomplete="off"
+                                        style="margin-top: 8px;">
+
+                                    <!-- Resultados de búsqueda -->
+                                    <div id="resultados-licitacion"
+                                        style="display: none; margin-top: 8px; border: 1px solid #ccd6dd; border-radius: 8px; overflow: hidden; max-height: 250px; overflow-y: auto; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                                    </div>
+
+                                    <!-- Licitación seleccionada -->
+                                    <div id="licitacion-seleccionada"
+                                        style="display: none; margin-top: 10px; padding: 10px 15px; background: #e8f5e9; border-radius: 8px; border: 1px solid #28a745; display: flex; align-items: center; justify-content: space-between;">
+                                        <span id="licitacion-seleccionada-texto"
+                                            style="font-weight: 600; color: #155724;"></span>
+                                        <button type="button" onclick="limpiarLicitacion()"
+                                            style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 18px; line-height: 1;">✕</button>
+                                    </div>
+
+                                    <input type="hidden" id="licitacion_id" name="licitacion_id" value="">
                                     <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                        Selecciona una licitación ya registrada
+                                        Muestra los primeros 20 resultados
                                     </p>
                                 </div>
                             </div>
@@ -898,21 +931,27 @@
                     </div>
 
                     <div class="tipo-producto-section">
+                        <!-- Folio de la licitación - más angosto -->
                         <div style="margin-bottom: 20px;">
                             <label for="folio_licitacion">Folio de la licitación <span
                                     style="color: #dc3545;">*</span></label>
                             <input type="text" id="folio_licitacion" name="folio_licitacion" class="input-nuevo-tipo"
-                                maxlength="50">
+                                maxlength="50" style="width: 50%;">
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Folio único que identifica la licitación
                             </p>
                         </div>
 
+                        <!-- Descripción de la licitación - textarea grande -->
                         <div style="margin-bottom: 20px;">
-                            <label for="descripcion_licitacion">Descripción</label>
-                            <textarea id="descripcion_licitacion" name="descripcion_licitacion" class="input-nuevo-tipo"
-                                placeholder="Descripción de la licitación (opcional)" maxlength="255" rows="3"
-                                style="resize: vertical; min-height: 80px;"></textarea>
+                            <label for="descripcion_licitacion">Descripción de la licitación</label>
+                            <textarea id="descripcion_licitacion" name="descripcion_licitacion" class="textarea-grande"
+                                placeholder="Describe el objetivo de la licitación, los productos/servicios adquiridos, condiciones especiales, observaciones, etc."
+                                maxlength="255" rows="5"></textarea>
+                            <p
+                                style="font-size: 12px; color: #666; margin-top: 8px; display: flex; justify-content: flex-end;">
+                                <span id="contador-caracteres" style="color: #999;">0/255</span>
+                            </p>
                         </div>
 
                         <div class="grid-2" style="margin-bottom: 20px;">
@@ -936,16 +975,15 @@
                                     <option value="Abierta">📂 Abierta</option>
                                     <option value="En proceso">⚙️ En proceso</option>
                                     <option value="Adjudicada">✅ Adjudicada</option>
-                                    <option value="Cerrada">🔒 Cerrada</option>
                                     <option value="Cancelada">❌ Cancelada</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <div style="margin-bottom: 20px;">
-                            <label for="recurso_licitacion">Recurso</label>
-                            <input type="text" id="recurso_licitacion" name="recurso_licitacion"
-                                class="input-nuevo-tipo" placeholder="Ej: Federal, Estatal, Propio..." maxlength="45">
+                            <div>
+                                <label for="recurso_licitacion">Recurso</label>
+                                <input type="text" id="recurso_licitacion" name="recurso_licitacion"
+                                    class="input-nuevo-tipo" placeholder="Ej: Federal, Estatal, Propio..."
+                                    maxlength="45">
+                            </div>
                         </div>
 
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-top: 15px;">
@@ -967,6 +1005,7 @@
                     </div>
                 </div>
 
+                <!-- PASO 6: Detalles de la Licitación (CANTIDAD Y PRECIO) -->
                 <!-- PASO 6: Detalles de la Licitación (CANTIDAD Y PRECIO) -->
                 <div class="step-content hidden" id="content-6">
                     <h2 class="section-title">📋 Paso 6: Detalles de la Licitación</h2>
@@ -1006,7 +1045,22 @@
                     <div class="tipo-producto-section">
                         <h3 style="color: #0f3057; margin-bottom: 20px;">Detalles de compra</h3>
 
-                        <div style="background: #f0f4f8; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                        <!-- CHECKBOX: ARTÍCULO INCLUIDO SIN COSTO -->
+                        <div
+                            style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 12px; background: #e8f0fe; border-radius: 8px;">
+                            <input type="checkbox" id="articulo_incluido" onchange="toggleCamposArticulo()"
+                                style="width: 18px; height: 18px; cursor: pointer; accent-color: #0f3057;">
+                            <label for="articulo_incluido"
+                                style="font-weight: 600; color: #0f3057; cursor: pointer; margin: 0;">
+                                ✅ Artículo incluido sin costo adicional
+                            </label>
+                            <p style="font-size: 12px; color: #666; margin-left: auto; margin-bottom: 0;">
+                                (Ej: viene incluido en la factura de otro artículo)
+                            </p>
+                        </div>
+
+                        <div id="detalles-compra"
+                            style="background: #f0f4f8; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
                             <div style="margin-bottom: 20px;">
                                 <label for="cantidad">Cantidad de unidades <span
                                         style="color: #dc3545;">*</span></label>
@@ -1029,7 +1083,6 @@
                                 </p>
                             </div>
 
-                            <!-- Checkbox de IVA -->
                             <div class="checkbox-iva">
                                 <input type="checkbox" id="aplicar_iva" onchange="calcularSubtotal()">
                                 <label for="aplicar_iva">Aplicar IVA (16%)</label>
@@ -1054,11 +1107,19 @@
                                     <span id="total"
                                         style="font-size: 24px; font-weight: bold; color: #28a745;">$0.00</span>
                                 </div>
-                                <p style="font-size: 12px; color: #666; margin-top: 10px; text-align: right;">
-                                    Cantidad × Precio unitario ${datosFormulario.detalle.precio_unitario.toFixed(2)} =
-                                    Subtotal
-                                </p>
                             </div>
+                        </div><!-- cierre detalles-compra -->
+
+                        <!-- Mensaje cuando el artículo es incluido -->
+                        <div id="mensaje-incluido"
+                            style="display: none; background: #d4edda; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #28a745; margin-bottom: 20px;">
+                            <span style="font-size: 48px;">🎁</span>
+                            <p style="color: #155724; font-weight: 600; margin-top: 10px; margin-bottom: 0;">
+                                Artículo incluido sin costo adicional
+                            </p>
+                            <p style="color: #155724; font-size: 13px; margin-top: 5px;">
+                                Este artículo viene incluido en la factura, no genera costo extra en la licitación.
+                            </p>
                         </div>
 
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px;">
@@ -1191,6 +1252,18 @@
             articulos: [] // Array para almacenar los datos de cada artículo
         };
 
+        // Contador de caracteres para la descripción
+        const textareaDescripcion = document.getElementById('descripcion_licitacion');
+        if (textareaDescripcion) {
+            textareaDescripcion.addEventListener('input', function () {
+                const contador = document.getElementById('contador-caracteres');
+                if (contador) {
+                    const caracteres = this.value.length;
+                    contador.textContent = `${caracteres}/255`;
+                }
+            });
+        }
+
         function mostrarModalCancelar() {
             document.getElementById('modal-cancelar').style.display = 'flex';
         }
@@ -1200,7 +1273,6 @@
         }
 
         function cancelarRegistro() {
-            // Redirigir al dashboard principal
             window.location.href = "{{ route('dashboard') }}";
         }
 
@@ -1233,6 +1305,41 @@
             }
         }
 
+        function toggleCamposArticulo() {
+            const check = document.getElementById('articulo_incluido');
+            const detallesDiv = document.getElementById('detalles-compra');
+            const mensajeDiv = document.getElementById('mensaje-incluido');
+            const cantidadInput = document.getElementById('cantidad');
+            const precioInput = document.getElementById('precio_unitario');
+            const ivaCheck = document.getElementById('aplicar_iva');
+
+            if (check.checked) {
+                detallesDiv.style.display = 'none';
+                mensajeDiv.style.display = 'block';
+
+                cantidadInput.value = 1;
+                precioInput.value = 0;
+                ivaCheck.checked = false;
+
+                document.getElementById('subtotal').textContent = '$0.00';
+                document.getElementById('iva_monto').textContent = '$0.00';
+                document.getElementById('total').textContent = '$0.00';
+
+                datosFormulario.detalle.precio_unitario = 0;
+                datosFormulario.detalle.subtotal = 0;
+                datosFormulario.detalle.iva = 0;
+                datosFormulario.detalle.total = 0;
+                datosFormulario.detalle.aplicar_iva = false;
+                datosFormulario.detalle.articulo_incluido = true;
+            } else {
+                detallesDiv.style.display = 'block';
+                mensajeDiv.style.display = 'none';
+                precioInput.value = '';
+                calcularSubtotal();
+                datosFormulario.detalle.articulo_incluido = false;
+            }
+        }
+
         function calcularSubtotal() {
             const cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
             const precio = parseFloat(document.getElementById('precio_unitario').value) || 0;
@@ -1245,7 +1352,6 @@
             document.getElementById('iva_monto').textContent = `$${ivaMonto.toFixed(2)}`;
             document.getElementById('total').textContent = `$${total.toFixed(2)}`;
 
-            // Guardar en datosFormulario
             datosFormulario.detalle.subtotal = subtotal;
             datosFormulario.detalle.iva = ivaMonto;
             datosFormulario.detalle.total = total;
@@ -1422,15 +1528,8 @@
 
         function guardarDatosLicitacion() {
             if (datosFormulario.tipo_licitacion === 'existente') {
-                const select = document.getElementById('licitacion_id');
-                const selectedOption = select.options[select.selectedIndex];
-                const [folio] = selectedOption.text.split(' - ');
-
-                datosFormulario.licitacion = {
-                    id: select.value,
-                    folio: folio,
-                    existente: true
-                };
+                // datosFormulario.licitacion ya fue seteado en seleccionarLicitacion()
+                return;
             } else {
                 datosFormulario.licitacion = {
                     folio: document.getElementById('folio_licitacion').value.trim(),
@@ -1561,6 +1660,79 @@
             resumenArts.innerHTML = artsHtml || '<p style="color: #999;">No hay artículos registrados</p>';
         }
 
+        // Datos de licitaciones para búsqueda
+        const licitacionesData = @json($licitaciones);
+
+        function buscarLicitacion(query) {
+            const resultadosDiv = document.getElementById('resultados-licitacion');
+            const licitacionSeleccionada = document.getElementById('licitacion-seleccionada');
+
+            // Limpiar selección actual si el usuario escribe de nuevo
+            document.getElementById('licitacion_id').value = '';
+            licitacionSeleccionada.style.display = 'none';
+
+            if (query.trim().length < 1) {
+                resultadosDiv.style.display = 'none';
+                return;
+            }
+
+            const queryLower = query.toLowerCase();
+            const resultados = licitacionesData
+                .filter(l => l.folio.toLowerCase().includes(queryLower))
+                .slice(0, 20);
+
+            if (resultados.length === 0) {
+                resultadosDiv.innerHTML = `
+            <div style="padding: 12px 15px; color: #666; font-size: 14px;">
+                No se encontraron licitaciones con ese folio
+            </div>`;
+                resultadosDiv.style.display = 'block';
+                return;
+            }
+
+            let html = '';
+            resultados.forEach(l => {
+                const proveedor = l.proveedor_nombre ?? 'Sin proveedor';
+                html += `
+            <div onclick="seleccionarLicitacion(${l.idLicitacion}, '${l.folio}', '${proveedor}')"
+                style="padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;"
+                onmouseover="this.style.background='#f0f7ff'"
+                onmouseout="this.style.background='white'">
+                <span style="font-weight: 600; color: #0f3057;">${l.folio}</span>
+                <span style="color: #666; font-size: 13px; margin-left: 8px;">— ${proveedor}</span>
+            </div>`;
+            });
+
+            resultadosDiv.innerHTML = html;
+            resultadosDiv.style.display = 'block';
+        }
+
+        function seleccionarLicitacion(id, folio, proveedor) {
+            document.getElementById('licitacion_id').value = id;
+            document.getElementById('buscar_licitacion').value = folio;
+            document.getElementById('resultados-licitacion').style.display = 'none';
+
+            const textoEl = document.getElementById('licitacion-seleccionada-texto');
+            textoEl.textContent = `✅ ${folio} — ${proveedor}`;
+
+            const seleccionadaDiv = document.getElementById('licitacion-seleccionada');
+            seleccionadaDiv.style.display = 'flex';
+
+            // Guardar en datosFormulario
+            datosFormulario.licitacion = {
+                id: id,
+                folio: folio,
+                existente: true
+            };
+        }
+
+        function limpiarLicitacion() {
+            document.getElementById('licitacion_id').value = '';
+            document.getElementById('buscar_licitacion').value = '';
+            document.getElementById('resultados-licitacion').style.display = 'none';
+            document.getElementById('licitacion-seleccionada').style.display = 'none';
+        }
+
         function siguientePaso(paso) {
             if (paso === 1) {
                 const opcion = document.querySelector('input[name="tipo_producto_opcion"]:checked').value;
@@ -1615,17 +1787,7 @@
                         mostrarAlerta('error', 'Por favor selecciona una licitación');
                         return;
                     }
-
-                    const select = document.getElementById('licitacion_id');
-                    const selectedOption = select.options[select.selectedIndex];
-                    const [folio] = selectedOption.text.split(' - ');
-
-                    datosFormulario.licitacion = {
-                        id: select.value,
-                        folio: folio,
-                        existente: true
-                    };
-
+                    // datosFormulario.licitacion ya fue seteado en seleccionarLicitacion()
                     mostrarPaso(6);
                     return;
                 }
@@ -1670,22 +1832,34 @@
             }
 
             if (paso === 6) {
-                const cantidad = parseInt(document.getElementById('cantidad').value);
-                const precio = parseFloat(document.getElementById('precio_unitario').value);
+                const incluido = document.getElementById('articulo_incluido').checked;
 
-                if (!cantidad || cantidad < 1) {
-                    mostrarAlerta('error', 'La cantidad debe ser al menos 1');
-                    return;
+                if (incluido) {
+                    datosFormulario.detalle.cantidad = parseInt(document.getElementById('cantidad').value) || 1;
+                    datosFormulario.detalle.precio_unitario = 0;
+                    datosFormulario.detalle.subtotal = 0;
+                    datosFormulario.detalle.iva = 0;
+                    datosFormulario.detalle.total = 0;
+                    datosFormulario.detalle.aplicar_iva = false;
+                    datosFormulario.detalle.articulo_incluido = true;
+                } else {
+                    const cantidad = parseInt(document.getElementById('cantidad').value);
+                    const precio = parseFloat(document.getElementById('precio_unitario').value);
+
+                    if (!cantidad || cantidad < 1) {
+                        mostrarAlerta('error', 'La cantidad debe ser al menos 1');
+                        return;
+                    }
+
+                    if (precio === undefined || precio === null || isNaN(precio) || precio < 0) {
+                        mostrarAlerta('error', 'El precio unitario es requerido');
+                        return;
+                    }
+
+                    datosFormulario.detalle.cantidad = cantidad;
+                    datosFormulario.detalle.precio_unitario = precio;
+                    datosFormulario.detalle.articulo_incluido = false;
                 }
-
-                if (!precio || precio < 0) {
-                    mostrarAlerta('error', 'El precio unitario es requerido');
-                    return;
-                }
-
-                datosFormulario.detalle.cantidad = cantidad;
-                datosFormulario.detalle.precio_unitario = precio;
-                // Los valores de subtotal, iva y total ya se calcularon en calcularSubtotal()
             }
 
             if (paso === 7) {
@@ -1699,7 +1873,11 @@
 
         function pasoAnterior(paso) {
             if (datosFormulario.tipo_licitacion === 'existente') {
-                if (paso === 4 || paso === 5 || paso === 6 || paso === 7) {
+                if (paso === 4 || paso === 5) {
+                    mostrarPaso(3);
+                    return;
+                }
+                if (paso === 6) {
                     mostrarPaso(3);
                     return;
                 }
@@ -1719,16 +1897,48 @@
         }
 
         document.getElementById('form-articulo').addEventListener('submit', function (e) {
+            e.preventDefault();
+
             if (pasoActual < 8) {
-                e.preventDefault();
                 mostrarAlerta('error', 'Por favor revisa el resumen antes de guardar');
                 mostrarPaso(8);
                 return;
             }
+
             document.getElementById('datos-completos').value = JSON.stringify(datosFormulario);
+
+            const btn = document.getElementById('btn-guardar');
+            btn.disabled = true;
+            btn.textContent = '⏳ Guardando...';
+
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mostrarAlerta('success', data.message);
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 2000);
+                    } else {
+                        mostrarAlerta('error', data.message);
+                        btn.disabled = false;
+                        btn.textContent = '💾 Guardar Artículos';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarAlerta('error', '❌ Error de conexión al servidor');
+                    btn.disabled = false;
+                    btn.textContent = '💾 Guardar Artículos';
+                });
         });
 
-        // Variables para proveedor
         function toggleProveedorInput() {
             const opcion = document.querySelector('input[name="proveedor_opcion"]:checked').value;
             const divExistente = document.getElementById('proveedor-existente');
@@ -1759,7 +1969,6 @@
                 return;
             }
 
-            // ✅ VALIDAR CORREO ANTES DE ENVIAR
             if (correo && !correo.includes('@')) {
                 mostrarAlerta('error', '⚠️ El correo electrónico debe contener un "@" (Ej: proveedor@empresa.com)');
                 return;
@@ -1838,5 +2047,17 @@
             }
         }
 
+        // Al cargar la página, mostrar errores de sesión como alerta
+        @if(session('error'))
+            document.addEventListener('DOMContentLoaded', function () {
+                mostrarAlerta('error', '{{ session('error') }}');
+            });
+        @endif
+
+        @if(session('success'))
+            document.addEventListener('DOMContentLoaded', function () {
+                mostrarAlerta('success', '{{ session('success') }}');
+            });
+        @endif
     </script>
 </x-app-layout>

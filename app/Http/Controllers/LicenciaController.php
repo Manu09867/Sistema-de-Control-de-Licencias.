@@ -75,116 +75,138 @@ class LicenciaController extends Controller
             ->select('l.idLicitacion', 'l.folio', 'p.Nombre as proveedor_nombre')
             ->orderBy('l.folio')
             ->get();
-            
+
         return view('licencias.crear', compact('softwares', 'proveedores', 'licitaciones'));
     }
 
     public function store(Request $request)
-{
-    try {
-        DB::beginTransaction();
+    {
+        try {
+            DB::beginTransaction();
 
-        $datos = json_decode($request->datos_completos, true);
-        
-        if (!$datos) {
-            throw new \Exception('No se recibieron datos válidos');
-        }
+            $datos = json_decode($request->datos_completos, true);
 
-        Log::info('Datos recibidos en store licencia:', $datos);
+            if (!$datos) {
+                throw new \Exception('No se recibieron datos válidos');
+            }
 
-        $validator = Validator::make($datos, [
-            'software.id' => 'required',
-            'software.nombre' => 'required|string',
-            'tipo_licitacion' => 'required|in:existente,nueva',
-            'proveedor.id' => 'required_if:tipo_licitacion,nueva',
-            'proveedor.nombre' => 'required_if:tipo_licitacion,nueva|string',
-            'licitacion.id' => 'required_if:tipo_licitacion,existente',
-            'licitacion.folio' => 'required_if:tipo_licitacion,nueva|string|max:50',
-            'detalle.cantidad' => 'required|integer|min:1',
-            'detalle.precio_unitario' => 'required|numeric|min:0',
-            'licencia.clave' => 'required|string|max:45',
-            'licencia.descripcion' => 'nullable|string|max:255',
-            'licencia.capacidad' => 'nullable|integer|min:1',
-            'licencia.fecha_compra' => 'required|date',
-            'licencia.fecha_vencimiento' => 'required|date',
-            'licencia.estado' => 'required|in:Activa,Inactiva,Vencida,Por vencer',
-        ]);
+            Log::info('Datos recibidos en store licencia:', $datos);
 
-        if ($validator->fails()) {
-            throw new \Exception('Error de validación: ' . json_encode($validator->errors()));
-        }
+            // Validación condicional: si licencia_incluida es true, no validamos cantidad y precio
+            $licenciaIncluida = isset($datos['detalle']['licencia_incluida']) && $datos['detalle']['licencia_incluida'] === true;
 
-        // Determinar el total a guardar (con o sin IVA)
-        $totalAGuardar = $datos['detalle']['aplicar_iva'] ? $datos['detalle']['total'] : $datos['detalle']['subtotal'];
+            $rules = [
+                'software.id' => 'required',
+                'software.nombre' => 'required|string',
+                'tipo_licitacion' => 'required|in:existente,nueva',
+                'proveedor.id' => 'required_if:tipo_licitacion,nueva',
+                'proveedor.nombre' => 'required_if:tipo_licitacion,nueva|string',
+                'licitacion.id' => 'required_if:tipo_licitacion,existente',
+                'licitacion.folio' => 'required_if:tipo_licitacion,nueva|string|max:50',
+                'licencia.clave' => 'required|string|max:45|unique:licencia,Clave',
+                'licencia.descripcion' => 'nullable|string|max:255',
+                'licencia.capacidad' => 'nullable|integer|min:1',
+                'licencia.fecha_compra' => 'required|date',
+                'licencia.fecha_vencimiento' => 'required|date',
+                'licencia.estado' => 'required|in:Activa,Inactiva,Vencida,Por vencer',
+            ];
 
-        $softwareId = $datos['software']['id'];
+            // Si NO es licencia incluida, validamos cantidad y precio
+            if (!$licenciaIncluida) {
+                $rules['detalle.cantidad'] = 'required|integer|min:1';
+                $rules['detalle.precio_unitario'] = 'required|numeric|min:0';
+            }
 
-        $proveedorId = null;
-        if (isset($datos['proveedor']['id'])) {
-            $proveedorId = $datos['proveedor']['id'];
-        }
-
-        $licitacionId = null;
-        $esNuevaLicitacion = false;
-
-        if ($datos['tipo_licitacion'] === 'existente') {
-            $licitacionId = $datos['licitacion']['id'];
-        } else {
-            $esNuevaLicitacion = true;
-            $licitacionId = DB::table('licitacion')->insertGetId([
-                'folio' => $datos['licitacion']['folio'],
-                'DescripcionL' => $datos['licitacion']['descripcion'] ?? null,
-                'FechaI' => $datos['licitacion']['fecha_inicio'] ?? null,
-                'FechaF' => $datos['licitacion']['fecha_fin'] ?? null,
-                'estadoL' => $datos['licitacion']['estado'] ?? 'Abierta',
-                'idProveedor' => $proveedorId,
-                'Total' => $totalAGuardar,
-                'Recurso' => $datos['licitacion']['recurso'] ?? null
+            $validator = Validator::make($datos, $rules, [
+                'licencia.clave.unique' => '⚠️ La clave de licencia ya existe en el sistema. Por favor ingresa una clave diferente.'
             ]);
+
+            if ($validator->fails()) {
+                $errores = collect($validator->errors()->all())->implode(' ');
+                throw new \Exception($errores);
+            }
+
+            // Determinar el total a guardar (si es licencia incluida, total = 0)
+            if ($licenciaIncluida) {
+                $totalAGuardar = 0;
+                $cantidad = 0;
+                $precioUnitario = 0;
+                $aplicarIVA = false;
+            } else {
+                $totalAGuardar = $datos['detalle']['aplicar_iva'] ? $datos['detalle']['total'] : $datos['detalle']['subtotal'];
+                $cantidad = $datos['detalle']['cantidad'];
+                $precioUnitario = $datos['detalle']['precio_unitario'];
+                $aplicarIVA = $datos['detalle']['aplicar_iva'] ?? false;
+            }
+
+            $softwareId = $datos['software']['id'];
+
+            $proveedorId = null;
+            if (isset($datos['proveedor']['id'])) {
+                $proveedorId = $datos['proveedor']['id'];
+            }
+
+            $licitacionId = null;
+            $esNuevaLicitacion = false;
+
+            if ($datos['tipo_licitacion'] === 'existente') {
+                $licitacionId = $datos['licitacion']['id'];
+            } else {
+                $esNuevaLicitacion = true;
+                $licitacionId = DB::table('licitacion')->insertGetId([
+                    'folio' => $datos['licitacion']['folio'],
+                    'DescripcionL' => $datos['licitacion']['descripcion'] ?? null,
+                    'FechaI' => $datos['licitacion']['fecha_inicio'] ?? null,
+                    'FechaF' => $datos['licitacion']['fecha_fin'] ?? null,
+                    'estadoL' => $datos['licitacion']['estado'] ?? 'Abierta',
+                    'idProveedor' => $proveedorId,
+                    'Total' => $totalAGuardar,
+                    'Recurso' => $datos['licitacion']['recurso'] ?? null
+                ]);
+            }
+
+            $detalleId = DB::table('detalle_licitacion')->insertGetId([
+                'TipoItem' => 'SOFTWARE',
+                'idLicitacion' => $licitacionId,
+                'idSoftware' => $softwareId,
+                'idProducto' => null,
+                'Cantidad' => $cantidad,
+                'PrecioU' => $precioUnitario,
+                'Subtotal' => $totalAGuardar
+            ]);
+
+            if (!$esNuevaLicitacion && $totalAGuardar > 0) {
+                DB::table('licitacion')
+                    ->where('idLicitacion', $licitacionId)
+                    ->increment('Total', $totalAGuardar);
+            }
+
+            DB::table('licencia')->insert([
+                'Clave' => $datos['licencia']['clave'],
+                'DescripcionLicencia' => $datos['licencia']['descripcion'] ?? null,
+                'CapacidadLicencia' => $datos['licencia']['capacidad'] ?? null,
+                'Fechacompra' => $datos['licencia']['fecha_compra'],
+                'Fechavencimiento' => $datos['licencia']['fecha_vencimiento'],
+                'estadoLic' => $datos['licencia']['estado'],
+                'idSoftware' => $softwareId,
+                'idDetalle_Licitacion' => $detalleId
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('dashboard.admin')
+                ->with('success', '✅ Licencia creada correctamente');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al crear licencia: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            return back()
+                ->withInput()
+                ->with('error', '❌ Error al crear la licencia: ' . $e->getMessage());
         }
-
-        $detalleId = DB::table('detalle_licitacion')->insertGetId([
-            'TipoItem' => 'SOFTWARE',
-            'idLicitacion' => $licitacionId,
-            'idSoftware' => $softwareId,
-            'idProducto' => null,
-            'Cantidad' => $datos['detalle']['cantidad'],
-            'PrecioU' => $datos['detalle']['precio_unitario'],
-            'Subtotal' => $totalAGuardar
-        ]);
-
-        if (!$esNuevaLicitacion) {
-            DB::table('licitacion')
-                ->where('idLicitacion', $licitacionId)
-                ->increment('Total', $totalAGuardar);
-        }
-
-        DB::table('licencia')->insert([
-            'Clave' => $datos['licencia']['clave'],
-            'DescripcionLicencia' => $datos['licencia']['descripcion'] ?? null,
-            'CapacidadLicencia' => $datos['licencia']['capacidad'] ?? null,
-            'Fechacompra' => $datos['licencia']['fecha_compra'],
-            'Fechavencimiento' => $datos['licencia']['fecha_vencimiento'],
-            'estadoLic' => $datos['licencia']['estado'],
-            'idSoftware' => $softwareId,
-            'idDetalle_Licitacion' => $detalleId
-        ]);
-
-        DB::commit();
-        
-        return redirect()->route('dashboard.admin')
-            ->with('success', '✅ Licencia creada correctamente');
-        
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Error al crear licencia: ' . $e->getMessage());
-        Log::error('Stack trace: ' . $e->getTraceAsString());
-        
-        return back()
-            ->withInput()
-            ->with('error', '❌ Error al crear la licencia: ' . $e->getMessage());
     }
-}
 
     public function actualizar(Request $request, $id)
     {
@@ -197,7 +219,7 @@ class LicenciaController extends Controller
 
         try {
             $validated = $request->validate([
-                'clave' => 'required|string|max:45',
+                'clave' => 'required|string|max:45|unique:licencia,Clave,' . $id . ',idLicencia',
                 'estado' => 'required|string|in:Activa,Inactiva,Vencida,Por vencer',
                 'idSoftware' => 'required|exists:software,idSoftware',
                 'capacidad' => 'nullable|integer|min:1',
@@ -258,7 +280,7 @@ class LicenciaController extends Controller
     {
         $query = $request->q;
         $licenciaId = $request->licencia_id;
-        
+
         $articulosAsignados = DB::table('asignacion_licencia')
             ->where('idLicencia', $licenciaId)
             ->pluck('idArticulo')
@@ -276,7 +298,7 @@ class LicenciaController extends Controller
             )
             ->where('a.estado', '!=', 'Baja')
             ->when($query, function ($q) use ($query) {
-                $q->where(function($sub) use ($query) {
+                $q->where(function ($sub) use ($query) {
                     $sub->where('a.serie', 'like', "%$query%")
                         ->orWhere('a.RP', 'like', "%$query%")
                         ->orWhere('p.NombreP', 'like', "%$query%")
@@ -285,7 +307,7 @@ class LicenciaController extends Controller
             })
             ->limit(100)
             ->get();
-        
+
         foreach ($articulos as $articulo) {
             $articulo->ya_asignado = in_array($articulo->idArticulo, $articulosAsignados);
         }

@@ -107,7 +107,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
             $existe = DB::table('tipo_producto')
                 ->whereRaw('LOWER(NombreTP) = ?', [strtolower($validated['nombre'])])
                 ->exists();
-                
+
             if ($existe) {
                 return response()->json([
                     'success' => false,
@@ -118,7 +118,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
             $id = DB::table('tipo_producto')->insertGetId([
                 'NombreTP' => $validated['nombre']
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'id' => $id,
@@ -151,7 +151,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
             $existe = DB::table('proveedor')
                 ->whereRaw('LOWER(Nombre) = ?', [strtolower($validated['nombre'])])
                 ->exists();
-                
+
             if ($existe) {
                 return response()->json([
                     'success' => false,
@@ -166,7 +166,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
                 'Direccion' => $validated['direccion'] ?? null,
                 'correo' => $validated['correo'] ?? null
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'id' => $id,
@@ -195,7 +195,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
             $existe = DB::table('area')
                 ->whereRaw('LOWER(NombreArea) = ?', [strtolower($validated['nombre'])])
                 ->exists();
-                
+
             if ($existe) {
                 return response()->json([
                     'success' => false,
@@ -206,7 +206,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
             $id = DB::table('area')->insertGetId([
                 'NombreArea' => $validated['nombre']
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'id' => $id,
@@ -236,7 +236,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
             $existe = DB::table('software')
                 ->whereRaw('LOWER(Nombre) = ?', [strtolower($validated['nombre'])])
                 ->exists();
-                
+
             if ($existe) {
                 return response()->json([
                     'success' => false,
@@ -248,7 +248,7 @@ Route::middleware(['auth', 'single.session'])->group(function () {
                 'Nombre' => $validated['nombre'],
                 'Tipo' => $validated['tipo'] ?? null
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'id' => $id,
@@ -303,10 +303,21 @@ Route::middleware(['auth', 'single.session'])->group(function () {
         Route::get('/logs/eliminar-todos', [LogController::class, 'eliminarTodos'])->name('logs.eliminar.todos');
     });
 
-    // ===== ELIMINAR ÁREA Y TIPO DE PRODUCTO (SOLO ADMIN) =====
-    Route::delete('/api/areas/{id}', [AreaController::class, 'destroy'])->middleware('role:admin');
-    Route::delete('/api/tipos-producto/{id}', [TipoProductoController::class, 'destroy'])->middleware('role:admin');
+    // ===== CRUD COMPLETO PARA ÁREAS Y TIPOS DE PRODUCTO (SOLO ADMIN) =====
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        // Áreas - CRUD completo
+        Route::get('/api/areas', [AreaController::class, 'index'])->name('api.areas.index');
+        Route::post('/api/areas', [AreaController::class, 'store'])->name('api.areas.store');
+        Route::put('/api/areas/{id}', [AreaController::class, 'update'])->name('api.areas.update');
+        Route::delete('/api/areas/{id}', [AreaController::class, 'destroy'])->name('api.areas.destroy');
+
+        // Tipos de producto - CRUD completo
+        Route::get('/api/tipos-producto', [TipoProductoController::class, 'index'])->name('api.tipos-producto.index');
+        Route::post('/api/tipos-producto', [TipoProductoController::class, 'store'])->name('api.tipos-producto.store');
+        Route::put('/api/tipos-producto/{id}', [TipoProductoController::class, 'update'])->name('api.tipos-producto.update');
+        Route::delete('/api/tipos-producto/{id}', [TipoProductoController::class, 'destroy'])->name('api.tipos-producto.destroy');
+    });
 
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

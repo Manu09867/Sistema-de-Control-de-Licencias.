@@ -72,7 +72,7 @@ class ArticuloController extends Controller
         // DETECTAR TIPO DE EQUIPO POR EL NOMBRE DEL PRODUCTO
         $productoLower = strtolower($articulo->producto ?? '');
         $tipoDetectado = null;
-        
+
         if (strpos($productoLower, 'router') !== false) {
             $tipoDetectado = 'router';
         } elseif (strpos($productoLower, 'switch') !== false) {
@@ -82,7 +82,7 @@ class ArticuloController extends Controller
         // Obtener información de red (router o switch)
         $router = DB::select("SELECT * FROM articulo_router WHERE idArticulo = ?", [$articulo->idArticulo]);
         $switch = DB::select("SELECT * FROM articulo_switch WHERE idArticulo = ?", [$articulo->idArticulo]);
-        
+
         $infoRed = null;
         $tipoRed = null;
         $tieneRegistroRed = false;
@@ -92,26 +92,26 @@ class ArticuloController extends Controller
             $infoRed = $router[0];
             $tipoRed = 'router';
             $tieneRegistroRed = true;
-        } 
+        }
         // Si hay datos en switch
         elseif (!empty($switch)) {
             $infoRed = $switch[0];
             $tipoRed = 'switch';
             $tieneRegistroRed = true;
-        } 
+        }
         // Si no hay datos pero el producto sugiere que es router/switch
         elseif ($tipoDetectado) {
             $tipoRed = $tipoDetectado;
             $tieneRegistroRed = true;
             // Crear objeto vacío para mostrar campos N/A
             if ($tipoRed === 'router') {
-                $infoRed = (object)[
+                $infoRed = (object) [
                     'MACR' => null,
                     'IpaddressR' => null,
                     'ObservacionR' => null
                 ];
             } else {
-                $infoRed = (object)[
+                $infoRed = (object) [
                     'MACSw' => null,
                     'IpaddressSw' => null,
                     'ObservacionSw' => null
@@ -137,10 +137,10 @@ class ArticuloController extends Controller
             ->pluck('TipoGrupo');
 
         return view('articulo-detalle', compact(
-            'articulo', 
-            'licencias', 
-            'areas', 
-            'grupos', 
+            'articulo',
+            'licencias',
+            'areas',
+            'grupos',
             'tiposGrupo',
             'infoRed',
             'tipoRed',
@@ -156,17 +156,17 @@ class ArticuloController extends Controller
         $tiposProducto = DB::table('tipo_producto')
             ->orderBy('NombreTP')
             ->get();
-            
+
         $proveedores = DB::table('proveedor')
             ->orderBy('Nombre')
             ->get();
-            
+
         $licitaciones = DB::table('licitacion as l')
             ->leftJoin('proveedor as p', 'l.idProveedor', '=', 'p.idProveedor')
             ->select('l.idLicitacion', 'l.folio', 'l.DescripcionL as descripcion', 'p.Nombre as proveedor_nombre')
             ->orderBy('l.folio')
             ->get();
-            
+
         return view('articulos.crear', compact('tiposProducto', 'proveedores', 'licitaciones'));
     }
 
@@ -180,7 +180,7 @@ class ArticuloController extends Controller
 
             // Decodificar los datos del formulario
             $datos = json_decode($request->datos_completos, true);
-            
+
             if (!$datos) {
                 throw new \Exception('No se recibieron datos válidos');
             }
@@ -211,6 +211,22 @@ class ArticuloController extends Controller
                 throw new \Exception('Error de validación: ' . json_encode($validator->errors()));
             }
             // ===== FIN VALIDACIÓN =====
+
+            // ===== VERIFICAR SERIES DUPLICADAS =====
+            $seriesNuevas = array_column($datos['articulos'], 'serie');
+
+            $seriesExistentes = DB::table('articulo')
+                ->whereIn('serie', $seriesNuevas)
+                ->pluck('serie')
+                ->toArray();
+
+            if (!empty($seriesExistentes)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ Ya existen artículos con los siguientes números de serie: ' . implode(', ', $seriesExistentes) . '. No se guardó ningún artículo.'
+                ], 422);
+            }
+            // ===== FIN VERIFICACIÓN SERIES =====
 
             // Determinar el total a guardar (con o sin IVA)
             $totalAGuardar = $datos['detalle']['aplicar_iva'] ? $datos['detalle']['total'] : $datos['detalle']['subtotal'];
@@ -285,18 +301,20 @@ class ArticuloController extends Controller
             }
 
             DB::commit();
-            
-            return redirect()->route('dashboard.admin')
-                ->with('success', '✅ Artículo(s) creado(s) correctamente. Total: ' . count($datos['articulos']) . ' unidades.');
-            
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Artículo(s) creado(s) correctamente. Total: ' . count($datos['articulos']) . ' unidades.',
+                'redirect' => route('dashboard.admin')
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error al crear artículo: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
-            
-            return back()
-                ->withInput()
-                ->with('error', '❌ Error al crear el artículo: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => '❌ Error al crear el artículo: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -334,7 +352,7 @@ class ArticuloController extends Controller
             $articuloActual = DB::table('articulo')
                 ->where('idArticulo', $id)
                 ->first();
-            
+
             $detalleActual = DB::table('detalle_licitacion')
                 ->where('idDetalle_Licitacion', $articuloActual->idDetalle_Licitacion)
                 ->first();
@@ -362,7 +380,7 @@ class ArticuloController extends Controller
                 DB::table('licitacion')
                     ->where('idLicitacion', $detalleActual->idLicitacion)
                     ->decrement('Total', $detalleActual->Subtotal);
-                
+
                 // Actualizar detalle
                 DB::table('detalle_licitacion')
                     ->where('idDetalle_Licitacion', $detalleActual->idDetalle_Licitacion)
@@ -371,7 +389,7 @@ class ArticuloController extends Controller
                         'PrecioU' => $validated['precio_unitario'] ?? $detalleActual->PrecioU,
                         'Subtotal' => $nuevoSubtotal
                     ]);
-                
+
                 // Sumar el nuevo subtotal al total de la licitación
                 DB::table('licitacion')
                     ->where('idLicitacion', $detalleActual->idLicitacion)
@@ -503,7 +521,7 @@ class ArticuloController extends Controller
             DB::table('grupo_articulo')->where('idArticulo', $id)->delete();
             DB::table('articulo_router')->where('idArticulo', $id)->delete();
             DB::table('articulo_switch')->where('idArticulo', $id)->delete();
-            
+
             // Eliminar artículo
             DB::table('articulo')->where('idArticulo', $id)->delete();
 

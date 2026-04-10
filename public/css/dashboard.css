@@ -64,10 +64,11 @@
     z-index: 1000;
     overflow: hidden;
     display: none;
+    flex-direction: column;  /* ← Agrega esta línea */
 }
 
 .add-menu.show {
-    display: block;
+    display: flex;
 }
 
 .add-menu a {

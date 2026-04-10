@@ -683,7 +683,18 @@
                                     </td>
 
                                     <td>
-                                        <strong>{{ $detalle->item_nombre ?? 'N/A' }}</strong>
+                                        <div style="display: flex; flex-direction: column;">
+                                            <strong>{{ $detalle->item_nombre ?? 'N/A' }}</strong>
+                                            @if($detalle->TipoItem == 'HARDWARE' && !empty($detalle->item_serie))
+                                                <span style="font-size: 11px; color: #666; margin-top: 3px;">
+                                                    Serie: {{ $detalle->item_serie }}
+                                                </span>
+                                            @elseif($detalle->TipoItem == 'SOFTWARE' && !empty($detalle->item_clave))
+                                                <span style="font-size: 11px; color: #666; margin-top: 3px;">
+                                                    Clave: {{ $detalle->item_clave }}
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
 
                                     <td>{{ $detalle->Cantidad }}</td>

@@ -147,6 +147,44 @@
             align-items: center;
         }
 
+        /* Estilos mejorados para textarea */
+        .textarea-grande {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #ccd6dd;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .textarea-grande:focus {
+            outline: none;
+            border-color: #4a6fa5;
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.1);
+        }
+
+        .campo-descripcion {
+            margin-bottom: 25px;
+        }
+
+        .campo-descripcion label {
+            display: block;
+            font-weight: 600;
+            color: #4a6fa5;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .campo-descripcion label span {
+            color: #6c757d;
+            font-weight: normal;
+            font-size: 12px;
+        }
+
         .btn-add {
             background: #28a745;
             color: white;
@@ -476,6 +514,21 @@
         </div>
 
         <div class="form-container">
+
+            {{-- Mensajes de sesión --}}
+            @if(session('error'))
+                <div
+                    style="background: #dc3545; color: white; padding: 15px 25px; border-radius: 10px; margin: 0 20px 20px 20px; font-weight: 600;">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div
+                    style="background: #28a745; color: white; padding: 15px 25px; border-radius: 10px; margin: 0 20px 20px 20px; font-weight: 600;">
+                    {{ session('success') }}
+                </div>
+            @endif
             <!-- Indicador de pasos -->
             <div class="steps-container">
                 <div class="step active" id="step-1">
@@ -501,7 +554,7 @@
                 </div>
             </div>
 
-            <form id="form-licencia" method="POST" action="{{ route('licencias.store') }}">
+            <form id="form-licencia" method="POST" action="{{ route('licencias.store') }}" novalidate>
                 @csrf
                 <input type="hidden" id="datos-completos" name="datos_completos" value="">
 
@@ -603,22 +656,30 @@
                                     La licencia pertenece a una licitación ya registrada en el sistema
                                 </p>
 
-                                <!-- Selector de licitaciones existentes -->
+                                <!-- Buscador de licitaciones existentes -->
                                 <div id="selector-licitaciones"
                                     style="display: none; margin-top: 15px; margin-left: 30px;">
-                                    <label for="licitacion_id">Selecciona la licitación:</label>
-                                    <select name="licitacion_id" id="licitacion_id" class="select-tipo">
-                                        <option value="">-- Selecciona una licitación --</option>
-                                        @foreach($licitaciones as $licitacion)
-                                            <option value="{{ $licitacion->idLicitacion }}">
-                                                {{ $licitacion->folio }} -
-                                                {{ $licitacion->proveedor_nombre ?? 'Sin proveedor' }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                        Selecciona una licitación ya registrada
-                                    </p>
+                                    <label>Buscar licitación por folio:</label>
+                                    <input type="text" id="buscar_licitacion_lic" class="input-nuevo-tipo"
+                                        placeholder="Escribe el folio de la licitación..."
+                                        oninput="buscarLicitacionLic(this.value)" autocomplete="off"
+                                        style="margin-top: 8px;">
+
+                                    <div id="resultados-licitacion-lic"
+                                        style="display: none; margin-top: 8px; border: 1px solid #ccd6dd; border-radius: 8px; overflow: hidden; max-height: 250px; overflow-y: auto; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                                    </div>
+
+                                    <div id="licitacion-seleccionada-lic"
+                                        style="display: none; margin-top: 10px; padding: 10px 15px; background: #e8f5e9; border-radius: 8px; border: 1px solid #28a745; display: flex; align-items: center; justify-content: space-between;">
+                                        <span id="licitacion-seleccionada-lic-texto"
+                                            style="font-weight: 600; color: #155724;"></span>
+                                        <button type="button" onclick="limpiarLicitacionLic()"
+                                            style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 18px; line-height: 1;">✕</button>
+                                    </div>
+
+                                    <input type="hidden" id="licitacion_id" name="licitacion_id" value="">
+                                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Muestra los primeros 20
+                                        resultados</p>
                                 </div>
                             </div>
 
@@ -786,17 +847,23 @@
                             <label for="folio_licitacion">Folio de la licitación <span
                                     style="color: #dc3545;">*</span></label>
                             <input type="text" id="folio_licitacion" name="folio_licitacion" class="input-nuevo-tipo"
-                                maxlength="50" required>
+                                maxlength="50" required style="width: 50%;">
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                 Folio único que identifica la licitación
                             </p>
                         </div>
 
+                        <!-- CAMPO DESCRIPCIÓN DE LICITACIÓN MEJORADO -->
                         <div style="margin-bottom: 20px;">
                             <label for="descripcion_licitacion">Descripción de la licitación</label>
-                            <textarea id="descripcion_licitacion" name="descripcion_licitacion" class="input-nuevo-tipo"
-                                placeholder="Descripción de la licitación (opcional)" maxlength="255" rows="3"
-                                style="resize: vertical; min-height: 80px;"></textarea>
+                            <span>(opcional)</span>
+                            <textarea id="descripcion_licitacion" name="descripcion_licitacion" class="textarea-grande"
+                                placeholder="Describe el objetivo de la licitación, los productos/servicios adquiridos, condiciones especiales, observaciones, etc."
+                                maxlength="255" rows="5"></textarea>
+                            <p
+                                style="font-size: 12px; color: #666; margin-top: 8px; display: flex; justify-content: space-between;">
+                                <span id="contador-caracteres" style="color: #999;">0/255</span>
+                            </p>
                         </div>
 
                         <div class="grid-2" style="margin-bottom: 20px;">
@@ -820,7 +887,6 @@
                                     <option value="Abierta">📂 Abierta</option>
                                     <option value="En proceso">⚙️ En proceso</option>
                                     <option value="Adjudicada">✅ Adjudicada</option>
-                                    <option value="Cerrada">🔒 Cerrada</option>
                                     <option value="Cancelada">❌ Cancelada</option>
                                 </select>
                             </div>
@@ -877,13 +943,24 @@
                     <div class="tipo-software-section">
                         <h3 style="color: #4a6fa5; margin-bottom: 20px;">Detalles de compra</h3>
 
-                        <div style="background: #f0f4f8; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                        <!-- CHECKBOX: LICENCIA INCLUIDA SIN COSTO -->
+                        <div class="checkbox-iva" style="background: #e8f0fe; margin-bottom: 20px;">
+                            <input type="checkbox" id="licencia_incluida" onchange="toggleCamposPrecio()">
+                            <label for="licencia_incluida" style="font-weight: 600; color: #4a6fa5;">
+                                ✅ Licencia incluida sin costo adicional
+                            </label>
+                            <p style="font-size: 12px; color: #666; margin-left: auto; margin-bottom: 0;">
+                                (La licencia viene incluida con el equipo)
+                            </p>
+                        </div>
+
+                        <div id="detalles-compra"
+                            style="background: #f0f4f8; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
                             <div style="margin-bottom: 20px;">
                                 <label for="cantidad">Cantidad de licencias <span
                                         style="color: #dc3545;">*</span></label>
                                 <input type="number" id="cantidad" name="cantidad" class="input-nuevo-tipo"
-                                    placeholder="Ej: 5, 10, 15..." min="1" value="1" required
-                                    onchange="calcularSubtotal()">
+                                    placeholder="Ej: 5, 10, 15..." min="1" value="1" onchange="calcularSubtotal()">
                                 <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                     Número de licencias idénticas
                                 </p>
@@ -893,7 +970,7 @@
                                 <label for="precio_unitario">Precio unitario <span
                                         style="color: #dc3545;">*</span></label>
                                 <input type="number" id="precio_unitario" name="precio_unitario"
-                                    class="input-nuevo-tipo" placeholder="0.00" step="0.01" min="0" required
+                                    class="input-nuevo-tipo" placeholder="0.00" step="0.01" min="0"
                                     onchange="calcularSubtotal()">
                                 <p style="font-size: 12px; color: #666; margin-top: 5px;">
                                     Precio por licencia (sin IVA si aplica)
@@ -929,6 +1006,18 @@
                                     Cantidad × Precio unitario = Subtotal
                                 </p>
                             </div>
+                        </div>
+
+                        <!-- Mensaje cuando la licencia es incluida -->
+                        <div id="mensaje-incluida"
+                            style="display: none; background: #d4edda; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #28a745;">
+                            <span style="font-size: 48px;">🎁</span>
+                            <p style="color: #155724; font-weight: 600; margin-top: 10px; margin-bottom: 0;">
+                                Licencia incluida sin costo adicional
+                            </p>
+                            <p style="color: #155724; font-size: 13px; margin-top: 5px;">
+                                Esta licencia viene incluida con el equipo, no genera costo extra en la licitación.
+                            </p>
                         </div>
                     </div>
 
@@ -967,12 +1056,13 @@
                             </p>
                         </div>
 
+                        <!-- CAMPO DESCRIPCIÓN DE LA LICENCIA - MISMO DISEÑO QUE DESCRIPCIÓN DE LICITACIÓN -->
                         <div style="margin-bottom: 20px;">
                             <label for="descripcion_licencia">Descripción de la licencia</label>
-                            <textarea id="descripcion_licencia" name="descripcion_licencia" class="input-nuevo-tipo"
-                                placeholder="Ej: Licencia perpetua, Suscripción anual, Incluye soporte técnico, etc."
-                                maxlength="255" rows="3" style="resize: vertical; min-height: 80px;"></textarea>
-                            <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                            <textarea id="descripcion_licencia" name="descripcion_licencia" class="textarea-grande"
+                                placeholder="Ej: Licencia perpetua, Suscripción anual, Incluye soporte técnico, información adicional, etc."
+                                maxlength="255" rows="5"></textarea>
+                            <p style="font-size: 12px; color: #666; margin-top: 8px;">
                                 Información adicional sobre la licencia (opcional)
                             </p>
                         </div>
@@ -1080,6 +1170,7 @@
     <div id="alerta" class="alert-message"></div>
 
     <script>
+        const licitacionesDataLic = @json($licitaciones);
         let pasoActual = 1;
 
         // Objeto para almacenar datos
@@ -1095,10 +1186,23 @@
                 subtotal: 0,
                 iva: 0,
                 total: 0,
-                aplicar_iva: false
+                aplicar_iva: false,
+                licencia_incluida: false
             },
             licencia: null
         };
+
+        // Contador de caracteres para la descripción de licitación
+        const textareaDescripcion = document.getElementById('descripcion_licitacion');
+        if (textareaDescripcion) {
+            textareaDescripcion.addEventListener('input', function () {
+                const contador = document.getElementById('contador-caracteres');
+                if (contador) {
+                    const caracteres = this.value.length;
+                    contador.textContent = `${caracteres}/255`;
+                }
+            });
+        }
 
         function mostrarModalCancelar() {
             document.getElementById('modal-cancelar').style.display = 'flex';
@@ -1109,7 +1213,6 @@
         }
 
         function cancelarRegistro() {
-            // Redirigir al dashboard principal
             window.location.href = "{{ route('dashboard') }}";
         }
 
@@ -1162,6 +1265,103 @@
             }
         }
 
+        function buscarLicitacionLic(query) {
+            const resultadosDiv = document.getElementById('resultados-licitacion-lic');
+            document.getElementById('licitacion_id').value = '';
+            document.getElementById('licitacion-seleccionada-lic').style.display = 'none';
+
+            if (query.trim().length < 1) {
+                resultadosDiv.style.display = 'none';
+                return;
+            }
+
+            const queryLower = query.toLowerCase();
+            const resultados = licitacionesDataLic
+                .filter(l => l.folio.toLowerCase().includes(queryLower))
+                .slice(0, 20);
+
+            if (resultados.length === 0) {
+                resultadosDiv.innerHTML = '<div style="padding: 12px 15px; color: #666; font-size: 14px;">No se encontraron licitaciones</div>';
+                resultadosDiv.style.display = 'block';
+                return;
+            }
+
+            let html = '';
+            resultados.forEach(l => {
+                const proveedor = l.proveedor_nombre ?? 'Sin proveedor';
+                html += `
+            <div onclick="seleccionarLicitacionLic(${l.idLicitacion}, '${l.folio}', '${proveedor}')"
+                style="padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;"
+                onmouseover="this.style.background='#f0f7ff'"
+                onmouseout="this.style.background='white'">
+                <span style="font-weight: 600; color: #4a6fa5;">${l.folio}</span>
+                <span style="color: #666; font-size: 13px; margin-left: 8px;">— ${proveedor}</span>
+            </div>`;
+            });
+
+            resultadosDiv.innerHTML = html;
+            resultadosDiv.style.display = 'block';
+        }
+
+        function seleccionarLicitacionLic(id, folio, proveedor) {
+            document.getElementById('licitacion_id').value = id;
+            document.getElementById('buscar_licitacion_lic').value = folio;
+            document.getElementById('resultados-licitacion-lic').style.display = 'none';
+
+            const textoEl = document.getElementById('licitacion-seleccionada-lic-texto');
+            textoEl.textContent = `✅ ${folio} — ${proveedor}`;
+            document.getElementById('licitacion-seleccionada-lic').style.display = 'flex';
+
+            datosFormulario.licitacion = { id: id, folio: folio, existente: true };
+        }
+
+        function limpiarLicitacionLic() {
+            document.getElementById('licitacion_id').value = '';
+            document.getElementById('buscar_licitacion_lic').value = '';
+            document.getElementById('resultados-licitacion-lic').style.display = 'none';
+            document.getElementById('licitacion-seleccionada-lic').style.display = 'none';
+            datosFormulario.licitacion = null;
+        }
+
+        function toggleCamposPrecio() {
+            const check = document.getElementById('licencia_incluida');
+            const detallesDiv = document.getElementById('detalles-compra');
+            const mensajeDiv = document.getElementById('mensaje-incluida');
+            const cantidadInput = document.getElementById('cantidad');
+            const precioInput = document.getElementById('precio_unitario');
+            const aplicarIvaCheck = document.getElementById('aplicar_iva');
+
+            if (check.checked) {
+                detallesDiv.style.display = 'none';
+                mensajeDiv.style.display = 'block';
+
+                if (cantidadInput) cantidadInput.value = 0;
+                if (precioInput) precioInput.value = 0;
+                aplicarIvaCheck.checked = false;
+
+                document.getElementById('subtotal').textContent = '$0.00';
+                document.getElementById('iva_monto').textContent = '$0.00';
+                document.getElementById('total').textContent = '$0.00';
+
+                datosFormulario.detalle.cantidad = 0;
+                datosFormulario.detalle.precio_unitario = 0;
+                datosFormulario.detalle.subtotal = 0;
+                datosFormulario.detalle.iva = 0;
+                datosFormulario.detalle.total = 0;
+                datosFormulario.detalle.aplicar_iva = false;
+                datosFormulario.detalle.licencia_incluida = true;
+            } else {
+                detallesDiv.style.display = 'block';
+                mensajeDiv.style.display = 'none';
+
+                if (cantidadInput) cantidadInput.value = 1;
+                if (precioInput) precioInput.value = '';
+
+                calcularSubtotal();
+                datosFormulario.detalle.licencia_incluida = false;
+            }
+        }
+
         function calcularSubtotal() {
             const cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
             const precio = parseFloat(document.getElementById('precio_unitario').value) || 0;
@@ -1174,7 +1374,6 @@
             document.getElementById('iva_monto').textContent = `$${ivaMonto.toFixed(2)}`;
             document.getElementById('total').textContent = `$${total.toFixed(2)}`;
 
-            // Guardar en datosFormulario
             datosFormulario.detalle.subtotal = subtotal;
             datosFormulario.detalle.iva = ivaMonto;
             datosFormulario.detalle.total = total;
@@ -1253,7 +1452,6 @@
                 return;
             }
 
-            // ✅ VALIDAR CORREO ANTES DE ENVIAR
             if (correo && !correo.includes('@')) {
                 mostrarAlerta('error', '⚠️ El correo electrónico debe contener un "@" (Ej: proveedor@empresa.com)');
                 return;
@@ -1366,7 +1564,6 @@
             document.getElementById('paso-actual').textContent = paso;
             pasoActual = paso;
 
-            // Actualizar resúmenes
             if (paso === 2 && datosFormulario.software) {
                 document.getElementById('resumen-software-paso2').textContent = datosFormulario.software.nombre;
             }
@@ -1397,7 +1594,6 @@
             const resumenDiv = document.getElementById('resumen-datos');
             let html = '';
 
-            // Software
             if (datosFormulario.software) {
                 html += `
                     <div class="resumen-item">
@@ -1409,7 +1605,6 @@
                 `;
             }
 
-            // Proveedor
             if (datosFormulario.proveedor) {
                 html += `
                     <div class="resumen-item">
@@ -1421,7 +1616,6 @@
                 `;
             }
 
-            // Licitación
             if (datosFormulario.licitacion) {
                 html += `
                     <div class="resumen-item">
@@ -1432,10 +1626,24 @@
                         </div>
                     </div>
                 `;
+                if (datosFormulario.licitacion.descripcion) {
+                    html += `
+                        <div class="resumen-item">
+                            <div class="resumen-label">Descripción licitación</div>
+                            <div class="resumen-value">${datosFormulario.licitacion.descripcion.substring(0, 100)}${datosFormulario.licitacion.descripcion.length > 100 ? '...' : ''}</div>
+                        </div>
+                    `;
+                }
             }
 
-            // Detalles
-            if (datosFormulario.detalle.cantidad) {
+            if (datosFormulario.detalle.licencia_incluida) {
+                html += `
+                    <div class="resumen-item">
+                        <div class="resumen-label">Costo</div>
+                        <div class="resumen-value" style="color: #28a745;">🎁 Incluida sin costo</div>
+                    </div>
+                `;
+            } else if (datosFormulario.detalle.cantidad) {
                 html += `
                     <div class="resumen-item">
                         <div class="resumen-label">Cantidad</div>
@@ -1472,7 +1680,6 @@
                 }
             }
 
-            // Licencia
             if (datosFormulario.licencia) {
                 html += `
                     <div class="resumen-item">
@@ -1480,16 +1687,14 @@
                         <div class="resumen-value">${datosFormulario.licencia.clave}</div>
                     </div>
                 `;
-
                 if (datosFormulario.licencia.descripcion) {
                     html += `
                         <div class="resumen-item">
-                            <div class="resumen-label">Descripción</div>
-                            <div class="resumen-value">${datosFormulario.licencia.descripcion}</div>
+                            <div class="resumen-label">Descripción licencia</div>
+                            <div class="resumen-value">${datosFormulario.licencia.descripcion.substring(0, 80)}${datosFormulario.licencia.descripcion.length > 80 ? '...' : ''}</div>
                         </div>
                     `;
                 }
-
                 if (datosFormulario.licencia.capacidad) {
                     html += `
                         <div class="resumen-item">
@@ -1498,7 +1703,6 @@
                         </div>
                     `;
                 }
-
                 html += `
                     <div class="resumen-item">
                         <div class="resumen-label">Fecha compra</div>
@@ -1563,17 +1767,7 @@
                         mostrarAlerta('error', 'Por favor selecciona una licitación');
                         return;
                     }
-
-                    const select = document.getElementById('licitacion_id');
-                    const selectedOption = select.options[select.selectedIndex];
-                    const [folio] = selectedOption.text.split(' - ');
-
-                    datosFormulario.licitacion = {
-                        id: select.value,
-                        folio: folio,
-                        existente: true
-                    };
-
+                    // datosFormulario.licitacion ya fue seteado en seleccionarLicitacionLic()
                     mostrarPaso(5);
                     return;
                 }
@@ -1618,22 +1812,34 @@
             }
 
             if (paso === 5) {
-                const cantidad = parseInt(document.getElementById('cantidad').value);
-                const precio = parseFloat(document.getElementById('precio_unitario').value);
+                const licenciaIncluida = document.getElementById('licencia_incluida').checked;
 
-                if (!cantidad || cantidad < 1) {
-                    mostrarAlerta('error', 'La cantidad debe ser al menos 1');
-                    return;
+                if (licenciaIncluida) {
+                    datosFormulario.detalle.cantidad = 0;
+                    datosFormulario.detalle.precio_unitario = 0;
+                    datosFormulario.detalle.subtotal = 0;
+                    datosFormulario.detalle.iva = 0;
+                    datosFormulario.detalle.total = 0;
+                    datosFormulario.detalle.aplicar_iva = false;
+                    datosFormulario.detalle.licencia_incluida = true;
+                } else {
+                    const cantidad = parseInt(document.getElementById('cantidad').value);
+                    const precio = parseFloat(document.getElementById('precio_unitario').value);
+
+                    if (!cantidad || cantidad < 1) {
+                        mostrarAlerta('error', 'La cantidad debe ser al menos 1');
+                        return;
+                    }
+
+                    if (precio === undefined || precio === null || isNaN(precio) || precio < 0) {
+                        mostrarAlerta('error', 'El precio unitario es requerido');
+                        return;
+                    }
+
+                    datosFormulario.detalle.cantidad = cantidad;
+                    datosFormulario.detalle.precio_unitario = precio;
+                    datosFormulario.detalle.licencia_incluida = false;
                 }
-
-                if (!precio || precio < 0) {
-                    mostrarAlerta('error', 'El precio unitario es requerido');
-                    return;
-                }
-
-                datosFormulario.detalle.cantidad = cantidad;
-                datosFormulario.detalle.precio_unitario = precio;
-                // Los valores de subtotal, iva y total ya se calcularon en calcularSubtotal()
             }
 
             if (paso === 6) {
@@ -1661,6 +1867,25 @@
         }
 
         function pasoAnterior(paso) {
+            // Si estamos en paso 5 y el tipo de licitación es "existente", volver al paso 2
+            if (paso === 5 && datosFormulario.tipo_licitacion === 'existente') {
+                mostrarPaso(2);
+                return;
+            }
+
+            // Si estamos en paso 6 y el tipo de licitación es "existente", volver al paso 5 (detalles)
+            if (paso === 6 && datosFormulario.tipo_licitacion === 'existente') {
+                mostrarPaso(5);
+                return;
+            }
+
+            // Si estamos en paso 7 y el tipo de licitación es "existente", volver al paso 6
+            if (paso === 7 && datosFormulario.tipo_licitacion === 'existente') {
+                mostrarPaso(6);
+                return;
+            }
+
+            // Navegación normal para licitación nueva
             if (paso === 3 && datosFormulario.tipo_licitacion === 'existente') {
                 mostrarPaso(2);
                 return;
@@ -1669,6 +1894,8 @@
                 mostrarPaso(2);
                 return;
             }
+
+            // Navegación estándar
             mostrarPaso(paso - 1);
         }
 
