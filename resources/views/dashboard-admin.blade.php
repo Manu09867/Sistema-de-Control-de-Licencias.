@@ -778,4 +778,8 @@
             }
         });
     </script>
+
+    <script>
+    document.title = "Panel Administrador";
+</script>
 </x-app-layout>

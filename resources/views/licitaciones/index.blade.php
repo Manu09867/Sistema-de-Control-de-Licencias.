@@ -1,4 +1,7 @@
 <x-app-layout>
+    @section('title')
+        Licitaciones
+    @endsection
     <style>
         .welcome-header {
             background: linear-gradient(135deg, #4a6fa5, #6b8cae);
@@ -398,6 +401,8 @@
     <div id="alerta" class="alert-message"></div>
 
     <script>
+        document.title = "Licitaciones";
+
         function verDetalle(id) {
             window.open(`/licitaciones/${id}`, '_blank');
         }
@@ -443,7 +448,7 @@
         }
 
         // 🔥 Búsqueda instantánea mientras escribes
-        inputBusqueda?.addEventListener('input', function() {
+        inputBusqueda?.addEventListener('input', function () {
             aplicarFiltros();
         });
 

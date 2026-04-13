@@ -374,4 +374,7 @@
             setTimeout(() => alerta.style.display = 'none', 3000);
         }
     </script>
+    <script>
+    document.title = "Proveedores";
+</script>
 </x-app-layout>

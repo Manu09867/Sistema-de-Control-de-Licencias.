@@ -594,29 +594,6 @@ body {
     color: #dc3545;
 }
 
-/* Estilos para botón de eliminar */
-.btn-delete {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: #dc3545;
-    color: white;
-    border: none;
-    font-size: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
-    margin-left: 6px;
-}
-
-.btn-delete:hover {
-    background: #c82333;
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(220,53,69,0.4);
-}
 
 /* Estilos para columna de observación */
 .observacion-cell {
@@ -669,4 +646,49 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+}
+
+/* Botón eliminar del header (igual que btn-edit) */
+.btn-delete-header {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.btn-delete-header:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* Botón eliminar pequeño de la tabla */
+.btn-delete {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #dc3545;
+    color: white;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    margin-left: 6px;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
 }

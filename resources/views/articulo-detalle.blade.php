@@ -45,6 +45,10 @@
                     <button id="btnCancelar" class="btn-cancel" style="display: none;" onclick="cancelarEdicion()">
                         <span>❌</span> Cancelar
                     </button>
+                    <!-- Botón Eliminar -->
+                    <button onclick="abrirModalEliminar()" class="btn-delete" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 600; cursor: pointer;">
+                        <span>🗑️</span> Eliminar
+                    </button>
                 @else
                     <span class="readonly-badge">
                         <span>👁️</span> Solo vista
@@ -276,70 +280,66 @@
         <!-- Sección de Licencias CON BOTÓN 🔑 -->
         @if(count($licencias) > 0)
         <div class="licencias-section">
-    <div class="card-title" style="font-size: 20px; margin-bottom: 15px;">
-        <span>🔑</span> Licencias Asignadas ({{ count($licencias) }})
-    </div>
+            <div class="card-title" style="font-size: 20px; margin-bottom: 15px;">
+                <span>🔑</span> Licencias Asignadas ({{ count($licencias) }})
+            </div>
 
-    <table class="licencias-table">
-        <thead>
-            <tr>
-                <th>Software</th>
-                <th>Clave</th>
-                <th>Fecha Compra</th>
-                <th>Vencimiento</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($licencias as $lic)
-            <tr>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <strong>{{ $lic->software }}</strong>
-                        <button 
-                            onclick="window.open('/licencia/{{ $lic->Clave }}', '_blank')"
-                            class="info-btn-small"
-                            title="Ver licencia"
-                            style="background: #4a6fa5;"
-                        >
-                            🔑
-                        </button>
-                    </div>
-                </td>
-
-                <td>
-                    <code>{{ $lic->Clave }}</code>
-                </td>
-
-                <td>
-                    {{ date('d/m/Y', strtotime($lic->Fechacompra)) }}
-                </td>
-
-                <td>
-                    @php
-                        $dias = (strtotime($lic->Fechavencimiento) - time()) / 86400;
-                        $color = $dias < 30 ? '#dc3545' : ($dias < 90 ? '#ffc107' : '#28a745');
-                    @endphp
-                    <span style="color: {{ $color }}; font-weight: 600;">
-                        {{ date('d/m/Y', strtotime($lic->Fechavencimiento)) }}
-                        @if($dias < 0)
-                            (Vencida)
-                        @elseif($dias < 30)
-                            (Pronto)
-                        @endif
-                    </span>
-                </td>
-
-                <td>
-                    <span class="badge {{ $lic->estadoLic == 'Activa' ? 'badge-activo' : 'badge-inactivo' }}">
-                        {{ $lic->estadoLic }}
-                    </span>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
+            <table class="licencias-table">
+                <thead>
+                    <tr>
+                        <th>Software</th>
+                        <th>Clave</th>
+                        <th>Fecha Compra</th>
+                        <th>Vencimiento</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($licencias as $lic)
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <strong>{{ $lic->software }}</strong>
+                                <button 
+                                    onclick="window.open('/licencia/{{ $lic->Clave }}', '_blank')"
+                                    class="info-btn-small"
+                                    title="Ver licencia"
+                                    style="background: #4a6fa5;"
+                                >
+                                    🔑
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <code>{{ $lic->Clave }}</code>
+                        </td>
+                        <td>
+                            {{ date('d/m/Y', strtotime($lic->Fechacompra)) }}
+                        </td>
+                        <td>
+                            @php
+                                $dias = (strtotime($lic->Fechavencimiento) - time()) / 86400;
+                                $color = $dias < 30 ? '#dc3545' : ($dias < 90 ? '#ffc107' : '#28a745');
+                            @endphp
+                            <span style="color: {{ $color }}; font-weight: 600;">
+                                {{ date('d/m/Y', strtotime($lic->Fechavencimiento)) }}
+                                @if($dias < 0)
+                                    (Vencida)
+                                @elseif($dias < 30)
+                                    (Pronto)
+                                @endif
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {{ $lic->estadoLic == 'Activa' ? 'badge-activo' : 'badge-inactivo' }}">
+                                {{ $lic->estadoLic }}
+                            </span>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
         @endif
 
         <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
@@ -352,9 +352,127 @@
     <!-- Pasar el ID del artículo a JavaScript -->
     <script>
         const articuloId = {{ $articulo->idArticulo }};
+        const articuloRP = '{{ $articulo->RP }}';
     </script>
     
     <!-- JavaScript separado -->
     <script src="{{ asset('js/articulo-detalle.js') }}"></script>
+    
+    <script>
+        // ===== FUNCIONES PARA ELIMINAR ARTÍCULO =====
+        
+        function abrirModalEliminar() {
+            const modal = document.getElementById('modal-eliminar');
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            document.getElementById('password_confirmacion').value = '';
+            document.getElementById('password_confirmacion').focus();
+        }
+
+        function cerrarModalEliminar() {
+            document.getElementById('modal-eliminar').style.display = 'none';
+        }
+
+        async function confirmarEliminar() {
+    const password = document.getElementById('password_confirmacion').value;
+
+    if (!password) {
+        mostrarAlerta('error', '❌ Ingresa tu contraseña para confirmar');
+        return;
+    }
+
+    // 🔥 Selecciona el botón correctamente (el último botón dentro del modal)
+    const btn = document.querySelector('#modal-eliminar button:last-child');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Eliminando...';
+
+    try {
+        const response = await fetch(`/api/articulos/${articuloId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ password: password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            mostrarAlerta('success', data.message);
+            cerrarModalEliminar();
+            setTimeout(() => {
+                window.close();
+            }, 2000);
+        } else {
+            mostrarAlerta('error', data.message);
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarAlerta('error', '❌ Error de conexión');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+        function mostrarAlerta(tipo, mensaje) {
+            const alerta = document.getElementById('alerta');
+            alerta.className = `alert-message alert-${tipo}`;
+            alerta.textContent = mensaje;
+            alerta.style.display = 'block';
+            setTimeout(() => {
+                alerta.style.display = 'none';
+            }, 3000);
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('modal-eliminar');
+            if (event.target === modal) {
+                cerrarModalEliminar();
+            }
+        }
+    </script>
+
+    <!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR ARTÍCULO - FUERA DEL CONTAINER -->
+    <div id="modal-eliminar" class="modal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; border-radius: 20px; padding: 30px; max-width: 450px; width: 90%; margin: 0 auto;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid #dc3545;">
+                <h2 style="color: #0f3057; font-size: 24px; margin: 0;">⚠️ Eliminar Artículo</h2>
+                <span class="close-modal" onclick="cerrarModalEliminar()" style="font-size: 28px; font-weight: bold; color: #666; cursor: pointer;">&times;</span>
+            </div>
+
+            <p style="margin-bottom: 20px; color: #666;">
+                ¿Estás seguro de eliminar el artículo con RP <strong>{{ $articulo->RP }}</strong>?
+            </p>
+
+            <p style="margin-bottom: 15px; color: #dc3545; font-size: 14px;">
+                ⚠️ Esta acción eliminará:
+            </p>
+
+            <ul style="margin-bottom: 20px; margin-left: 20px; color: #666; font-size: 13px;">
+                <li>El artículo completo</li>
+                <li>Sus relaciones con grupos</li>
+                <li>Datos de red (router/switch)</li>
+                <li>Asignaciones de licencias</li>
+                <li>Se actualizará el total de la licitación</li>
+            </ul>
+
+            <div style="margin-bottom: 20px;">
+                <label for="password_confirmacion" style="display: block; margin-bottom: 8px; font-weight: 600;">
+                    Contraseña de administrador <span style="color: #dc3545;">*</span>
+                </label>
+                <input type="password" id="password_confirmacion" class="edit-input" style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #ccd6dd; font-size: 14px;" placeholder="Ingresa tu contraseña">
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="cerrarModalEliminar()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 600; cursor: pointer;">Cancelar</button>
+                <button onclick="confirmarEliminar()" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 600; cursor: pointer;">🗑️ Eliminar</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

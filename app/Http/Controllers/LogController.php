@@ -11,7 +11,7 @@ class LogController extends Controller
     public function index(Request $request)
     {
         // 🔥 PRIMERO: Obtener los últimos 1000 IDs (más recientes)
-        $ultimosIds = QueryLog::orderBy('id', 'desc')->take(1000)->pluck('id');
+        $ultimosIds = QueryLog::orderBy('id', 'desc')->take(200)->pluck('id');
         
         $query = QueryLog::with('user')->whereIn('id', $ultimosIds);
         
@@ -42,7 +42,7 @@ class LogController extends Controller
     public function filtrar(Request $request)
     {
         // 🔥 PRIMERO: Obtener los últimos 1000 IDs
-        $ultimosIds = QueryLog::orderBy('id', 'desc')->take(1000)->pluck('id');
+        $ultimosIds = QueryLog::orderBy('id', 'desc')->take(200)->pluck('id');
         
         $query = QueryLog::with('user')->whereIn('id', $ultimosIds);
         

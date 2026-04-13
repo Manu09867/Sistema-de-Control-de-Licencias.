@@ -682,4 +682,7 @@
             }
         };
     </script>
+    <script>
+    document.title = "LOGS";
+</script>
 </x-app-layout>

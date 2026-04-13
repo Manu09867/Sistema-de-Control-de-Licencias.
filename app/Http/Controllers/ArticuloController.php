@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash; 
 
 class ArticuloController extends Controller
 {
@@ -230,6 +231,9 @@ class ArticuloController extends Controller
 
             // Determinar el total a guardar (con o sin IVA)
             $totalAGuardar = $datos['detalle']['aplicar_iva'] ? $datos['detalle']['total'] : $datos['detalle']['subtotal'];
+            
+            // 🔥 Calcular precio con IVA para guardar en el detalle
+            $precioConIVA = $datos['detalle']['aplicar_iva'] ? $datos['detalle']['precio_unitario'] * 1.16 : $datos['detalle']['precio_unitario'];
 
             // ===== 1. TIPO DE PRODUCTO =====
             $tipoProductoId = $datos['tipo_producto']['id'];
@@ -277,8 +281,8 @@ class ArticuloController extends Controller
                 'idSoftware' => null,
                 'idProducto' => $productoId,
                 'Cantidad' => $datos['detalle']['cantidad'],
-                'PrecioU' => $datos['detalle']['precio_unitario'],
-                'Subtotal' => $totalAGuardar
+                'PrecioU' => $precioConIVA,  // 🔥 Guardar precio CON IVA
+                'Subtotal' => $totalAGuardar   // 🔥 Guardar total CON IVA
             ]);
 
             // Si NO es nueva licitación (es existente), sumar al total
@@ -396,10 +400,8 @@ class ArticuloController extends Controller
                     ->increment('Total', $nuevoSubtotal);
             }
 
-            // 3. Manejar GRUPO (VERSIÓN DEFINITIVA - NO ELIMINA NUNCA A MENOS QUE SE BORRE EXPLÍCITAMENTE)
-            // Verificar si el campo nombreGrupo fue enviado en la petición
+            // 3. Manejar GRUPO
             if (array_key_exists('nombreGrupo', $validated)) {
-                // Si el usuario envió un nombre de grupo NO VACÍO
                 if (!empty($validated['nombreGrupo'])) {
                     $grupoExistente = DB::table('grupo')
                         ->where('NombreGrupo', $validated['nombreGrupo'])
@@ -425,13 +427,9 @@ class ArticuloController extends Controller
                             ['idGrupo' => $idGrupo]
                         );
                 } else {
-                    // El usuario envió el campo vacío EXPLÍCITAMENTE - eliminar grupo
-                    DB::table('grupo_articulo')
-                        ->where('idArticulo', $id)
-                        ->delete();
+                    DB::table('grupo_articulo')->where('idArticulo', $id)->delete();
                 }
             }
-            // Si el campo NO fue enviado en la petición, NO hacemos nada (preservamos el grupo actual)
 
             // 4. Manejar INFORMACIÓN DE RED
             if (!empty($validated['tipoRed'])) {
@@ -440,9 +438,7 @@ class ArticuloController extends Controller
                 $campoIp = $validated['tipoRed'] === 'router' ? 'IpaddressR' : 'IpaddressSw';
                 $campoObs = $validated['tipoRed'] === 'router' ? 'ObservacionR' : 'ObservacionSw';
 
-                $existe = DB::table($tablaRed)
-                    ->where('idArticulo', $id)
-                    ->exists();
+                $existe = DB::table($tablaRed)->where('idArticulo', $id)->exists();
 
                 $dataRed = [
                     $campoMac => $validated['mac'] ?? null,
@@ -451,9 +447,7 @@ class ArticuloController extends Controller
                 ];
 
                 if ($existe) {
-                    DB::table($tablaRed)
-                        ->where('idArticulo', $id)
-                        ->update($dataRed);
+                    DB::table($tablaRed)->where('idArticulo', $id)->update($dataRed);
                 } else {
                     $dataRed['idArticulo'] = $id;
                     DB::table($tablaRed)->insert($dataRed);
@@ -484,7 +478,7 @@ class ArticuloController extends Controller
     /**
      * Elimina un artículo (SOLO ADMIN)
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         // VERIFICAR QUE SEA ADMIN
         if (auth()->user()->role !== 'admin') {
@@ -492,6 +486,14 @@ class ArticuloController extends Controller
                 'success' => false,
                 'message' => '⛔ No tienes permisos para realizar esta acción. Solo administradores.'
             ], 403);
+        }
+
+        // VERIFICAR CONTRASEÑA
+        if (!Hash::check($request->password, auth()->user()->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => '❌ Contraseña incorrecta'
+            ], 401);
         }
 
         try {
@@ -512,17 +514,43 @@ class ArticuloController extends Controller
                 ->where('idDetalle_Licitacion', $articulo->idDetalle_Licitacion)
                 ->first();
 
-            // Restar el subtotal del total de la licitación
+            // CONTAR cuántos artículos quedan en este detalle
+            $articulosRestantes = DB::table('articulo')
+                ->where('idDetalle_Licitacion', $articulo->idDetalle_Licitacion)
+                ->count();
+
+            if ($articulosRestantes <= 1) {
+                // Si es el último artículo, eliminar el detalle completo
+                DB::table('detalle_licitacion')
+                    ->where('idDetalle_Licitacion', $articulo->idDetalle_Licitacion)
+                    ->delete();
+            } else {
+                // Si quedan más artículos, actualizar la cantidad y el subtotal
+                $nuevaCantidad = $articulosRestantes - 1;
+                $nuevoSubtotal = $nuevaCantidad * $detalle->PrecioU;
+                
+                DB::table('detalle_licitacion')
+                    ->where('idDetalle_Licitacion', $articulo->idDetalle_Licitacion)
+                    ->update([
+                        'Cantidad' => $nuevaCantidad,
+                        'Subtotal' => $nuevoSubtotal
+                    ]);
+            }
+
+            // Recalcular el total de la licitación
+            $nuevoTotal = DB::table('detalle_licitacion')
+                ->where('idLicitacion', $detalle->idLicitacion)
+                ->sum('Subtotal');
+
             DB::table('licitacion')
                 ->where('idLicitacion', $detalle->idLicitacion)
-                ->decrement('Total', $detalle->Subtotal);
+                ->update(['Total' => $nuevoTotal]);
 
             // Eliminar relaciones
             DB::table('grupo_articulo')->where('idArticulo', $id)->delete();
             DB::table('articulo_router')->where('idArticulo', $id)->delete();
             DB::table('articulo_switch')->where('idArticulo', $id)->delete();
-
-            // Eliminar artículo
+            DB::table('asignacion_licencia')->where('idArticulo', $id)->delete();
             DB::table('articulo')->where('idArticulo', $id)->delete();
 
             DB::commit();

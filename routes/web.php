@@ -16,9 +16,6 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\TipoProductoController;
 use App\Http\Controllers\ProveedorController;
 
-
-
-
 Route::get('/', function () {
     return redirect('/login');
 });
@@ -296,11 +293,18 @@ Route::middleware(['auth', 'single.session'])->group(function () {
     Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
     Route::get('/logs/filtrar', [LogController::class, 'filtrar'])->name('logs.filtrar');
 
-    // ===== RUTAS PARA ELIMINAR LOGS (SOLO ADMIN) =====
+    // ===== RUTAS PARA ELIMINAR LOGS, ARTÍCULOS Y LICENCIAS (SOLO ADMIN) =====
     Route::middleware('role:admin')->group(function () {
+        // Logs
         Route::get('/logs/eliminar/{id}', [LogController::class, 'eliminarUnico'])->name('logs.eliminar');
         Route::get('/logs/eliminar-rango', [LogController::class, 'eliminarRango'])->name('logs.eliminar.rango');
         Route::get('/logs/eliminar-todos', [LogController::class, 'eliminarTodos'])->name('logs.eliminar.todos');
+        
+        // Artículos
+        Route::delete('/api/articulos/{id}', [ArticuloController::class, 'destroy']);
+        
+        // 🔥 Licencias
+        Route::delete('/api/licencias/{id}', [LicenciaController::class, 'destroy']);
     });
 
     // ===== CRUD COMPLETO PARA ÁREAS Y TIPOS DE PRODUCTO (SOLO ADMIN) =====

@@ -658,10 +658,11 @@
                         <thead>
                             <tr>
                                 <th>Tipo</th>
-                                <th>Item</th>
-                                <th>Cantidad</th>
+                                <th>Item / Serie</th>
+                                <th>RP / Clave</th>
+                                <th>Estado</th>
+                                <th>Área</th>
                                 <th>Precio Unitario</th>
-                                <th>Subtotal</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -670,13 +671,11 @@
                                 <tr>
                                     <td>
                                         @if($detalle->TipoItem == 'SOFTWARE')
-                                            <span
-                                                style="background: #cce5ff; color: #004085; padding: 4px 8px; border-radius: 12px; font-size: 11px;">
+                                            <span class="badge" style="background: #cce5ff; color: #004085;">
                                                 🔑 Software
                                             </span>
                                         @else
-                                            <span
-                                                style="background: #e6ecf2; color: #4a6fa5; padding: 4px 8px; border-radius: 12px; font-size: 11px;">
+                                            <span class="badge" style="background: #e6ecf2; color: #4a6fa5;">
                                                 📦 Hardware
                                             </span>
                                         @endif
@@ -685,34 +684,51 @@
                                     <td>
                                         <div style="display: flex; flex-direction: column;">
                                             <strong>{{ $detalle->item_nombre ?? 'N/A' }}</strong>
-                                            @if($detalle->TipoItem == 'HARDWARE' && !empty($detalle->item_serie))
-                                                <span style="font-size: 11px; color: #666; margin-top: 3px;">
-                                                    Serie: {{ $detalle->item_serie }}
-                                                </span>
-                                            @elseif($detalle->TipoItem == 'SOFTWARE' && !empty($detalle->item_clave))
-                                                <span style="font-size: 11px; color: #666; margin-top: 3px;">
-                                                    Clave: {{ $detalle->item_clave }}
+                                            @if($detalle->TipoItem == 'HARDWARE' && !empty($detalle->serie))
+                                                <span style="font-size: 11px; color: #666;">
+                                                    Serie: {{ $detalle->serie }}
                                                 </span>
                                             @endif
                                         </div>
                                     </td>
 
-                                    <td>{{ $detalle->Cantidad }}</td>
+                                    <td>
+                                        @if($detalle->TipoItem == 'SOFTWARE')
+                                            <code>{{ $detalle->RP ?? 'N/A' }}</code>
+                                        @else
+                                            {{ $detalle->RP ?? 'N/A' }}
+                                        @endif
+                                    </td>
 
                                     <td>
-                                        ${{ number_format($detalle->PrecioU ?? 0, 2) }}
+                                        @php
+                                            $estadoClass = match ($detalle->estado) {
+                                                'Activo', 'Activa' => 'badge-activo',
+                                                'Mantenimiento', 'Por vencer' => 'badge-pronto',
+                                                'Vencida' => 'badge-vencida',
+                                                default => 'badge-inactivo'
+                                            };
+                                        @endphp
+                                        <span class="badge {{ $estadoClass }}">
+                                            {{ $detalle->estado ?? 'N/A' }}
+                                        </span>
                                     </td>
+
+                                    <td>{{ $detalle->area ?? 'Sin área' }}</td>
 
                                     <td style="color: #28a745; font-weight: bold;">
                                         ${{ number_format($detalle->Subtotal ?? 0, 2) }}
                                     </td>
 
                                     <td>
-                                        @if(!empty($detalle->item_referencia))
-                                            <button
-                                                onclick="window.open('{{ $detalle->TipoItem == 'SOFTWARE' ? '/licencia/' : '/articulo/' }}{{ $detalle->item_referencia }}', '_blank')"
-                                                class="info-btn-small"
-                                                title="Ver {{ $detalle->TipoItem == 'SOFTWARE' ? 'licencia' : 'artículo' }}">
+                                        @if($detalle->TipoItem == 'SOFTWARE' && !empty($detalle->RP))
+                                            <button onclick="window.open('/licencia/{{ $detalle->RP }}', '_blank')"
+                                                class="info-btn-small" title="Ver licencia">
+                                                🔍
+                                            </button>
+                                        @elseif($detalle->TipoItem == 'HARDWARE' && !empty($detalle->RP))
+                                            <button onclick="window.open('/articulo/{{ $detalle->RP }}', '_blank')"
+                                                class="info-btn-small" title="Ver artículo">
                                                 🔍
                                             </button>
                                         @else
@@ -723,15 +739,6 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-            </div>
-        @else
-            <div class="articulos-section">
-                <div class="card-title" style="font-size: 20px; margin-bottom: 15px;">
-                    <span>📦</span> Items de la Licitación
-                </div>
-                <div class="no-data">
-                    📭 No hay items asociados a esta licitación
                 </div>
             </div>
         @endif

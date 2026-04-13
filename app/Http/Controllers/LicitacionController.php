@@ -21,7 +21,20 @@ class LicitacionController extends Controller
                 l.Total,
                 l.Recurso,
                 p.Nombre AS proveedor_nombre,
-                (SELECT COUNT(*) FROM detalle_licitacion WHERE idLicitacion = l.idLicitacion) AS total_detalles
+                (
+                    SELECT COUNT(*) 
+                    FROM detalle_licitacion dl 
+                    WHERE dl.idLicitacion = l.idLicitacion
+                    AND (
+                        (dl.TipoItem = 'HARDWARE' AND EXISTS (
+                            SELECT 1 FROM articulo a WHERE a.idDetalle_Licitacion = dl.idDetalle_Licitacion
+                        ))
+                        OR
+                        (dl.TipoItem = 'SOFTWARE' AND EXISTS (
+                            SELECT 1 FROM licencia lc WHERE lc.idDetalle_Licitacion = dl.idDetalle_Licitacion
+                        ))
+                    )
+                ) AS total_detalles
             FROM licitacion l
             LEFT JOIN proveedor p ON l.idProveedor = p.idProveedor
             ORDER BY l.idLicitacion DESC
@@ -56,45 +69,47 @@ class LicitacionController extends Controller
 
         $licitacion = $licitacion[0];
 
+        // 🔥 NUEVA CONSULTA: Mostrar CADA ARTÍCULO individualmente
         $detalles = DB::select("
         SELECT 
-            dl.idDetalle_Licitacion,
-            dl.TipoItem,
-            dl.Cantidad,
+            'HARDWARE' AS TipoItem,
+            a.idArticulo,
+            a.serie,
+            a.RP,
+            a.estado,
+            p.NombreP AS item_nombre,
+            p.Marca,
+            p.Modelo,
+            ar.NombreArea AS area,
+            dl.Cantidad AS cantidad_detalle,
             dl.PrecioU,
-            dl.Subtotal,
-            CASE 
-                WHEN dl.TipoItem = 'SOFTWARE' THEN s.Nombre
-                WHEN dl.TipoItem = 'HARDWARE' THEN p.NombreP
-            END AS item_nombre,
-            CASE 
-                WHEN dl.TipoItem = 'SOFTWARE' THEN '🔑 Software'
-                WHEN dl.TipoItem = 'HARDWARE' THEN '📦 Hardware'
-            END AS tipo_display,
-            CASE 
-                WHEN dl.TipoItem = 'SOFTWARE' THEN (SELECT lc.Clave FROM licencia lc WHERE lc.idDetalle_Licitacion = dl.idDetalle_Licitacion LIMIT 1)
-                WHEN dl.TipoItem = 'HARDWARE' THEN (SELECT a.RP FROM articulo a WHERE a.idDetalle_Licitacion = dl.idDetalle_Licitacion LIMIT 1)
-            END AS item_referencia,
-            -- NUEVOS CAMPOS PARA SERIE Y CLAVE
-            CASE 
-                WHEN dl.TipoItem = 'HARDWARE' THEN (
-                    SELECT a.serie FROM articulo a 
-                    WHERE a.idDetalle_Licitacion = dl.idDetalle_Licitacion LIMIT 1
-                )
-                ELSE NULL
-            END AS item_serie,
-            CASE 
-                WHEN dl.TipoItem = 'SOFTWARE' THEN (
-                    SELECT lc.Clave FROM licencia lc 
-                    WHERE lc.idDetalle_Licitacion = dl.idDetalle_Licitacion LIMIT 1
-                )
-                ELSE NULL
-            END AS item_clave
-        FROM detalle_licitacion dl
-        LEFT JOIN software s ON dl.idSoftware = s.idSoftware
-        LEFT JOIN producto p ON dl.idProducto = p.idProducto
+            dl.Subtotal
+        FROM articulo a
+        INNER JOIN detalle_licitacion dl ON a.idDetalle_Licitacion = dl.idDetalle_Licitacion
+        INNER JOIN producto p ON a.idProducto = p.idProducto
+        LEFT JOIN area ar ON a.idArea = ar.idArea
         WHERE dl.idLicitacion = ?
-    ", [$id]);
+        
+        UNION ALL
+        
+        SELECT 
+            'SOFTWARE' AS TipoItem,
+            l.idLicencia AS idArticulo,
+            NULL AS serie,
+            l.Clave AS RP,
+            l.estadoLic AS estado,
+            s.Nombre AS item_nombre,
+            NULL AS Marca,
+            NULL AS Modelo,
+            NULL AS area,
+            dl.Cantidad AS cantidad_detalle,
+            dl.PrecioU,
+            dl.Subtotal
+        FROM licencia l
+        INNER JOIN detalle_licitacion dl ON l.idDetalle_Licitacion = dl.idDetalle_Licitacion
+        INNER JOIN software s ON l.idSoftware = s.idSoftware
+        WHERE dl.idLicitacion = ?
+    ", [$id, $id]);
 
         $proveedores = DB::table('proveedor')->orderBy('Nombre')->get();
 
@@ -177,7 +192,6 @@ class LicitacionController extends Controller
         }
     }
 
-
     /**
      * 🔄 ACTUALIZAR LICITACIÓN (SOLO ADMIN)
      */
@@ -199,7 +213,6 @@ class LicitacionController extends Controller
                 'fecha_inicio' => 'nullable|date',
                 'fecha_fin' => 'nullable|date',
                 'descripcion' => 'nullable|string|max:255',
-                // ❌ ELIMINA 'total' de aquí - no se debe editar manualmente
             ]);
 
             DB::beginTransaction();
@@ -214,7 +227,6 @@ class LicitacionController extends Controller
                     'FechaI' => $validated['fecha_inicio'],
                     'FechaF' => $validated['fecha_fin'],
                     'DescripcionL' => $validated['descripcion']
-                    // ❌ NO incluyas 'Total' aquí - se calcula automáticamente desde los detalles
                 ]);
 
             DB::commit();
@@ -241,6 +253,4 @@ class LicitacionController extends Controller
             ], 500);
         }
     }
-
-
 }

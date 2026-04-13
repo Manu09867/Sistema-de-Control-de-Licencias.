@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;  // ← Agrega esta línea
+
 
 class LicenciaController extends Controller
 {
@@ -417,7 +419,7 @@ class LicenciaController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         if (auth()->user()->role !== 'admin') {
             return response()->json([
@@ -426,9 +428,26 @@ class LicenciaController extends Controller
             ], 403);
         }
 
+        if (!Hash::check($request->password, auth()->user()->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => '❌ Contraseña incorrecta'
+            ], 401);
+        }
+
         try {
             DB::beginTransaction();
 
+            $licencia = DB::table('licencia')->where('idLicencia', $id)->first();
+
+            if (!$licencia) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Licencia no encontrada'
+                ], 404);
+            }
+
+            // Verificar si tiene asignaciones
             $asignaciones = DB::table('asignacion_licencia')
                 ->where('idLicencia', $id)
                 ->count();
@@ -440,9 +459,31 @@ class LicenciaController extends Controller
                 ]);
             }
 
-            DB::table('licencia')
-                ->where('idLicencia', $id)
-                ->delete();
+            // Obtener el detalle de licitación ANTES de eliminar la licencia
+            $detalleId = $licencia->idDetalle_Licitacion;
+
+            if ($detalleId) {
+                $detalle = DB::table('detalle_licitacion')
+                    ->where('idDetalle_Licitacion', $detalleId)
+                    ->first();
+
+                if ($detalle) {
+                    // Restar el subtotal del total de la licitación
+                    DB::table('licitacion')
+                        ->where('idLicitacion', $detalle->idLicitacion)
+                        ->decrement('Total', $detalle->Subtotal);
+                }
+            }
+
+            // 🔥 PRIMERO: Eliminar la licencia (esto libera la llave foránea)
+            DB::table('licencia')->where('idLicencia', $id)->delete();
+
+            // 🔥 DESPUÉS: Eliminar el detalle de licitación
+            if ($detalleId) {
+                DB::table('detalle_licitacion')
+                    ->where('idDetalle_Licitacion', $detalleId)
+                    ->delete();
+            }
 
             DB::commit();
 
@@ -455,8 +496,9 @@ class LicenciaController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Error al eliminar'
+                'message' => 'Error al eliminar: ' . $e->getMessage()
             ], 500);
         }
     }
+
 }

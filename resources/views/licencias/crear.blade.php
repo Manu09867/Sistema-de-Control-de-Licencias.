@@ -956,18 +956,10 @@
 
                         <div id="detalles-compra"
                             style="background: #f0f4f8; padding: 25px; border-radius: 12px; margin-bottom: 20px;">
-                            <div style="margin-bottom: 20px;">
-                                <label for="cantidad">Cantidad de licencias <span
-                                        style="color: #dc3545;">*</span></label>
-                                <input type="number" id="cantidad" name="cantidad" class="input-nuevo-tipo"
-                                    placeholder="Ej: 5, 10, 15..." min="1" value="1" onchange="calcularSubtotal()">
-                                <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                    Número de licencias idénticas
-                                </p>
-                            </div>
+                            <input type="hidden" id="cantidad" name="cantidad" value="1">
 
                             <div style="margin-bottom: 20px;">
-                                <label for="precio_unitario">Precio unitario <span
+                                <label for="precio_unitario">Precio de la licencia <span
                                         style="color: #dc3545;">*</span></label>
                                 <input type="number" id="precio_unitario" name="precio_unitario"
                                     class="input-nuevo-tipo" placeholder="0.00" step="0.01" min="0"
@@ -1002,9 +994,6 @@
                                     <span id="total"
                                         style="font-size: 24px; font-weight: bold; color: #28a745;">$0.00</span>
                                 </div>
-                                <p style="font-size: 12px; color: #666; margin-top: 10px; text-align: right;">
-                                    Cantidad × Precio unitario = Subtotal
-                                </p>
                             </div>
                         </div>
 
@@ -1645,19 +1634,16 @@
                 `;
             } else if (datosFormulario.detalle.cantidad) {
                 html += `
-                    <div class="resumen-item">
-                        <div class="resumen-label">Cantidad</div>
-                        <div class="resumen-value">${datosFormulario.detalle.cantidad} licencias</div>
-                    </div>
-                    <div class="resumen-item">
-                        <div class="resumen-label">Precio unitario</div>
-                        <div class="resumen-value">$${datosFormulario.detalle.precio_unitario.toFixed(2)}</div>
-                    </div>
-                    <div class="resumen-item">
-                        <div class="resumen-label">Subtotal</div>
-                        <div class="resumen-value">$${datosFormulario.detalle.subtotal.toFixed(2)}</div>
-                    </div>
-                `;
+    <div class="resumen-item">
+        <div class="resumen-label">Precio</div>
+        <div class="resumen-value">$${datosFormulario.detalle.precio_unitario.toFixed(2)}</div>
+    </div>
+    <div class="resumen-item">
+        <div class="resumen-label">Subtotal</div>
+        <div class="resumen-value">$${datosFormulario.detalle.subtotal.toFixed(2)}</div>
+    </div>
+`;
+
 
                 if (datosFormulario.detalle.aplicar_iva) {
                     html += `
@@ -1823,20 +1809,14 @@
                     datosFormulario.detalle.aplicar_iva = false;
                     datosFormulario.detalle.licencia_incluida = true;
                 } else {
-                    const cantidad = parseInt(document.getElementById('cantidad').value);
                     const precio = parseFloat(document.getElementById('precio_unitario').value);
 
-                    if (!cantidad || cantidad < 1) {
-                        mostrarAlerta('error', 'La cantidad debe ser al menos 1');
+                    if (isNaN(precio) || precio < 0) {
+                        mostrarAlerta('error', 'El precio de la licencia es requerido');
                         return;
                     }
 
-                    if (precio === undefined || precio === null || isNaN(precio) || precio < 0) {
-                        mostrarAlerta('error', 'El precio unitario es requerido');
-                        return;
-                    }
-
-                    datosFormulario.detalle.cantidad = cantidad;
+                    datosFormulario.detalle.cantidad = 1;
                     datosFormulario.detalle.precio_unitario = precio;
                     datosFormulario.detalle.licencia_incluida = false;
                 }
