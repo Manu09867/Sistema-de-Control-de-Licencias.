@@ -479,93 +479,108 @@ class ArticuloController extends Controller
      * Elimina un artículo (SOLO ADMIN)
      */
     public function destroy(Request $request, $id)
-    {
-        // VERIFICAR QUE SEA ADMIN
-        if (auth()->user()->role !== 'admin') {
-            return response()->json([
-                'success' => false,
-                'message' => '⛔ No tienes permisos para realizar esta acción. Solo administradores.'
-            ], 403);
-        }
-
-        // VERIFICAR CONTRASEÑA
-        if (!Hash::check($request->password, auth()->user()->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => '❌ Contraseña incorrecta'
-            ], 401);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $articulo = DB::table('articulo')
-                ->where('idArticulo', $id)
-                ->first();
-
-            if (!$articulo) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Artículo no encontrado'
-                ], 404);
-            }
-
-            $detalle = DB::table('detalle_licitacion')
-                ->where('idDetalle_Licitacion', $articulo->idDetalle_Licitacion)
-                ->first();
-
-            // CONTAR cuántos artículos quedan en este detalle
-            $articulosRestantes = DB::table('articulo')
-                ->where('idDetalle_Licitacion', $articulo->idDetalle_Licitacion)
-                ->count();
-
-            if ($articulosRestantes <= 1) {
-                // Si es el último artículo, eliminar el detalle completo
-                DB::table('detalle_licitacion')
-                    ->where('idDetalle_Licitacion', $articulo->idDetalle_Licitacion)
-                    ->delete();
-            } else {
-                // Si quedan más artículos, actualizar la cantidad y el subtotal
-                $nuevaCantidad = $articulosRestantes - 1;
-                $nuevoSubtotal = $nuevaCantidad * $detalle->PrecioU;
-                
-                DB::table('detalle_licitacion')
-                    ->where('idDetalle_Licitacion', $articulo->idDetalle_Licitacion)
-                    ->update([
-                        'Cantidad' => $nuevaCantidad,
-                        'Subtotal' => $nuevoSubtotal
-                    ]);
-            }
-
-            // Recalcular el total de la licitación
-            $nuevoTotal = DB::table('detalle_licitacion')
-                ->where('idLicitacion', $detalle->idLicitacion)
-                ->sum('Subtotal');
-
-            DB::table('licitacion')
-                ->where('idLicitacion', $detalle->idLicitacion)
-                ->update(['Total' => $nuevoTotal]);
-
-            // Eliminar relaciones
-            DB::table('grupo_articulo')->where('idArticulo', $id)->delete();
-            DB::table('articulo_router')->where('idArticulo', $id)->delete();
-            DB::table('articulo_switch')->where('idArticulo', $id)->delete();
-            DB::table('asignacion_licencia')->where('idArticulo', $id)->delete();
-            DB::table('articulo')->where('idArticulo', $id)->delete();
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => '✅ Artículo eliminado correctamente'
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al eliminar: ' . $e->getMessage()
-            ], 500);
-        }
+{
+    // VERIFICAR QUE SEA ADMIN
+    if (auth()->user()->role !== 'admin') {
+        return response()->json([
+            'success' => false,
+            'message' => '⛔ No tienes permisos para realizar esta acción. Solo administradores.'
+        ], 403);
     }
+
+    // VERIFICAR CONTRASEÑA
+    if (!Hash::check($request->password, auth()->user()->password)) {
+        return response()->json([
+            'success' => false,
+            'message' => '❌ Contraseña incorrecta'
+        ], 401);
+    }
+
+    try {
+        DB::beginTransaction();
+
+        $articulo = DB::table('articulo')
+            ->where('idArticulo', $id)
+            ->first();
+
+        if (!$articulo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Artículo no encontrado'
+            ], 404);
+        }
+
+        $detalleId = $articulo->idDetalle_Licitacion;
+        
+        // Obtener el detalle ANTES de modificar nada
+        $detalle = DB::table('detalle_licitacion')
+            ->where('idDetalle_Licitacion', $detalleId)
+            ->first();
+        
+        if (!$detalle) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Detalle de licitación no encontrado'
+            ], 404);
+        }
+        
+        $licitacionId = $detalle->idLicitacion;
+        
+        // CONTAR cuántos artículos quedan en este detalle (incluyendo el actual)
+        $articulosRestantes = DB::table('articulo')
+            ->where('idDetalle_Licitacion', $detalleId)
+            ->count();
+
+        // 🔥 PRIMERO: Eliminar relaciones del artículo
+        DB::table('grupo_articulo')->where('idArticulo', $id)->delete();
+        DB::table('articulo_router')->where('idArticulo', $id)->delete();
+        DB::table('articulo_switch')->where('idArticulo', $id)->delete();
+        DB::table('asignacion_licencia')->where('idArticulo', $id)->delete();
+
+        // 🔥 SEGUNDO: Eliminar el artículo
+        DB::table('articulo')->where('idArticulo', $id)->delete();
+
+        // 🔥 TERCERO: Actualizar o eliminar el detalle
+        if ($articulosRestantes <= 1) {
+            // Era el último artículo, eliminar el detalle
+            DB::table('detalle_licitacion')
+                ->where('idDetalle_Licitacion', $detalleId)
+                ->delete();
+        } else {
+            // Quedan más artículos, actualizar cantidad y subtotal
+            $nuevaCantidad = $articulosRestantes - 1;
+            $nuevoSubtotal = $nuevaCantidad * $detalle->PrecioU;
+            
+            DB::table('detalle_licitacion')
+                ->where('idDetalle_Licitacion', $detalleId)
+                ->update([
+                    'Cantidad' => $nuevaCantidad,
+                    'Subtotal' => $nuevoSubtotal
+                ]);
+        }
+
+        // 🔥 CUARTO: Recalcular el total de la licitación
+        $nuevoTotal = DB::table('detalle_licitacion')
+            ->where('idLicitacion', $licitacionId)
+            ->sum('Subtotal');
+
+        DB::table('licitacion')
+            ->where('idLicitacion', $licitacionId)
+            ->update(['Total' => $nuevoTotal]);
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => '✅ Artículo eliminado correctamente'
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al eliminar: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
