@@ -135,8 +135,10 @@ async function guardarCambios() {
     btn.innerHTML = '<span>⏳</span> Guardando...';
 
     try {
-        const response = await fetch(`/articulo/${articuloId}/actualizar`, {
-            method: 'POST',
+        // 🔥 CORREGIDO: Usar articuloSerie en lugar de articuloId
+        // 🔥 CORREGIDO: Método PUT en lugar de POST
+        const response = await fetch(`/articulo/${articuloSerie}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content

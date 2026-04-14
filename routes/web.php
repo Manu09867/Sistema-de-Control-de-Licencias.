@@ -46,7 +46,8 @@ Route::middleware(['auth', 'single.session'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // ===== RUTAS DE ARTÍCULOS Y LICENCIAS =====
-    Route::get('/articulo/{rp}', [ArticuloController::class, 'show'])->name('articulo.show');
+    // 🔥 CORREGIDO: Ahora usa serie en lugar de rp
+    Route::get('/articulo/{serie}', [ArticuloController::class, 'show'])->name('articulo.show');
     Route::get('/buscar-articulos', [BusquedaController::class, 'buscar'])->name('buscar.articulos');
     Route::get('/licencia/{clave}', [LicenciaController::class, 'show'])->name('licencia.show');
 
@@ -77,7 +78,8 @@ Route::middleware(['auth', 'single.session'])->group(function () {
     });
 
     // ===== RUTAS PARA ACTUALIZAR (SOLO ADMIN) =====
-    Route::post('/articulo/{id}/actualizar', [ArticuloController::class, 'actualizar'])
+    // 🔥 CORREGIDO: Ahora usa serie en lugar de id
+    Route::put('/articulo/{serie}', [ArticuloController::class, 'actualizar'])
         ->middleware('role:admin')
         ->name('articulo.actualizar');
 
@@ -300,10 +302,10 @@ Route::middleware(['auth', 'single.session'])->group(function () {
         Route::get('/logs/eliminar-rango', [LogController::class, 'eliminarRango'])->name('logs.eliminar.rango');
         Route::get('/logs/eliminar-todos', [LogController::class, 'eliminarTodos'])->name('logs.eliminar.todos');
         
-        // Artículos
-        Route::delete('/api/articulos/{id}', [ArticuloController::class, 'destroy']);
+        // 🔥 CORREGIDO: Artículos - ahora usa serie en lugar de id
+        Route::delete('/api/articulos/{serie}', [ArticuloController::class, 'destroy']);
         
-        // 🔥 Licencias
+        // Licencias
         Route::delete('/api/licencias/{id}', [LicenciaController::class, 'destroy']);
     });
 

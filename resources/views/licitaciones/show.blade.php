@@ -727,7 +727,7 @@
                                                 🔍
                                             </button>
                                         @elseif($detalle->TipoItem == 'HARDWARE' && !empty($detalle->RP))
-                                            <button onclick="window.open('/articulo/{{ $detalle->RP }}', '_blank')"
+                                            <button onclick="window.open('/articulo/{{ $detalle->serie }}', '_blank')"
                                                 class="info-btn-small" title="Ver artículo">
                                                 🔍
                                             </button>

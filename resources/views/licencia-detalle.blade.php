@@ -286,7 +286,7 @@
                                         {{ $art->observacion ?? '—' }}
                                     </td>
                                     <td style="white-space: nowrap;">
-                                        <button onclick="window.open('/articulo/{{ $art->RP }}', '_blank')"
+                                        <button onclick="window.open('/articulo/{{ $art->serie }}', '_blank')"
                                             class="info-btn-small" title="Ver artículo">
                                             !
                                         </button>

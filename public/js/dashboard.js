@@ -143,7 +143,7 @@ function mostrarDatosIniciales() {
                     <td>
                         <div class="rp-container">
                             ${item.RP || 'N/A'}
-                            <button onclick="window.open('/articulo/${item.RP}', '_blank')" class="info-btn" title="Ver detalles">!</button>
+                            <button onclick="window.open('/articulo/${item.serie}', '_blank')" class="info-btn" title="Ver detalles">!</button>
                         </div>
                     </td>
                     <td>${item.producto || 'N/A'}</td>
@@ -311,7 +311,7 @@ function updateTable(resultados) {
                     <td>
                         <div class="rp-container">
                             ${item.RP || 'N/A'}
-                            <button onclick="window.open('/articulo/${item.RP}', '_blank')" class="info-btn" title="Ver detalles">!</button>
+                            <button onclick="window.open('/articulo/${item.serie}', '_blank')" class="info-btn" title="Ver detalles">!</button>
                         </div>
                     </td>
                     <td>${item.producto || 'N/A'}</td>

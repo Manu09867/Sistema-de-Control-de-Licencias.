@@ -972,7 +972,6 @@
                                 <label for="estado_licitacion">Estado</label>
                                 <select id="estado_licitacion" name="estado_licitacion" class="select-tipo">
                                     <option value="">-- Selecciona un estado --</option>
-                                    <option value="Abierta">📂 Abierta</option>
                                     <option value="En proceso">⚙️ En proceso</option>
                                     <option value="Adjudicada">✅ Adjudicada</option>
                                     <option value="Cancelada">❌ Cancelada</option>
