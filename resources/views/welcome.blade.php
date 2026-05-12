@@ -151,11 +151,11 @@ input:focus {
     <div class="right">
         <h2>Iniciar Sesión</h2>
 
-        <form method="POST" action="#">
+        <form method="POST" action="{{ route('login') }}">
             @csrf
 
             <div class="input-group">
-                <input type="user" name="user" placeholder="Usuario" required>
+                <input type="text" name="email" placeholder="Usuario o correo" required>
             </div>
 
             <div class="input-group">

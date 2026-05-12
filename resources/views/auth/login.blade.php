@@ -197,9 +197,9 @@
 
             <div class="input-group">
                 <input 
-                    type="email" 
+                    type="text" 
                     name="email" 
-                    placeholder="Correo electrónico" 
+                    placeholder="Correo electrónico u Nombre de Usuario" 
                     value="{{ old('email') }}"
                     class="@error('email') input-error @enderror"
                     required 
