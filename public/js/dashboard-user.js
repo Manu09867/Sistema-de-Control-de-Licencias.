@@ -143,7 +143,7 @@ function mostrarDatosIniciales() {
                     <td>
                         <div class="rp-container">
                             ${item.RP || 'N/A'}
-                            <button onclick="window.open('/articulo/${item.serie}', '_blank')" class="info-btn" title="Ver detalles">!</button>
+                            <button onclick="window.location.href='/articulo/${item.serie}'" class="info-btn" title="Ver detalles">!</button>
                         </div>
                     </td>
                     <td>${item.producto || 'N/A'}</td>
@@ -178,7 +178,7 @@ function mostrarDatosIniciales() {
                     <td>
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <strong>🔑 Licencia</strong>
-                            <button onclick="window.open('/licencia/${item.licencia_clave}', '_blank')" class="info-btn" style="width: 22px; height: 22px;" title="Ver detalles">!</button>
+                            <button onclick="window.location.href='/licencia/${item.licencia_clave}'" class="info-btn" style="width: 22px; height: 22px;" title="Ver detalles">!</button>
                         </div>
                     </td>
                     <td><span class="estado-badge ${estadoClass}">${item.licencia_estado || 'N/A'}</span></td>
@@ -311,7 +311,7 @@ function updateTable(resultados) {
                     <td>
                         <div class="rp-container">
                             ${item.RP || 'N/A'}
-                            <button onclick="window.open('/articulo/${item.serie}', '_blank')" class="info-btn" title="Ver detalles">!</button>
+                            <button onclick="window.location.href='/articulo/${item.serie}'" class="info-btn" title="Ver detalles">!</button>
                         </div>
                     </td>
                     <td>${item.producto || 'N/A'}</td>
@@ -345,7 +345,7 @@ function updateTable(resultados) {
                     <td>
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <strong>🔑 Licencia</strong>
-                            <button onclick="window.open('/licencia/${item.licencia_clave}', '_blank')" class="info-btn" style="width: 22px; height: 22px;" title="Ver detalles">!</button>
+                            <button onclick="window.location.href='/licencia/${item.licencia_clave}'" class="info-btn" style="width: 22px; height: 22px;" title="Ver detalles">!</button>
                         </div>
                     </td>
                     <td><span class="estado-badge ${estadoClass}">${item.licencia_estado || 'N/A'}</span></td>

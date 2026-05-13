@@ -404,8 +404,8 @@
         document.title = "Licitaciones";
 
         function verDetalle(id) {
-            window.open(`/licitaciones/${id}`, '_blank');
-        }
+    window.location.href = `/licitaciones/${id}`;
+}
 
         // Filtros
         const inputBusqueda = document.getElementById('buscar-licitacion');

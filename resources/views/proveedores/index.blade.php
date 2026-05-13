@@ -251,7 +251,7 @@
                 <div class="filters-wrapper">
                     <div class="search-wrapper">
                         <div class="search-container">
-                            
+
                             <input type="text" id="buscar-proveedor" class="search-input"
                                 placeholder="Buscar por nombre, RFC...">
                         </div>
@@ -324,7 +324,7 @@
 
     <script>
         function verDetalle(id) {
-            window.open(`/proveedores/${id}`, '_blank');
+            window.location.href = `/proveedores/${id}`;
         }
 
         const inputBusqueda = document.getElementById('buscar-proveedor');
@@ -375,6 +375,6 @@
         }
     </script>
     <script>
-    document.title = "Proveedores";
-</script>
+        document.title = "Proveedores";
+    </script>
 </x-app-layout>

@@ -481,9 +481,9 @@
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <a href="javascript:window.close()" class="back-btn">
-                ← Cerrar ventana
-            </a>
+            <a href="javascript:window.close()" class="back-btn" style="visibility: hidden;">
+    ← Cerrar ventana
+</a>
 
             <div class="action-buttons">
                 @if(auth()->check() && auth()->user()->role === 'admin')
