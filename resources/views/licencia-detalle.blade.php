@@ -648,13 +648,13 @@
             if (infoDiv) {
                 infoDiv.innerHTML = `
                         <div style="background: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
-                            <p><strong>📦 Serie:</strong> ${escapeHtml(art.serie) || 'N/A'}</p>
-                            <p><strong>🔖 RP:</strong> ${escapeHtml(art.RP) || 'N/A'}</p>
-                            <p><strong>🏷️ Producto:</strong> ${escapeHtml(art.producto) || 'N/A'}</p>
-                            <p><strong>🏭 Marca:</strong> ${escapeHtml(art.marca) || 'N/A'}</p>
+                            <p><strong>Serie:</strong> ${escapeHtml(art.serie) || 'N/A'}</p>
+                            <p><strong>RP:</strong> ${escapeHtml(art.RP) || 'N/A'}</p>
+                            <p><strong>Producto:</strong> ${escapeHtml(art.producto) || 'N/A'}</p>
+                            <p><strong>Marca:</strong> ${escapeHtml(art.marca) || 'N/A'}</p>
                         </div>
                         <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #0f3057;">📝 Observación (opcional, máx. 85 caracteres):</label>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #0f3057;">Observación (opcional, máx. 85 caracteres):</label>
                             <textarea id="observacionInput" class="campo-observacion" rows="2" maxlength="85" placeholder="Ej: Licencia asignada para equipo de desarrollo..."></textarea>
                             <div id="charCounter" class="char-counter" style="font-size: 12px; color: #666; margin-top: 5px;">0/85</div>
                         </div>
