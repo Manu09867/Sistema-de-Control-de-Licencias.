@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Hash;
 
 class ArticuloController extends Controller
 {
@@ -232,7 +232,7 @@ class ArticuloController extends Controller
 
             // Determinar el total a guardar (con o sin IVA)
             $totalAGuardar = $datos['detalle']['aplicar_iva'] ? $datos['detalle']['total'] : $datos['detalle']['subtotal'];
-            
+
             // Calcular precio con IVA para guardar en el detalle
             $precioConIVA = $datos['detalle']['aplicar_iva'] ? $datos['detalle']['precio_unitario'] * 1.16 : $datos['detalle']['precio_unitario'];
 
@@ -309,7 +309,9 @@ class ArticuloController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => '✅ Artículo(s) creado(s) correctamente. Total: ' . count($datos['articulos']) . ' unidades.',
-                'redirect' => route('dashboard.admin')
+                'redirect' => auth()->user()->role === 'admin'
+                    ? route('dashboard.admin')
+                    : route('dashboard.user')
             ]);
 
         } catch (\Exception $e) {
@@ -519,21 +521,21 @@ class ArticuloController extends Controller
             }
 
             $detalleId = $articulo->idDetalle_Licitacion;
-            
+
             // Obtener el detalle ANTES de modificar nada
             $detalle = DB::table('detalle_licitacion')
                 ->where('idDetalle_Licitacion', $detalleId)
                 ->first();
-            
+
             if (!$detalle) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Detalle de licitación no encontrado'
                 ], 404);
             }
-            
+
             $licitacionId = $detalle->idLicitacion;
-            
+
             // CONTAR cuántos artículos quedan en este detalle (incluyendo el actual)
             $articulosRestantes = DB::table('articulo')
                 ->where('idDetalle_Licitacion', $detalleId)
@@ -558,7 +560,7 @@ class ArticuloController extends Controller
                 // Quedan más artículos, actualizar cantidad y subtotal
                 $nuevaCantidad = $articulosRestantes - 1;
                 $nuevoSubtotal = $nuevaCantidad * $detalle->PrecioU;
-                
+
                 DB::table('detalle_licitacion')
                     ->where('idDetalle_Licitacion', $detalleId)
                     ->update([

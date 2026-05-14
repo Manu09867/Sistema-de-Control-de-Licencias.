@@ -196,7 +196,8 @@ class LicenciaController extends Controller
 
             DB::commit();
 
-            return redirect()->route('dashboard.admin')
+            $ruta = auth()->user()->role === 'admin' ? 'dashboard.admin' : 'dashboard.user';
+            return redirect()->route($ruta)
                 ->with('success', '✅ Licencia creada correctamente');
 
         } catch (\Exception $e) {

@@ -229,10 +229,15 @@ if (searchInput) {
 });
 
 function aplicarFiltros() {
-    const term = searchInput ? searchInput.value : '';
+    const term = searchInput ? searchInput.value.trim() : '';
     const tipo = filtroTipo ? filtroTipo.value : '';
     const area = filtroArea ? filtroArea.value : '';
     const soloLic = soloLicencias ? soloLicencias.checked : false;
+
+    if (!term && !tipo && !area && !soloLic) {
+        mostrarDatosIniciales();
+        return;
+    }
     
     let url = `/buscar-articulos?q=${encodeURIComponent(term)}`;
     if (tipo) url += `&tipo=${tipo}`;

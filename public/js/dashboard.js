@@ -7,10 +7,10 @@ function toggleAddMenu() {
 }
 
 // Cerrar menú al hacer click fuera
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
     const menu = document.getElementById('addMenu');
     const button = document.querySelector('.add-button');
-    
+
     if (button && !button.contains(event.target) && !menu.contains(event.target)) {
         menu.classList.remove('show');
     }
@@ -28,7 +28,7 @@ function cerrarModalArea() {
 }
 
 // Cerrar modal haciendo clic fuera
-window.onclick = function(event) {
+window.onclick = function (event) {
     const modal = document.getElementById('modal-area');
     if (event.target === modal) {
         cerrarModalArea();
@@ -38,10 +38,10 @@ window.onclick = function(event) {
 // Guardar nueva área
 async function guardarArea(event) {
     event.preventDefault();
-    
+
     const nombre = document.getElementById('nombre_area').value.trim();
     const btn = event.target.querySelector('button[type="submit"]');
-    
+
     if (!nombre) {
         mostrarAlerta('error', '❌ El nombre del área es requerido');
         return;
@@ -66,7 +66,7 @@ async function guardarArea(event) {
         if (data.success) {
             mostrarAlerta('success', '✅ Área agregada correctamente');
             cerrarModalArea();
-            
+
             const selectAreas = document.getElementById('filtro-area');
             if (selectAreas) {
                 const option = document.createElement('option');
@@ -90,11 +90,11 @@ async function guardarArea(event) {
 function mostrarAlerta(tipo, mensaje) {
     const alerta = document.getElementById('alerta');
     if (!alerta) return;
-    
+
     alerta.className = `alert-message alert-${tipo}`;
     alerta.textContent = mensaje;
     alerta.style.display = 'block';
-    
+
     setTimeout(() => {
         alerta.style.display = 'none';
     }, 2000);
@@ -114,14 +114,14 @@ const articulosIniciales = window.articulosIniciales || [];
 const licenciasIniciales = window.licenciasIniciales || [];
 
 // Mostrar datos al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     mostrarDatosIniciales();
 });
 
 function mostrarDatosIniciales() {
     let html = '';
     let totalItems = 0;
-    
+
     if (articulosIniciales.length > 0) {
         html += `
             <tr style="background: #e6ecf2;">
@@ -130,12 +130,12 @@ function mostrarDatosIniciales() {
                 </td>
             </tr>
         `;
-        
+
         articulosIniciales.forEach(item => {
             let estadoClass = 'estado-inactivo';
             if (item.estado === 'Activo') estadoClass = 'estado-activo';
             if (item.estado === 'Mantenimiento') estadoClass = 'estado-mantenimiento';
-            
+
             html += `
                 <tr>
                     <td><strong>${item.serie || 'N/A'}</strong></td>
@@ -155,7 +155,7 @@ function mostrarDatosIniciales() {
         });
         totalItems += articulosIniciales.length;
     }
-    
+
     if (licenciasIniciales.length > 0) {
         html += `
             <tr style="background: #e6ecf2;">
@@ -164,15 +164,15 @@ function mostrarDatosIniciales() {
                 </td>
             </tr>
         `;
-        
+
         licenciasIniciales.forEach(item => {
             let estadoClass = 'estado-inactivo';
             if (item.licencia_estado === 'Activa') estadoClass = 'estado-activo';
-            
+
             let vencimiento = item.licencia_vencimiento ? new Date(item.licencia_vencimiento) : null;
             let fechaStr = vencimiento ? vencimiento.toLocaleDateString() : 'N/A';
             const totalEquipos = item.total_articulos_asignados || 0;
-            
+
             html += `
                 <tr style="background: #f8fafc;">
                     <td>
@@ -190,16 +190,16 @@ function mostrarDatosIniciales() {
                     </td>
                     <td colspan="2"><span style="font-size: 12px;">Vence: ${fechaStr}</span></td>
                     <td>
-                        ${totalEquipos > 0 ? 
-                            `<span class="contador-equipos">📊 ${totalEquipos} equipo${totalEquipos !== 1 ? 's' : ''} asignado${totalEquipos !== 1 ? 's' : ''}</span>` : 
-                            '<span style="color: #999;">Sin asignar</span>'}
+                        ${totalEquipos > 0 ?
+                    `<span class="contador-equipos">📊 ${totalEquipos} equipo${totalEquipos !== 1 ? 's' : ''} asignado${totalEquipos !== 1 ? 's' : ''}</span>` :
+                    '<span style="color: #999;">Sin asignar</span>'}
                     </td>
                 </tr>
             `;
         });
         totalItems += licenciasIniciales.length;
     }
-    
+
     if (totalItems === 0) {
         html = `
             <tr>
@@ -209,14 +209,14 @@ function mostrarDatosIniciales() {
             </tr>
         `;
     }
-    
+
     tableBody.innerHTML = html;
     tablaTitulo.innerHTML = `📋 Artículos y Licencias <span>${totalItems} recientes</span>`;
 }
 
 // Event listeners para búsqueda y filtros
 if (searchInput) {
-    searchInput.addEventListener('input', function(e) {
+    searchInput.addEventListener('input', function (e) {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(aplicarFiltros, 300);
     });
@@ -229,16 +229,21 @@ if (searchInput) {
 });
 
 function aplicarFiltros() {
-    const term = searchInput ? searchInput.value : '';
+    const term = searchInput ? searchInput.value.trim() : '';
     const tipo = filtroTipo ? filtroTipo.value : '';
     const area = filtroArea ? filtroArea.value : '';
     const soloLic = soloLicencias ? soloLicencias.checked : false;
-    
+
+    if (!term && !tipo && !area && !soloLic) {
+        mostrarDatosIniciales();
+        return;
+    }
+
     let url = `/buscar-articulos?q=${encodeURIComponent(term)}`;
     if (tipo) url += `&tipo=${tipo}`;
     if (area) url += `&area=${area}`;
     if (soloLic) url += `&solo_licencias=1`;
-    
+
     if (tableBody) {
         tableBody.innerHTML = `
             <tr>
@@ -249,29 +254,29 @@ function aplicarFiltros() {
             </tr>
         `;
     }
-    
+
     fetch(url, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
-    .then(response => response.json())
-    .then(data => updateTable(data))
-    .catch(error => {
-        console.error('Error:', error);
-        if (tableBody) {
-            tableBody.innerHTML = `
+        .then(response => response.json())
+        .then(data => updateTable(data))
+        .catch(error => {
+            console.error('Error:', error);
+            if (tableBody) {
+                tableBody.innerHTML = `
                 <tr>
                     <td colspan="7" style="text-align: center; padding: 40px; color: #dc3545;">
                         ❌ Error al aplicar filtros
                     </td>
                 </tr>
             `;
-        }
-    });
+            }
+        });
 }
 
 function updateTable(resultados) {
     if (!tableBody) return;
-    
+
     if (resultados.length === 0) {
         tableBody.innerHTML = `
             <tr>
@@ -283,13 +288,13 @@ function updateTable(resultados) {
         if (tablaTitulo) tablaTitulo.innerHTML = `📋 Resultados <span>0</span>`;
         return;
     }
-    
+
     let html = '';
     let totalItems = resultados.length;
-    
+
     const articulos = resultados.filter(r => r.tipo === 'articulo');
     const licencias = resultados.filter(r => r.tipo === 'licencia');
-    
+
     if (articulos.length > 0) {
         html += `
             <tr style="background: #e6ecf2;">
@@ -298,12 +303,12 @@ function updateTable(resultados) {
                 </td>
             </tr>
         `;
-        
+
         articulos.forEach(item => {
             let estadoClass = 'estado-inactivo';
             if (item.estado === 'Activo') estadoClass = 'estado-activo';
             if (item.estado === 'Mantenimiento') estadoClass = 'estado-mantenimiento';
-            
+
             html += `
                 <tr>
                     <td><strong>${item.serie || 'N/A'}</strong></td>
@@ -322,7 +327,7 @@ function updateTable(resultados) {
             `;
         });
     }
-    
+
     if (licencias.length > 0) {
         html += `
             <tr style="background: #e6ecf2;">
@@ -331,15 +336,15 @@ function updateTable(resultados) {
                 </td>
             </tr>
         `;
-        
+
         licencias.forEach(item => {
             let estadoClass = 'estado-inactivo';
             if (item.licencia_estado === 'Activa') estadoClass = 'estado-activo';
-            
+
             let vencimiento = item.licencia_vencimiento ? new Date(item.licencia_vencimiento) : null;
             let fechaStr = vencimiento ? vencimiento.toLocaleDateString() : 'N/A';
             const totalEquipos = item.total_articulos_asignados || 0;
-            
+
             html += `
                 <tr style="background: #f8fafc;">
                     <td>
@@ -357,21 +362,21 @@ function updateTable(resultados) {
                     </td>
                     <td colspan="2"><span style="font-size: 12px;">Vence: ${fechaStr}</span></td>
                     <td>
-                        ${totalEquipos > 0 ? 
-                            `<span class="contador-equipos">📊 ${totalEquipos} equipo${totalEquipos !== 1 ? 's' : ''} asignado${totalEquipos !== 1 ? 's' : ''}</span>` : 
-                            '<span style="color: #999;">Sin asignar</span>'}
+                        ${totalEquipos > 0 ?
+                    `<span class="contador-equipos">📊 ${totalEquipos} equipo${totalEquipos !== 1 ? 's' : ''} asignado${totalEquipos !== 1 ? 's' : ''}</span>` :
+                    '<span style="color: #999;">Sin asignar</span>'}
                     </td>
                 </tr>
             `;
         });
     }
-    
+
     tableBody.innerHTML = html;
     if (tablaTitulo) tablaTitulo.innerHTML = `📋 Resultados de búsqueda <span>${totalItems}</span>`;
 }
 
 // Cerrar alerta con Escape
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         const alerta = document.getElementById('alerta');
         if (alerta && alerta.style.display === 'block') {
@@ -444,7 +449,7 @@ async function confirmarEliminar() {
             mostrarAlerta('success', data.message);
             cerrarModalEliminar();
 
-            
+
             setTimeout(() => {
                 location.reload();
             }, 500);
