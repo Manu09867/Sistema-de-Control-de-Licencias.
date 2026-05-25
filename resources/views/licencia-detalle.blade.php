@@ -14,9 +14,9 @@
     <div class="container">
         <!-- Botón de regreso y acciones -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <a href="javascript:window.close()" class="back-btn" style="visibility: hidden;">
-    ← Cerrar ventana
-</a>
+            <a href="{{ url('/dashboard') }}" class="back-btn">
+                ← Ir al Inicio
+            </a>
 
             <div class="action-buttons">
                 @if(auth()->check() && auth()->user()->role === 'admin')
@@ -286,7 +286,7 @@
                                         {{ $art->observacion ?? '—' }}
                                     </td>
                                     <td style="white-space: nowrap;">
-                                        <button onclick="window.open('/articulo/{{ $art->serie }}', '_blank')"
+                                        <button onclick="window.location.href='/articulo/{{ $art->serie }}'"
                                             class="info-btn-small" title="Ver artículo">
                                             !
                                         </button>

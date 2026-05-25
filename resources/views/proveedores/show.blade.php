@@ -336,7 +336,7 @@
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <a href="{{ url()->previous() }}" class="back-btn" style="visibility: hidden;">
+            <a href="{{ url()->previous() }}" class="back-btn">
                 ← Volver
             </a>
 

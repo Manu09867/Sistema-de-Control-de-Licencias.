@@ -29,9 +29,9 @@
     <div class="container">
         <!-- Botón de regreso y acciones -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <a href="javascript:window.close()" class="back-btn" style="visibility: hidden;">
-    ← Cerrar ventana
-</a>
+          <a href="{{ url()->previous() }}" class="back-btn">
+                ← Volver
+            </a>
             
             <div class="action-buttons">
                 @if(auth()->check() && auth()->user()->role === 'admin')
