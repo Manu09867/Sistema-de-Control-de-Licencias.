@@ -481,9 +481,9 @@
 <body>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <a href="{{ url()->previous() }}" class="back-btn">
-                ← Volver
-            </a>
+            <a href="{{ route('licitaciones.index') }}" class="back-btn">
+    ← Volver a Licitaciones
+</a>
 
             <div class="action-buttons">
                 @if(auth()->check() && auth()->user()->role === 'admin')
@@ -722,15 +722,15 @@
 
                                     <td>
                                         @if($detalle->TipoItem == 'SOFTWARE' && !empty($detalle->RP))
-                                            <button onclick="window.open('/licencia/{{ $detalle->RP }}', '_blank')"
-                                                class="info-btn-small" title="Ver licencia">
-                                                🔍
-                                            </button>
+                                            <button onclick="window.location.href='/licencia/{{ $detalle->RP }}'"
+    class="info-btn-small" title="Ver licencia">
+    🔍
+</button>
                                         @elseif($detalle->TipoItem == 'HARDWARE' && !empty($detalle->RP))
-                                            <button onclick="window.open('/articulo/{{ $detalle->serie }}', '_blank')"
-                                                class="info-btn-small" title="Ver artículo">
-                                                🔍
-                                            </button>
+                                            <button onclick="window.location.href='/articulo/{{ $detalle->serie }}'"
+    class="info-btn-small" title="Ver artículo">
+    🔍
+</button>
                                         @else
                                             —
                                         @endif
